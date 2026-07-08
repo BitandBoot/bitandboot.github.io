@@ -122,7 +122,12 @@
                     <li><strong>BL:</strong> Bootloader binary configuration asset.</li>
                     <li><strong>AP:</strong> Main system core architecture package (Takes the longest to verify).</li>
                     <li><strong>CP:</strong> Modem baseband operational firmware.</li>
-                    <li><strong>CSC:</strong> Partition remapping table that forces a clean state initialization.</li>
+                    <li><strong>CSC Slot Options (CRITICAL DISTINCTION):</strong> 
+                        <ul>
+                            <li><strong>Standard CSC_*** Binary:</strong> This forces a hard system re-partitioning via the PIT (Partition Information Table). It completely wipes the <code>/data</code> block, erasing all user files, photos, and apps to establish a pristine system state. <strong>This is mandatory for downgrades</strong> to prevent older kernels from panicking over newer system databases.</li>
+                            <li><strong>HOME_CSC_*** Binary:</strong> This updates carrier configurations but bypasses the formatting execution loop. It <strong>retains all user data completely intact</strong>. This should only be used for standard version upgrades, never for a structural software rollback.</li>
+                        </ul>
+                    </li>
                 </ul>
             </li>
             <li>Click <strong>Start</strong>. Do not touch the cable or move the device until Odin prints a green <strong>PASS!</strong> box in the upper left section.</li>
