@@ -128,9 +128,11 @@
             <p>Welcome to <strong>bitandboot</strong>. This platform is dedicated to deep-dive technical explanations of how code compiles down, interacts with silicon, and executes. No superficial tech headlines here—just raw data, structural logic, architectural flowcharts, and exhaustive summaries designed for systems developers and device engineers.</p>
         </section>
 
-        <h2 style="color: #fff; margin-bottom: 1.5rem;">Recent Engineering Guides</h2>
+        <h2 style="color: #fff; margin-top: 3rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">Engineering Categories</h2>
         
-        <div class="grid">
+        <!-- CATEGORY 1: MOBILE SERVICING -->
+        <h3 style="color: var(--accent-color); margin: 2rem 0 1rem 0;">📁 Mobile Servicing & Firmware</h3>
+        <div class="grid" style="margin-bottom: 2rem;">
             <a href="samsung-touch-issue-guide.html" class="article-link">
                 <div class="card">
                     <div class="category">Mobile Servicing</div>
@@ -138,15 +140,6 @@
                     <p>Deconstructing Touch IC firmware mismatches in One UI, executing clean SamFirm/Odin rollbacks, and avoiding dangerous charging jack interface failures.</p>
                 </div>
             </a>
-
-            <a href="dimensity-frp-hardware-guide.html" class="article-link">
-                <div class="card">
-                    <div class="category">Hardware Engineering</div>
-                    <h3>Beyond Software Exploits: Why Modern MediaTek Dimensity FRP Requires Motherboard Drilling</h3>
-                    <p>Breaking down why cryptographic protection protocols and eFuses render software suites useless, forcing direct UFS chip-level micro-drilling.</p>
-                </div>
-            </a>
-
             <a href="edl-mode-guide.html" class="article-link">
                 <div class="card">
                     <div class="category">Firmware & Tools</div>
@@ -154,18 +147,56 @@
                     <p>An in-depth look at how Qualcomm Boot ROM handles Emergency Download states when primary partition targets fail.</p>
                 </div>
             </a>
+        </div>
 
-            <div class="card">
-                <div class="category">Low-Level Code</div>
-                <h3>Visualizing Stack vs. Heap in C++ Memory Allocation</h3>
-                <p>Breaking down pointer execution mechanics, cache hits, and performance overhead differences without the academic fluff.</p>
-            </div>
+        <!-- CATEGORY 2: HARDWARE ENGINEERING -->
+        <h3 style="color: var(--accent-color); margin: 2rem 0 1rem 0;">🔬 Chip-Level & Hardware Engineering</h3>
+        <div class="grid" style="margin-bottom: 2rem;">
+            <a href="dimensity-frp-hardware-guide.html" class="article-link">
+                <div class="card">
+                    <div class="category">Hardware Engineering</div>
+                    <h3>Beyond Software Exploits: Why Modern MediaTek Dimensity FRP Requires Motherboard Drilling</h3>
+                    <p>Breaking down why cryptographic protection protocols and eFuses render software suites useless, forcing direct UFS chip-level micro-drilling.</p>
+                </div>
+            </a>
+        </div>
 
-            <div class="card">
-                <div class="category">System Architecture</div>
-                <h3>How Mobile CPUs Think: An Introduction to ARM Layouts</h3>
-                <p>Exploring raw processing loops, flash storage structures, and how kernels talk straight to bare-metal hardware registers.</p>
-            </div>
+        <!-- CATEGORY 3: TOOLCHAIN MECHANICS -->
+        <h3 style="color: var(--accent-color); margin: 2rem 0 1rem 0;">🔌 Toolchain Mechanics & Forensic Servicing</h3>
+        <div class="grid" style="margin-bottom: 2rem;">
+            <a href="windows-dse-gsm-tools.html" class="article-link">
+                <div class="card">
+                    <div class="category">Toolchain Mechanics</div>
+                    <h3>Why Windows Driver Signature Enforcement (DSE) Breaks GSM Tools: Registry Patches for Flashing Drivers</h3>
+                    <p>How third-party servicing tools deploy temporary, unsigned virtual drivers to handle raw USB COM traffic, and the specific BCDEDIT overrides required to prevent execution blocking.</p>
+                </div>
+            </a>
+            <a href="vbus-cc-physics-flashing.html" class="article-link">
+                <div class="card">
+                    <div class="category">Signal Integrity</div>
+                    <h3>The Physics of Flashing: How Degraded Type-C VBUS and CC Pins Drop Serial Connections During 4GB AP Flashes</h3>
+                    <p>Analyzing voltage drops across degraded sub-board data pins. Learn how unstable line resistance forces flash utilities like Odin or Chimera to drop communication loops mid-operation.</p>
+                </div>
+            </a>
+        </div>
+
+        <!-- CATEGORY 4: PARTITION FORENSICS -->
+        <h3 style="color: var(--accent-color); margin: 2rem 0 1rem 0;">💽 Partition Forensics & Low-Level Architecture</h3>
+        <div class="grid" style="margin-bottom: 2rem;">
+            <a href="demystifying-rpmb-partition.html" class="article-link">
+                <div class="card">
+                    <div class="category">Partition Forensics</div>
+                    <h3>Demystifying the RPMB: How Smartphone Hardware Binds Flash Storage to Specific CPUs</h3>
+                    <p>An architectural breakdown of the Replay Protected Memory Block. Explore how JEDEC storage standards use HMAC-SHA-256 keys and monotonic counters to prevent clean hardware parts swapping.</p>
+                </div>
+            </a>
+            <a href="nvram-nvdata-cellular-repair.html" class="article-link">
+                <div class="card">
+                    <div class="category">Low-Level Architecture</div>
+                    <h3>Recovering Lost Baseband: Managing /nvram, /nvdata, and Security Registers in MediaTek Environments</h3>
+                    <p>Mapping out the non-volatile storage blocks responsible for cellular calibration, serial identifiers, and radio frequency tuning when partitions become corrupted.</p>
+                </div>
+            </a>
         </div>
     </main>
 
