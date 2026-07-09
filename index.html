@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BitandBoot</title>
+    <title>BitandBoot - Systems Engineering Hub</title>
     <meta name="description" content="bitandboot - A deep-dive engineering hub dedicated to low-level code compilation, firmware architectures, and device systems execution.">
     <meta name="keywords" content="Low level systems, C++, Firmware optimization, Embedded engineering, Android firmware kernel, ARM architecture">
     <meta name="robots" content="index, follow">
@@ -15,6 +15,9 @@
             --accent-color: #58a6ff;
             --card-bg: #161b22;
             --border-color: #30363d;
+            --badge-easy: #56d364;
+            --badge-hard: #f85149;
+            --badge-medium: #e3b341;
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
@@ -43,39 +46,60 @@
             font-size: 1.1rem;
             margin-top: 0.5rem;
         }
-        main {
-            max-width: 900px;
+        
+        /* Layout Structure Grid */
+        .layout-wrapper {
+            max-width: 1100px;
             margin: 2rem auto;
             padding: 0 1rem;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
         }
+        
+        @media (max-width: 850px) {
+            .layout-wrapper {
+                grid-template-columns: 1fr;
+            }
+        }
+
         .intro-box {
             background: linear-gradient(45deg, #1f2937, #111827);
             border: 1px solid var(--border-color);
             border-radius: 6px;
             padding: 1.5rem;
-            margin-bottom: 3rem;
+            margin-bottom: 2rem;
         }
         .intro-box h2 {
             margin-top: 0;
             color: #fff;
         }
+        
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
+            grid-template-columns: 1fr;
+            gap: 1.25rem;
         }
+        
         .card {
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 6px;
             padding: 1.5rem;
-            height: 100%;
             box-sizing: border-box;
             transition: transform 0.2s, border-color 0.2s;
         }
         .card:hover {
             transform: translateY(-2px);
             border-color: var(--accent-color);
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
         }
         .card .category {
             font-size: 0.8rem;
@@ -84,8 +108,26 @@
             font-weight: 600;
             letter-spacing: 1px;
         }
+        
+        /* Badges styling */
+        .badge-group {
+            display: flex;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+        }
+        .badge {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+            background: rgba(255,255,255,0.05);
+        }
+        .badge.easy { color: var(--badge-easy); border: 1px solid rgba(86, 211, 100, 0.3); }
+        .badge.medium { color: var(--badge-medium); border: 1px solid rgba(227, 179, 65, 0.3); }
+        .badge.hard { color: var(--badge-hard); border: 1px solid rgba(248, 81, 73, 0.3); }
+        .badge.time { color: #8b949e; border: 1px solid var(--border-color); }
+
         .card h3 {
-            margin: 0.5rem 0;
+            margin: 0.25rem 0 0.5rem 0;
             color: #fff;
         }
         .card p {
@@ -93,6 +135,50 @@
             font-size: 0.95rem;
             margin-bottom: 0;
         }
+        .article-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        /* Sidebar Elements */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        .sidebar-widget {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 1.5rem;
+        }
+        .sidebar-widget h3 {
+            color: #fff;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+        .tag-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .tag-item {
+            font-size: 0.8rem;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: #8b949e;
+            padding: 4px 10px;
+            border-radius: 4px;
+            text-decoration: none;
+        }
+        .tag-item:hover {
+            border-color: var(--accent-color);
+            color: #fff;
+        }
+
         footer {
             text-align: center;
             padding: 3rem 1rem;
@@ -100,11 +186,6 @@
             font-size: 0.85rem;
             border-top: 1px solid var(--border-color);
             margin-top: 4rem;
-        }
-        .article-link {
-            text-decoration: none;
-            color: inherit;
-            display: block;
         }
     </style>
 </head>
@@ -122,84 +203,121 @@
         <div class="tagline">Demystifying software bits, firmware architectures, and systems execution.</div>
     </header>
 
-    <main>
-        <section class="intro-box">
-            <h2>The Engineering Philosophy</h2>
-            <p>Welcome to <strong>bitandboot</strong>. This platform is dedicated to deep-dive technical explanations of how code compiles down, interacts with silicon, and executes. No superficial tech headlines here—just raw data, structural logic, architectural flowcharts, and exhaustive summaries designed for systems developers and device engineers.</p>
-        </section>
-
-        <h2 style="color: #fff; margin-top: 3rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">Engineering Categories</h2>
+    <div class="layout-wrapper">
         
-        <!-- CATEGORY 1: MOBILE SERVICING -->
-        <h3 style="color: var(--accent-color); margin: 2rem 0 1rem 0;">📁 Mobile Servicing & Firmware</h3>
-        <div class="grid" style="margin-bottom: 2rem;">
-            <a href="samsung-touch-issue-guide.html" class="article-link">
-                <div class="card">
-                    <div class="category">Mobile Servicing</div>
-                    <h3>Fixing Samsung M34 5G Touch Dead After Update: Firmware Downgrade Methods</h3>
-                    <p>Deconstructing Touch IC firmware mismatches in One UI, executing clean SamFirm/Odin rollbacks, and avoiding dangerous charging jack interface failures.</p>
-                </div>
-            </a>
-            <a href="edl-mode-guide.html" class="article-link">
-                <div class="card">
-                    <div class="category">Firmware & Tools</div>
-                    <h3>Demystifying EDL Mode: Recovering Hard-Bricked Devices via Unlocktool</h3>
-                    <p>An in-depth look at how Qualcomm Boot ROM handles Emergency Download states when primary partition targets fail.</p>
-                </div>
-            </a>
-        </div>
+        <main>
+            <section class="intro-box">
+                <h2>The Engineering Philosophy</h2>
+                <p>Welcome to <strong>bitandboot</strong>. This platform is dedicated to deep-dive technical explanations of how code compiles down, interacts with silicon, and executes. No superficial tech headlines here—just raw data, structural logic, and exhaustive summaries designed for systems developers and device engineers.</p>
+            </section>
 
-        <!-- CATEGORY 2: HARDWARE ENGINEERING -->
-        <h3 style="color: var(--accent-color); margin: 2rem 0 1rem 0;">🔬 Chip-Level & Hardware Engineering</h3>
-        <div class="grid" style="margin-bottom: 2rem;">
-            <a href="dimensity-frp-hardware-guide.html" class="article-link">
-                <div class="card">
-                    <div class="category">Hardware Engineering</div>
-                    <h3>Beyond Software Exploits: Why Modern MediaTek Dimensity FRP Requires Motherboard Drilling</h3>
-                    <p>Breaking down why cryptographic protection protocols and eFuses render software suites useless, forcing direct UFS chip-level micro-drilling.</p>
-                </div>
-            </a>
-        </div>
+            <h2 style="color: #fff; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">Recent Engineering Guides</h2>
+            
+            <h3 style="color: var(--accent-color); margin: 1.5rem 0 1rem 0;">📁 Mobile Servicing & Firmware</h3>
+            <div class="grid" style="margin-bottom: 2rem;">
+                <a href="samsung-touch-issue-guide.html" class="article-link">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="category">Mobile Servicing</div>
+                            <div class="badge-group">
+                                <span class="badge time">⏱️ 6 Min</span>
+                                <span class="badge medium">🟢 Intermediate</span>
+                            </div>
+                        </div>
+                        <h3>Fixing Samsung M34 5G Touch Dead After Update: Firmware Downgrade Methods</h3>
+                        <p>Deconstructing Touch IC firmware mismatches in One UI, executing clean SamFirm/Odin rollbacks, and avoiding dangerous charging jack interface failures.</p>
+                    </div>
+                </a>
+                <a href="edl-mode-guide.html" class="article-link">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="category">Firmware & Tools</div>
+                            <div class="badge-group">
+                                <span class="badge time">⏱️ 4 Min</span>
+                                <span class="badge easy">🟢 Beginner</span>
+                            </div>
+                        </div>
+                        <h3>Demystifying EDL Mode: Recovering Hard-Bricked Devices via Unlocktool</h3>
+                        <p>An in-depth look at how Qualcomm Boot ROM handles Emergency Download states when primary partition targets fail.</p>
+                    </div>
+                </a>
+            </div>
 
-        <!-- CATEGORY 3: TOOLCHAIN MECHANICS -->
-        <h3 style="color: var(--accent-color); margin: 2rem 0 1rem 0;">🔌 Toolchain Mechanics & Forensic Servicing</h3>
-        <div class="grid" style="margin-bottom: 2rem;">
-            <a href="windows-dse-gsm-tools.html" class="article-link">
-                <div class="card">
-                    <div class="category">Toolchain Mechanics</div>
-                    <h3>Why Windows Driver Signature Enforcement (DSE) Breaks GSM Tools: Registry Patches for Flashing Drivers</h3>
-                    <p>How third-party servicing tools deploy temporary, unsigned virtual drivers to handle raw USB COM traffic, and the specific BCDEDIT overrides required to prevent execution blocking.</p>
-                </div>
-            </a>
-            <a href="vbus-cc-physics-flashing.html" class="article-link">
-                <div class="card">
-                    <div class="category">Signal Integrity</div>
-                    <h3>The Physics of Flashing: How Degraded Type-C VBUS and CC Pins Drop Serial Connections During 4GB AP Flashes</h3>
-                    <p>Analyzing voltage drops across degraded sub-board data pins. Learn how unstable line resistance forces flash utilities like Odin or Chimera to drop communication loops mid-operation.</p>
-                </div>
-            </a>
-        </div>
+            <h3 style="color: var(--accent-color); margin: 1.5rem 0 1rem 0;">🔬 Chip-Level & Hardware Engineering</h3>
+            <div class="grid" style="margin-bottom: 2rem;">
+                <a href="dimensity-frp-hardware-guide.html" class="article-link">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="category">Hardware Engineering</div>
+                            <div class="badge-group">
+                                <span class="badge time">⏱️ 10 Min</span>
+                                <span class="badge hard">🔴 Advanced</span>
+                            </div>
+                        </div>
+                        <h3>Beyond Software Exploits: Why Modern MediaTek Dimensity FRP Requires Motherboard Drilling</h3>
+                        <p>Breaking down why cryptographic protection protocols and eFuses render software suites useless, forcing direct UFS chip-level micro-drilling.</p>
+                    </div>
+                </a>
+            </div>
 
-        <!-- CATEGORY 4: PARTITION FORENSICS -->
-        <h3 style="color: var(--accent-color); margin: 2rem 0 1rem 0;">💽 Partition Forensics & Low-Level Architecture</h3>
-        <div class="grid" style="margin-bottom: 2rem;">
-            <a href="demystifying-rpmb-partition.html" class="article-link">
-                <div class="card">
-                    <div class="category">Partition Forensics</div>
-                    <h3>Demystifying the RPMB: How Smartphone Hardware Binds Flash Storage to Specific CPUs</h3>
-                    <p>An architectural breakdown of the Replay Protected Memory Block. Explore how JEDEC storage standards use HMAC-SHA-256 keys and monotonic counters to prevent clean hardware parts swapping.</p>
-                </div>
-            </a>
-            <a href="nvram-nvdata-cellular-repair.html" class="article-link">
-                <div class="card">
-                    <div class="category">Low-Level Architecture</div>
-                    <h3>Recovering Lost Baseband: Managing /nvram, /nvdata, and Security Registers in MediaTek Environments</h3>
-                    <p>Mapping out the non-volatile storage blocks responsible for cellular calibration, serial identifiers, and radio frequency tuning when partitions become corrupted.</p>
-                </div>
-            </a>
-        </div>
-    </main>
+            <h3 style="color: var(--accent-color); margin: 1.5rem 0 1rem 0;">🔌 Toolchain Mechanics & Forensic Servicing</h3>
+            <div class="grid" style="margin-bottom: 2rem;">
+                <a href="windows-dse-gsm-tools.html" class="article-link">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="category">Toolchain Mechanics</div>
+                            <div class="badge-group">
+                                <span class="badge time">⏱️ 5 Min</span>
+                                <span class="badge easy">🟢 Beginner</span>
+                            </div>
+                        </div>
+                        <h3>Why Windows Driver Signature Enforcement (DSE) Breaks GSM Tools: Registry Patches for Flashing Drivers</h3>
+                        <p>How third-party servicing tools deploy temporary, unsigned virtual drivers to handle raw USB COM traffic, and the specific BCDEDIT overrides required to prevent execution blocking.</p>
+                    </div>
+                </a>
+            </div>
 
+            <h3 style="color: var(--accent-color); margin: 1.5rem 0 1rem 0;">💽 Partition Forensics & Low-Level Architecture</h3>
+            <div class="grid" style="margin-bottom: 2rem;">
+                <a href="demystifying-rpmb-partition.html" class="article-link">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="category">Partition Forensics</div>
+                            <div class="badge-group">
+                                <span class="badge time">⏱️ 8 Min</span>
+                                <span class="badge hard">🔴 Advanced</span>
+                            </div>
+                        </div>
+                        <h3>Demystifying the RPMB: How Smartphone Hardware Binds Flash Storage to Specific CPUs</h3>
+                        <p>An architectural breakdown of the Replay Protected Memory Block. Explore how JEDEC storage standards use HMAC-SHA-256 keys and monotonic counters to prevent clean hardware parts swapping.</p>
+                    </div>
+                </a>
+            </div>
+        </main>
+        
+        <aside class="sidebar">
+            <div class="sidebar-widget">
+                <h3>📌 Trending Tech Tags</h3>
+                <div class="tag-cloud">
+                    <a href="#" class="tag-item">#Firmware</a>
+                    <a href="#" class="tag-item">#Qualcomm</a>
+                    <a href="#" class="tag-item">#MediaTek</a>
+                    <a href="#" class="tag-item">#UFS_ISP</a>
+                    <a href="#" class="tag-item">#OdinFlashing</a>
+                    <a href="#" class="tag-item">#WindowsKernel</a>
+                    <a href="#" class="tag-item">#RPMB_Crypto</a>
+                    <a href="#" class="tag-item">#Unlocktool</a>
+                    <a href="#" class="tag-item">#EDL_Mode</a>
+                </div>
+            </div>
+            
+            <div class="sidebar-widget">
+                <h3>📢 Workbench Status</h3>
+                <p style="font-size: 0.9rem; color: #8b949e; margin: 0;"> Monitoring and documenting real-world firmware panics and board-level security revisions as they show up on the test bench.</p>
+            </div>
+        </aside>
+
+    </div>
     <footer>
         &copy; 2026 bitandboot. Built on GitHub Pages. Completely Open Source.
     </footer>
