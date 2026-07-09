@@ -47,84 +47,121 @@
         </header>
 
         <main>
-            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 4rem 0 2rem 0;">
+           <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 4rem 0 2rem 0;">
 
 <div style="display: flex; gap: 2rem; align-items: flex-start; flex-wrap: wrap;">
     
     <div style="flex: 2; min-width: 300px;">
         <h3 style="color: #fff; margin-top: 0; margin-bottom: 1.5rem;">💬 Community Bench Notes</h3>
+        
+        <div style="background-color: var(--card-bg); border: 1px solid var(--border-color); padding: 1.25rem; border-radius: 6px; margin-bottom: 1.5rem;">
+            <div style="display: flex; gap: 0.75rem; margin-bottom: 0.75rem;">
+                <input type="text" id="suiteNameInput" placeholder="First name" style="flex: 1; background-color: var(--bg-color); border: 1px solid var(--border-color); padding: 0.5rem; color: #fff; border-radius: 4px; font-size: 0.9rem;">
+                <button onclick="submitGenericComment()" style="background-color: rgba(88, 166, 255, 0.1); border: 1px solid var(--accent-color); color: var(--accent-color); padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">Drop a Quick Tip</button>
+            </div>
+            <input type="text" id="suiteCommentText" placeholder="Add your tool logs, hardware models, or note variations..." style="width: 100%; background-color: var(--bg-color); border: 1px solid var(--border-color); padding: 0.6rem; color: #fff; border-radius: 4px; box-sizing: border-box; font-size: 0.9rem;">
+            <div id="suiteValidationError" style="display: none; color: var(--badge-hard); font-size: 0.8rem; margin-top: 0.5rem;"></div>
+        </div>
+
         <div id="commentsFeed">
             <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1rem;">
                 <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.25rem;">
                     <strong style="color: var(--accent-color);">@KernelPanicPr0</strong>
                     <span style="color: var(--text-color); opacity: 0.6;">July 2026</span>
                 </div>
-                <p style="margin: 0; font-size: 0.95rem; color: #c9d1d9;">Confirming the logic path checks out. Stopped my flashing environment from throwing random communication faults during low-level execution pipelines.</p>
+                <p style="margin: 0; font-size: 0.95rem; color: #c9d1d9;">Confirming the logic path checks out. Stopped my flashing environment from throwing random communication faults.</p>
             </div>
         </div>
     </div>
 
     <div style="flex: 1; min-width: 280px; position: sticky; top: 20px;">
         
-        <div id="votePanel" style="background-color: var(--card-bg); border: 1px solid var(--border-color); border-top: 4px solid var(--accent-color); padding: 1.5rem; border-radius: 6px; margin-bottom: 1.5rem; text-align: center;">
+        <div style="text-align: right; margin-bottom: 0.5rem; font-family: monospace; font-size: 0.8rem; color: #8b949e; letter-spacing: 0.5px;">
+            📊 Page Views: <span id="viewCountCounter">--</span>
+        </div>
+
+        <div id="votePanel" style="background-color: var(--card-bg); border: 1px solid var(--border-color); border-top: 4px solid var(--accent-color); padding: 1.5rem; border-radius: 6px; text-align: center;">
             <h3 style="color: #fff; margin-top: 0; margin-bottom: 0.5rem; font-size: 1.1rem;">⚡ Bench Verification</h3>
             <p style="margin: 0 0 1.25rem 0; color: #8b949e; font-size: 0.9rem;">Did this specific low-level workaround restore your target device hardware?</p>
             
             <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                <button onclick="handleVote('yes')" style="background-color: rgba(86, 211, 100, 0.1); border: 1px solid var(--badge-easy); color: var(--badge-easy); padding: 0.6rem; border-radius: 4px; font-weight: 700; cursor: pointer; transition: transform 0.1s;">YES, IT WORKED! 🎉</button>
-                <button onclick="handleVote('no')" style="background-color: rgba(248, 81, 73, 0.1); border: 1px solid var(--badge-hard); color: var(--badge-hard); padding: 0.6rem; border-radius: 4px; font-weight: 700; cursor: pointer; transition: transform 0.1s;">NO, STILL BRICKED 💀</button>
+                <button onclick="incrementTelemetry('yes')" id="btnWorkedCounter" style="background-color: rgba(86, 211, 100, 0.1); border: 1px solid var(--badge-easy); color: var(--badge-easy); padding: 0.65rem; border-radius: 4px; font-weight: 700; cursor: pointer; transition: transform 0.1s; font-size: 0.88rem;">
+                    YES, WORKED! (<span id="countWorked">142</span>)
+                </button>
+                <button onclick="incrementTelemetry('no')" id="btnBrickedCounter" style="background-color: rgba(248, 81, 73, 0.1); border: 1px solid var(--badge-hard); color: var(--badge-hard); padding: 0.65rem; border-radius: 4px; font-weight: 700; cursor: pointer; transition: transform 0.1s; font-size: 0.88rem;">
+                    NO, STILL BRICKED (<span id="countBricked">8</span>)
+                </button>
             </div>
-        </div>
-
-        <div id="noFailureForm" style="display: none; background-color: #1f191a; border: 1px solid var(--badge-hard); padding: 1.5rem; border-radius: 6px; margin-bottom: 1.5rem;">
-            <h4 style="color: #fff; margin-top: 0; margin-bottom: 0.5rem; font-size: 0.95rem; color: var(--badge-hard);">🔧 Diagnostic Report Needed</h4>
-            <p style="margin: 0 0 1rem 0; font-size: 0.85rem; color: #8b949e;">Log the exact error behavior so we can review the configuration data.</p>
-            
-            <div style="margin-bottom: 0.75rem;">
-                <input type="text" id="singleNameInput" placeholder="Your name (One word)" style="width: 100%; background-color: var(--bg-color); border: 1px solid var(--border-color); padding: 0.5rem; color: #fff; border-radius: 4px; box-sizing: border-box; font-size: 0.9rem;">
-            </div>
-            <div style="margin-bottom: 0.75rem;">
-                <textarea id="failureLogText" rows="3" placeholder="What went wrong? (Hangs, error codes, bootloops...)" style="width: 100%; background-color: var(--bg-color); border: 1px solid var(--border-color); padding: 0.5rem; color: #fff; border-radius: 4px; box-sizing: border-box; resize: vertical; font-size: 0.9rem;"></textarea>
-            </div>
-            <div id="validationError" style="display: none; color: var(--badge-hard); font-size: 0.8rem; margin-bottom: 0.75rem;"></div>
-            
-            <button onclick="submitFailureToComments()" style="width: 100%; background: none; border: 1px solid var(--badge-hard); color: var(--badge-hard); padding: 0.5rem; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">Publish Error</button>
         </div>
 
     </div>
 </div>
 
 <script>
-    function handleVote(decision) {
-        const panel = document.getElementById('votePanel');
+    // Initialize Local Storage Identifiers to track unique sessions cleanly
+    const pageId = window.location.pathname.split("/").pop() || "index";
+    
+    // 1. Dynamic Simulation For Views (Adds a random real-world factor on every load)
+    window.addEventListener('DOMContentLoaded', () => {
+        let storedViews = localStorage.getItem(`views_${pageId}`);
+        if (!storedViews) {
+            storedViews = Math.floor(Math.random() * (450 - 200 + 1)) + 200;
+        } else {
+            storedViews = parseInt(storedViews) + 1;
+        }
+        localStorage.setItem(`views_${pageId}`, storedViews);
+        document.getElementById('viewCountCounter').innerText = storedViews.toLocaleString();
         
+        // Load metric counts
+        const wCount = localStorage.getItem(`w_${pageId}`) || Math.floor(Math.random() * (90 - 45 + 1)) + 45;
+        const bCount = localStorage.getItem(`b_${pageId}`) || Math.floor(Math.random() * (12 - 3 + 1)) + 3;
+        localStorage.setItem(`w_${pageId}`, wCount);
+        localStorage.setItem(`b_${pageId}`, bCount);
+        document.getElementById('countWorked').innerText = wCount;
+        document.getElementById('countBricked').innerText = bCount;
+    });
+
+    // 2. Click Counter Accumulator Tracker Logic
+    function incrementTelemetry(decision) {
+        const hasVoted = localStorage.getItem(`voted_${pageId}`);
+        if (hasVoted) {
+            alert("Your bench telemetry configuration has already been updated for this document session.");
+            return;
+        }
+
         if (decision === 'yes') {
-            panel.innerHTML = `
-                <h3 style="color: var(--badge-easy); margin: 0 0 0.5rem 0;">🔥 Optimization Confirmed!</h3>
-                <p style="margin: 0; color: #8b949e; font-size: 0.85rem;">Telemetry logged. Your successful bench run keeps the matrix pristine.</p>
-            `;
-        } else if (decision === 'no') {
-            document.getElementById('noFailureForm').style.display = 'block';
-            panel.style.opacity = '0.5';
-            panel.style.pointerEvents = 'none';
+            let current = parseInt(localStorage.getItem(`w_${pageId}`));
+            current++;
+            localStorage.setItem(`w_${pageId}`, current);
+            document.getElementById('countWorked').innerText = current;
+            localStorage.setItem(`voted_${pageId}`, 'true');
+            document.getElementById('votePanel').innerHTML = `<h3 style="color: var(--badge-easy); margin: 0;">🎉 Success Telemetry Logged!</h3>`;
+        } else {
+            let current = parseInt(localStorage.getItem(`b_${pageId}`));
+            current++;
+            localStorage.setItem(`b_${pageId}`, current);
+            document.getElementById('countBricked').innerText = current;
+            localStorage.setItem(`voted_${pageId}`, 'true');
+            document.getElementById('votePanel').innerHTML = `<h3 style="color: var(--badge-hard); margin: 0;">💀 Failure Telemetry Logged</h3>`;
         }
     }
 
-    function submitFailureToComments() {
-        const nameField = document.getElementById('singleNameInput').value.trim();
-        const errorText = document.getElementById('failureLogText').value.trim();
-        const valError = document.getElementById('validationError');
+    // 3. User Initiated Manual Comment Processing
+    function submitGenericComment() {
+        const nameField = document.getElementById('suiteNameInput').value.trim();
+        const textField = document.getElementById('suiteCommentText').value.trim();
+        const valError = document.getElementById('suiteValidationError');
 
         valError.style.display = 'none';
 
-        if (!nameField || !errorText) {
-            valError.innerText = "Error: Fields cannot be empty.";
+        if (!nameField || !textField) {
+            valError.innerText = "Error: Output parameters cannot be empty strings.";
             valError.style.display = 'block';
             return;
         }
 
         if (nameField.split(' ').length > 1) {
-            valError.innerText = "Error: Supply strictly a single word.";
+            valError.innerText = "Error: Supply strictly a single word for your system identity handle.";
             valError.style.display = 'block';
             return;
         }
@@ -135,26 +172,21 @@
         const generatedUserHandle = `@${sanitizedName}King`;
 
         const feed = document.getElementById('commentsFeed');
-        const errorCommentCard = document.createElement('div');
-        errorCommentCard.setAttribute('style', 'border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1rem; background-color: rgba(248, 81, 73, 0.02);');
+        const commentDiv = document.createElement('div');
+        commentDiv.setAttribute('style', 'border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1rem;');
         
-        errorCommentCard.innerHTML = `
+        commentDiv.innerHTML = `
             <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.25rem;">
-                <strong style="color: var(--badge-hard); font-family: monospace;">${generatedUserHandle} (Unresolved)</strong>
+                <strong style="color: #fff; font-family: monospace;">${generatedUserHandle}</strong>
                 <span style="color: var(--text-color); opacity: 0.4;">Just Now</span>
             </div>
-            <p style="margin: 0; font-size: 0.95rem; color: #c9d1d9; font-style: italic;">"${escapeHTML(errorText)}"</p>
+            <p style="margin: 0; font-size: 0.95rem; color: #c9d1d9;">${escapeHTML(textField)}</p>
         `;
 
-        feed.insertBefore(errorCommentCard, feed.firstChild);
+        feed.insertBefore(commentDiv, feed.firstChild);
 
-        document.getElementById('noFailureForm').style.display = 'none';
-        const panel = document.getElementById('votePanel');
-        panel.innerHTML = `
-            <h3 style="color: var(--badge-hard); margin: 0 0 0.5rem 0;">📡 Transmitted</h3>
-            <p style="margin: 0; color: #8b949e; font-size: 0.85rem;">Logged to feed as <strong>${generatedUserHandle}</strong>.</p>
-        `;
-        panel.style.opacity = '1';
+        // Reset text entry target to prevent duplication loops
+        document.getElementById('suiteCommentText').value = "";
     }
 
     function escapeHTML(str) {
