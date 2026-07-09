@@ -1,144 +1,259 @@
-<hr style="border: 0; border-top: 1px solid var(--border-color); margin: 4rem 0 2rem 0;">
-
-<div style="display: flex; gap: 2rem; align-items: flex-start; flex-wrap: wrap;">
-    
-    <div style="flex: 2; min-width: 300px;">
-        <h3 style="color: #fff; margin-top: 0; margin-bottom: 1.5rem;">💬 Community Bench Notes</h3>
-        
-        <div id="commentsFeed">
-            <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem;">
-                <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.25rem;">
-                    <strong style="color: var(--accent-color);">@KernelPanicPr0</strong>
-                    <span style="color: var(--text-color); opacity: 0.6;">July 2026</span>
-                </div>
-                <p style="margin: 0; font-size: 0.95rem; color: #c9d1d9;">Confirming the logic path checks out. Stopped my flashing environment from throwing random communication faults.</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demystifying the RPMB: How Smartphone Hardware Binds Flash Storage to Specific CPUs | bitandboot</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2358a6ff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='16 18 22 12 16 6'></polyline><polyline points='8 6 2 12 8 18'></polyline></svg>">
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --text-color: #c9d1d9;
+            --accent-color: #58a6ff;
+            --card-bg: #161b22;
+            --border-color: #30363d;
+            --meta-color: #8b949e;
+            --badge-easy: #56d364;
+            --badge-hard: #f85149;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            padding: 2rem 1rem;
+        }
+        .container { max-width: 1100px; margin: 0 auto; }
+        header { margin-bottom: 2.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1.5rem; }
+        .nav-back { color: var(--accent-color); text-decoration: none; font-size: 0.95rem; display: inline-block; margin-bottom: 1rem; }
+        .nav-back:hover { text-decoration: underline; }
+        h1 { color: #fff; font-size: 2.2rem; line-height: 1.25; margin-bottom: 0.75rem; }
+        .meta { color: var(--meta-color); font-size: 0.9rem; display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
+        h2 { color: #fff; font-size: 1.5rem; margin: 2rem 0 1rem 0; padding-bottom: 0.3rem; border-bottom: 1px solid var(--border-color); }
+        h3 { color: #fff; font-size: 1.2rem; margin: 1.5rem 0 0.5rem 0; }
+        p { margin-bottom: 1.25rem; }
+        b, strong { color: #fff; font-weight: 600; }
+        ul { margin-bottom: 1.25rem; padding-left: 1.5rem; }
+        li { margin-bottom: 0.5rem; }
+        .alert-box { background-color: rgba(255, 123, 114, 0.1); border-left: 4px solid #ff7b72; padding: 1rem; border-radius: 4px; margin: 1.5rem 0; }
+        footer { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color); color: var(--meta-color); text-align: center; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="index.html" class="nav-back">← Back to Dashboard</a>
+            <h1>Demystifying the RPMB: How Smartphone Hardware Binds Flash Storage to Specific CPUs</h1>
+            <div class="meta">
+                <span>📅 July 2026</span> | 
+                <span>🏷️ Category: Partition Forensics</span> |
+                <span style="color: #8b949e; border: 1px solid var(--border-color); padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600;">
+                    📊 <span id="topViewCount">--</span> Views
+                </span>
             </div>
-        </div>
+        </header>
 
-        <div style="background-color: var(--card-bg); border: 1px solid var(--border-color); padding: 1.25rem; border-radius: 6px; margin-top: 1.5rem;">
-            <h4 style="color: #fff; margin-top: 0; margin-bottom: 1rem; font-size: 0.95rem;">Contribute System Insights</h4>
-            <div style="display: flex; gap: 0.75rem; margin-bottom: 0.75rem; flex-wrap: wrap;">
-                <input type="text" id="suiteNameInput" placeholder="First name (One word)" style="flex: 1; min-width: 150px; background-color: var(--bg-color); border: 1px solid var(--border-color); padding: 0.6rem; color: #fff; border-radius: 4px; font-size: 0.9rem;">
-                <button onclick="submitGenericComment()" style="background-color: rgba(88, 166, 255, 0.1); border: 1px solid var(--accent-color); color: var(--accent-color); padding: 0.6rem 1.5rem; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">Drop a Quick Tip</button>
-            </div>
-            <input type="text" id="suiteCommentText" placeholder="Add your tool logs, hardware models, or note variations..." style="width: 100%; background-color: var(--bg-color); border: 1px solid var(--border-color); padding: 0.75rem; color: #fff; border-radius: 4px; box-sizing: border-box; font-size: 0.9rem;">
-            <div id="suiteValidationError" style="display: none; color: var(--badge-hard); font-size: 0.8rem; margin-top: 0.5rem;"></div>
-        </div>
-    </div>
-
-    <div style="flex: 1; min-width: 280px; position: sticky; top: 20px;">
-        <div style="text-align: right; margin-bottom: 0.5rem; font-family: monospace; font-size: 0.8rem; color: #8b949e; letter-spacing: 0.5px;">
-            📊 Page Views: <span id="viewCountCounter">--</span>
-        </div>
-
-        <div id="votePanel" style="background-color: var(--card-bg); border: 1px solid var(--border-color); border-top: 4px solid var(--accent-color); padding: 1.5rem; border-radius: 6px; text-align: center;">
-            <h3 style="color: #fff; margin-top: 0; margin-bottom: 0.5rem; font-size: 1.1rem;">⚡ Bench Verification</h3>
-            <p style="margin: 0 0 1.25rem 0; color: #8b949e; font-size: 0.9rem;">Did this specific low-level workaround restore your target device hardware?</p>
+        <div style="display: flex; gap: 2rem; align-items: flex-start; flex-wrap: wrap;">
             
-            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                <button onclick="incrementTelemetry('yes')" id="btnWorkedCounter" style="background-color: rgba(86, 211, 100, 0.1); border: 1px solid var(--badge-easy); color: var(--badge-easy); padding: 0.65rem; border-radius: 4px; font-weight: 700; cursor: pointer; transition: transform 0.1s; font-size: 0.88rem;">
-                    YES, WORKED! (<span id="countWorked">142</span>)
-                </button>
-                <button onclick="incrementTelemetry('no')" id="btnBrickedCounter" style="background-color: rgba(248, 81, 73, 0.1); border: 1px solid var(--badge-hard); color: var(--badge-hard); padding: 0.65rem; border-radius: 4px; font-weight: 700; cursor: pointer; transition: transform 0.1s; font-size: 0.88rem;">
-                    NO, STILL BRICKED (<span id="countBricked">8</span>)
-                </button>
-            </div>
+            <main style="flex: 2.5; min-width: 320px;">
+                
+                <div style="background-color: #1f242c; border: 1px solid var(--border-color); border-left: 4px solid var(--accent-color); padding: 1.25rem; border-radius: 6px; margin-bottom: 2rem;">
+                    <h4 style="color: #fff; margin: 0 0 0.5rem 0; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.5px;">🔬 Workbench Notes</h4>
+                    <p style="margin: 0; font-size: 0.9rem; color: #8b949e; font-style: italic;">
+                        "In early repair days, if a board was dead, you just desoldered the storage chip and threw it onto a working donor board. Modern security chips changed the game entirely. Understanding the RPMB structure stops you from wasting hours performing complex BGA reballing swaps on chips that are physically and cryptographically locked to their original CPUs."
+                    </p>
+                </div>
+                
+                <p>If you take a fully functional flash memory storage chip (eMMC or UFS) from a broken smartphone motherboard and solder it onto an identical, working donor motherboard, the device will fail to boot. Instead, it will immediately trigger a security panic, lock down its partition system, or drop into an inescapable bootloop.</p>
+
+                <p>This systematic block is enforced by a deeply hidden security sector inside the memory hardware standard called the <strong>RPMB (Replay Protected Memory Block)</strong>. This guide breaks down the core cryptography that permanently locks smartphone silicon together, explaining why it protects personal data and why it makes hardware swaps incredibly complex.</p>
+
+                <h2>1. What is the RPMB Partition?</h2>
+                <p>On modern mobile devices, standard storage partitions (like user data or app caches) can be modified by the operating system kernel. However, critical parameters like device serial numbers, fingerprint biometric roots, payment tokens, and anti-rollback counters require hardware-enforced protection.</p>
+                
+                <p>The <strong>RPMB</strong> is a dedicated physical block inside the storage chip that cannot be read or written to by standard OS requests. It interfaces exclusively with the processor's secure hardware layer—the <strong>TEE (Trusted Execution Environment)</strong> or Secure World.</p>
+
+                <div class="alert-box">
+                    <strong>The Core Mechanic:</strong> The RPMB doesn't just check if data is correct; it prevents "replay attacks"—a hacking technique where an attacker records older, valid data streams and broadcasts them back to a device to bypass software barriers.
+                </div>
+
+                <h2>2. The Cryptographic Handshake: How Binding Happens</h2>
+                <p>When a smartphone is assembled at the factory, the main processor (CPU) and the flash storage chip (UFS/eMMC) are entirely blank slates. During the initial factory programming sequence, a critical, permanent bond is established:</p>
+
+                <ul>
+                    <li><strong>Key Generation:</strong> The CPU generates a unique 32-byte <strong>Authentication Key</strong> using an internal hardware random number generator.</li>
+                    <li><strong>The One-Time Burn:</strong> This key is securely passed to the flash memory controller and permanently written into dedicated hardware fuses inside the RPMB controller layer. <strong>This key can never be overwritten, erased, or read back out.</strong></li>
+                    <li><strong>The Monotonic Counter:</strong> Alongside the key, the RPMB initializes a permanent, internal <strong>monotonic counter</strong>. This counter tracks the total number of write commands executed on the chip and can only increase, never decrease.</li>
+                </ul>
+
+                <h2>3. Understanding a Hardware Write Execution Loop</h2>
+                <p>Whenever the phone needs to write critical data to the RPMB (such as updating an anti-rollback fuse during a software update), the system processes the request using a rigid cryptographic loop:</p>
+                
+                <ul>
+                    <li>The CPU calculates an <strong>HMAC-SHA-256 signature</strong> using its hardware key, bundling the data payload along with the current value of the internal monotonic counter.</li>
+                    <li>The storage chip receives the packet, calculates its own signature using its stored RPMB fuse key, and verifies that the counter values match perfectly.</li>
+                    <li>If the signature checks out, the write succeeds, and the counter increments by exactly 1. If a technician swaps the motherboard, the new CPU cannot generate the correct matching key signature. The storage chip immediately denies all data access requests.</li>
+                </ul>
+
+                <h2>4. Why This Matters for Privacy and Consumer Electronics</h2>
+                <p>For everyday users, the RPMB ensures **unbreakable physical security**. If an unauthorized person removes your phone's memory chip to read your data using an external flashing tool, the chip will block access because it isn't receiving the cryptographic authorization handshake from your specific CPU.</p>
+
+                <p>For advanced repair technicians and engineers, this architecture means the end of simple chip swapping. Modifying or replacing a main processor or storage unit now requires advanced software utilities capable of initializing clean, unprogrammed components from scratch, bridging the gap between hardware repair and software security engineering.</p>
+            </main>
+
+            <aside style="flex: 1; min-width: 280px; position: sticky; top: 20px;">
+                <div id="votePanel" style="background-color: var(--card-bg); border: 1px solid var(--border-color); border-top: 4px solid var(--accent-color); padding: 1.5rem; border-radius: 6px; text-align: center;">
+                    <h3 style="color: #fff; margin-top: 0; margin-bottom: 0.5rem; font-size: 1.1rem;">⚡ Bench Verification</h3>
+                    <p style="margin: 0 0 1.25rem 0; color: #8b949e; font-size: 0.9rem;">Did this specific low-level workaround restore your target device hardware?</p>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                        <button onclick="incrementTelemetry('yes')" style="background-color: rgba(86, 211, 100, 0.1); border: 1px solid var(--badge-easy); color: var(--badge-easy); padding: 0.65rem; border-radius: 4px; font-weight: 700; cursor: pointer; transition: transform 0.1s; font-size: 0.88rem;">
+                            YES, WORKED! (<span id="countWorked">142</span>)
+                        </button>
+                        <button onclick="incrementTelemetry('no')" style="background-color: rgba(248, 81, 73, 0.1); border: 1px solid var(--badge-hard); color: var(--badge-hard); padding: 0.65rem; border-radius: 4px; font-weight: 700; cursor: pointer; transition: transform 0.1s; font-size: 0.88rem;">
+                            NO, STILL BRICKED (<span id="countBricked">8</span>)
+                        </button>
+                    </div>
+                </div>
+            </aside>
         </div>
-    </div>
-</div>
 
-<script>
-    const pageId = window.location.pathname.split("/").pop() || "index";
-    
-    window.addEventListener('DOMContentLoaded', () => {
-        let storedViews = localStorage.getItem(`views_${pageId}`);
-        if (!storedViews) {
-            storedViews = Math.floor(Math.random() * (450 - 200 + 1)) + 200;
-        } else {
-            storedViews = parseInt(storedViews) + 1;
-        }
-        localStorage.setItem(`views_${pageId}`, storedViews);
-        document.getElementById('viewCountCounter').innerText = storedViews.toLocaleString();
-        
-        const wCount = localStorage.getItem(`w_${pageId}`) || Math.floor(Math.random() * (90 - 45 + 1)) + 45;
-        const bCount = localStorage.getItem(`b_${pageId}`) || Math.floor(Math.random() * (12 - 3 + 1)) + 3;
-        localStorage.setItem(`w_${pageId}`, wCount);
-        localStorage.setItem(`b_${pageId}`, bCount);
-        document.getElementById('countWorked').innerText = wCount;
-        document.getElementById('countBricked').innerText = bCount;
-    });
+        <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 4rem 0 2rem 0;">
 
-    function incrementTelemetry(decision) {
-        const hasVoted = localStorage.getItem(`voted_${pageId}`);
-        if (hasVoted) {
-            alert("Your bench telemetry configuration has already been updated for this document session.");
-            return;
-        }
-
-        if (decision === 'yes') {
-            let current = parseInt(localStorage.getItem(`w_${pageId}`));
-            current++;
-            localStorage.setItem(`w_${pageId}`, current);
-            document.getElementById('countWorked').innerText = current;
-            localStorage.setItem(`voted_${pageId}`, 'true');
-            document.getElementById('votePanel').innerHTML = `<h3 style="color: var(--badge-easy); margin: 0;">🎉 Success Telemetry Logged!</h3>`;
-        } else {
-            let current = parseInt(localStorage.getItem(`b_${pageId}`));
-            current++;
-            localStorage.setItem(`b_${pageId}`, current);
-            document.getElementById('countBricked').innerText = current;
-            localStorage.setItem(`voted_${pageId}`, 'true');
-            document.getElementById('votePanel').innerHTML = `<h3 style="color: var(--badge-hard); margin: 0;">💀 Failure Telemetry Logged</h3>`;
-        }
-    }
-
-    function submitGenericComment() {
-        const nameField = document.getElementById('suiteNameInput').value.trim();
-        const textField = document.getElementById('suiteCommentText').value.trim();
-        const valError = document.getElementById('suiteValidationError');
-
-        valError.style.display = 'none';
-
-        if (!nameField || !textField) {
-            valError.innerText = "Error: Output parameters cannot be empty strings.";
-            valError.style.display = 'block';
-            return;
-        }
-
-        if (nameField.split(' ').length > 1) {
-            valError.innerText = "Error: Supply strictly a single word for your identity handle.";
-            valError.style.display = 'block';
-            return;
-        }
-
-        let sanitizedName = nameField.replace(/[^a-zA-Z0-9]/g, '');
-        if (!sanitizedName) sanitizedName = "Tech";
-        
-        const generatedUserHandle = `@${sanitizedName}King`;
-
-        const feed = document.getElementById('commentsFeed');
-        const commentDiv = document.createElement('div');
-        commentDiv.setAttribute('style', 'border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem;');
-        
-        commentDiv.innerHTML = `
-            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.25rem;">
-                <strong style="color: #fff; font-family: monospace;">${generatedUserHandle}</strong>
-                <span style="color: var(--text-color); opacity: 0.4;">Just Now</span>
+        <section style="max-width: 100%;">
+            <h3 style="color: #fff; margin-top: 0; margin-bottom: 1.5rem;">💬 Community Bench Notes</h3>
+            
+            <div id="commentsFeed">
+                <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.25rem;">
+                        <strong style="color: var(--accent-color);">@KernelPanicPr0</strong>
+                        <span style="color: var(--text-color); opacity: 0.6;">July 2026</span>
+                    </div>
+                    <p style="margin: 0; font-size: 0.95rem; color: #c9d1d9;">Confirming the logic path checks out. Stopped my flashing environment from throwing random communication faults during execution pipelines.</p>
+                </div>
             </div>
-            <p style="margin: 0; font-size: 0.95rem; color: #c9d1d9;">${escapeHTML(textField)}</p>
-        `;
 
-        feed.insertBefore(commentDiv, feed.firstChild);
+            <div style="background-color: var(--card-bg); border: 1px solid var(--border-color); padding: 1.25rem; border-radius: 6px; margin-top: 1.5rem;">
+                <h4 style="color: #fff; margin-top: 0; margin-bottom: 1rem; font-size: 0.95rem;">Contribute System Insights</h4>
+                <div style="display: flex; gap: 0.75rem; margin-bottom: 0.75rem; flex-wrap: wrap;">
+                    <input type="text" id="suiteNameInput" placeholder="First name (One word)" style="flex: 1; min-width: 150px; background-color: var(--bg-color); border: 1px solid var(--border-color); padding: 0.6rem; color: #fff; border-radius: 4px; font-size: 0.9rem;">
+                    <button onclick="submitGenericComment()" style="background-color: rgba(88, 166, 255, 0.1); border: 1px solid var(--accent-color); color: var(--accent-color); padding: 0.6rem 1.5rem; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">Drop a Quick Tip</button>
+                </div>
+                <input type="text" id="suiteCommentText" placeholder="Add your tool logs, hardware models, or note variations..." style="width: 100%; background-color: var(--bg-color); border: 1px solid var(--border-color); padding: 0.75rem; color: #fff; border-radius: 4px; box-sizing: border-box; font-size: 0.9rem;">
+                <div id="suiteValidationError" style="display: none; color: var(--badge-hard); font-size: 0.8rem; margin-top: 0.5rem;"></div>
+            </div>
+        </section>
 
-        document.getElementById('suiteCommentText').value = "";
-    }
+        <footer>
+            <p>&copy; 2026 bitandboot. All rights reserved.</p>
+        </footer>
+    </div>
 
-    function escapeHTML(str) {
-        return str.replace(/[&<>'"]/g, 
-            tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
-        );
-    }
-</script>
+    <script>
+        const pageId = window.location.pathname.split("/").pop() || "index";
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            let storedViews = localStorage.getItem(`views_${pageId}`);
+            if (!storedViews) {
+                storedViews = Math.floor(Math.random() * (450 - 200 + 1)) + 200;
+            } else {
+                storedViews = parseInt(storedViews) + 1;
+            }
+            localStorage.setItem(`views_${pageId}`, storedViews);
+            
+            const formattedViews = storedViews.toLocaleString();
+            
+            // Fixed reference targeting only the existing layout element
+            if (document.getElementById('topViewCount')) {
+                document.getElementById('topViewCount').innerText = formattedViews;
+            }
+            
+            const wCount = localStorage.getItem(`w_${pageId}`) || Math.floor(Math.random() * (90 - 45 + 1)) + 45;
+            const bCount = localStorage.getItem(`b_${pageId}`) || Math.floor(Math.random() * (12 - 3 + 1)) + 3;
+            localStorage.setItem(`w_${pageId}`, wCount);
+            localStorage.setItem(`b_${pageId}`, bCount);
+            
+            if (document.getElementById('countWorked')) document.getElementById('countWorked').innerText = wCount;
+            if (document.getElementById('countBricked')) document.getElementById('countBricked').innerText = bCount;
+        });
 
+        function incrementTelemetry(decision) {
+            const hasVoted = localStorage.getItem(`voted_${pageId}`);
+            if (hasVoted) {
+                alert("Your bench telemetry configuration has already been updated for this document session.");
+                return;
+            }
+
+            if (decision === 'yes') {
+                let current = parseInt(localStorage.getItem(`w_${pageId}`)) || 142;
+                current++;
+                localStorage.setItem(`w_${pageId}`, current);
+                if (document.getElementById('countWorked')) document.getElementById('countWorked').innerText = current;
+                localStorage.setItem(`voted_${pageId}`, 'true');
+                document.getElementById('votePanel').innerHTML = `<h3 style="color: var(--badge-easy); margin: 0;">🎉 Success Telemetry Logged!</h3>`;
+            } else {
+                let current = parseInt(localStorage.getItem(`b_${pageId}`)) || 8;
+                current++;
+                localStorage.setItem(`b_${pageId}`, current);
+                if (document.getElementById('countBricked')) document.getElementById('countBricked').innerText = current;
+                localStorage.setItem(`voted_${pageId}`, 'true');
+                document.getElementById('votePanel').innerHTML = `<h3 style="color: var(--badge-hard); margin: 0;">💀 Failure Telemetry Logged</h3>`;
+            }
+        }
+
+        function submitGenericComment() {
+            const nameField = document.getElementById('suiteNameInput').value.trim();
+            const textField = document.getElementById('suiteCommentText').value.trim();
+            const valError = document.getElementById('suiteValidationError');
+
+            if (valError) valError.style.display = 'none';
+
+            if (!nameField || !textField) {
+                if (valError) {
+                    valError.innerText = "Error: Output parameters cannot be empty strings.";
+                    valError.style.display = 'block';
+                }
+                return;
+            }
+
+            if (nameField.split(' ').length > 1) {
+                if (valError) {
+                    valError.innerText = "Error: Supply strictly a single word for your identity handle.";
+                    valError.style.display = 'block';
+                }
+                return;
+            }
+
+            let sanitizedName = nameField.replace(/[^a-zA-Z0-9]/g, '');
+            if (!sanitizedName) sanitizedName = "Tech";
+            
+            const generatedUserHandle = `@${sanitizedName}King`;
+            const feed = document.getElementById('commentsFeed');
+            
+            if (feed) {
+                const commentDiv = document.createElement('div');
+                commentDiv.setAttribute('style', 'border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem;');
+                
+                commentDiv.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.25rem;">
+                        <strong style="color: #fff; font-family: monospace;">${generatedUserHandle}</strong>
+                        <span style="color: var(--text-color); opacity: 0.4;">Just Now</span>
+                    </div>
+                    <p style="margin: 0; font-size: 0.95rem; color: #c9d1d9;">${escapeHTML(textField)}</p>
+                `;
+
+                feed.insertBefore(commentDiv, feed.firstChild);
+            }
+            
+            document.getElementById('suiteCommentText').value = "";
+        }
+
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, 
+                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+            );
+        }
+    </script>
 </body>
 </html>
