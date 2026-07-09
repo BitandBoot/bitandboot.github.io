@@ -47,7 +47,6 @@
             margin-top: 0.5rem;
         }
         
-        /* Layout Structure Grid */
         .layout-wrapper {
             max-width: 1100px;
             margin: 2rem auto;
@@ -81,15 +80,27 @@
             gap: 1.25rem;
         }
         
+        /* Wrapper for handling category header hiding along with filtered items */
+        .category-section {
+            margin-bottom: 2rem;
+        }
+
+        .card-wrapper {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
         .card {
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 6px;
             padding: 1.5rem;
             box-sizing: border-box;
-            transition: transform 0.2s, border-color 0.2s;
+            transition: border-color 0.2s;
         }
-        .card:hover {
+        .card-wrapper:hover .card {
             transform: translateY(-2px);
             border-color: var(--accent-color);
         }
@@ -109,7 +120,6 @@
             letter-spacing: 1px;
         }
         
-        /* Badges styling */
         .badge-group {
             display: flex;
             gap: 0.5rem;
@@ -134,11 +144,6 @@
             color: #8b949e;
             font-size: 0.95rem;
             margin-bottom: 0;
-        }
-        .article-link {
-            text-decoration: none;
-            color: inherit;
-            display: block;
         }
 
         /* Sidebar Elements */
@@ -173,10 +178,38 @@
             padding: 4px 10px;
             border-radius: 4px;
             text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
         }
-        .tag-item:hover {
+        .tag-item:hover, .tag-item.active {
             border-color: var(--accent-color);
             color: #fff;
+            background-color: rgba(88, 166, 255, 0.1);
+        }
+
+        /* Active Filter Indicator Status Banner */
+        .filter-status {
+            display: none;
+            background-color: rgba(88, 166, 255, 0.1);
+            border: 1px solid var(--accent-color);
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            margin-bottom: 1.5rem;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .clear-filter-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: #fff;
+            padding: 2px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+        .clear-filter-btn:hover {
+            border-color: var(--badge-hard);
+            color: var(--badge-hard);
         }
 
         footer {
@@ -208,119 +241,188 @@
         <main>
             <section class="intro-box">
                 <h2>The Engineering Philosophy</h2>
-                <p>Welcome to <strong>bitandboot</strong>. This platform is dedicated to deep-dive technical explanations of how code compiles down, interacts with silicon, and executes. No superficial tech headlines here—just raw data, structural logic, and exhaustive summaries designed for systems developers and device engineers.</p>
+                <p>Welcome to <strong>bitandboot</strong>. This platform is dedicated to deep-dive technical explanations of how code compiles down, interacts with silicon, and executes.</p>
             </section>
 
-            <h2 style="color: #fff; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">Recent Engineering Guides</h2>
+            <div id="filterStatus" class="filter-status">
+                <span>Active Filter: <strong id="activeTagName" style="color: var(--accent-color);"></strong></span>
+                <button class="clear-filter-btn" onclick="clearFilter()">Clear Filter ×</button>
+            </div>
+
+            <h2 id="feedHeading" style="color: #fff; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">Recent Engineering Guides</h2>
             
-            <h3 style="color: var(--accent-color); margin: 1.5rem 0 1rem 0;">📁 Mobile Servicing & Firmware</h3>
-            <div class="grid" style="margin-bottom: 2rem;">
-                <a href="samsung-touch-issue-guide.html" class="article-link">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="category">Mobile Servicing</div>
-                            <div class="badge-group">
-                                <span class="badge time">⏱️ 6 Min</span>
-                                <span class="badge medium">🟢 Intermediate</span>
+            <div class="category-section">
+                <h3 class="category-title" style="color: var(--accent-color); margin: 1.5rem 0 1rem 0;">📁 Mobile Servicing & Firmware</h3>
+                <div class="grid">
+                    <a href="samsung-touch-issue-guide.html" class="card-wrapper" data-tags="firmware odinflashing samfirm">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="category">Mobile Servicing</div>
+                                <div class="badge-group">
+                                    <span class="badge time">⏱️ 6 Min</span>
+                                    <span class="badge medium">🟢 Intermediate</span>
+                                </div>
                             </div>
+                            <h3>Fixing Samsung M34 5G Touch Dead After Update: Firmware Downgrade Methods</h3>
+                            <p>Deconstructing Touch IC firmware mismatches in One UI, executing clean SamFirm/Odin rollbacks, and avoiding dangerous charging jack interface failures.</p>
                         </div>
-                        <h3>Fixing Samsung M34 5G Touch Dead After Update: Firmware Downgrade Methods</h3>
-                        <p>Deconstructing Touch IC firmware mismatches in One UI, executing clean SamFirm/Odin rollbacks, and avoiding dangerous charging jack interface failures.</p>
-                    </div>
-                </a>
-                <a href="edl-mode-guide.html" class="article-link">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="category">Firmware & Tools</div>
-                            <div class="badge-group">
-                                <span class="badge time">⏱️ 4 Min</span>
-                                <span class="badge easy">🟢 Beginner</span>
+                    </a>
+                    <a href="edl-mode-guide.html" class="card-wrapper" data-tags="firmware edl_mode unlocktool qualcomm">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="category">Firmware & Tools</div>
+                                <div class="badge-group">
+                                    <span class="badge time">⏱️ 4 Min</span>
+                                    <span class="badge easy">🟢 Beginner</span>
+                                </div>
                             </div>
+                            <h3>Demystifying EDL Mode: Recovering Hard-Bricked Devices via Unlocktool</h3>
+                            <p>An in-depth look at how Qualcomm Boot ROM handles Emergency Download states when primary partition targets fail.</p>
                         </div>
-                        <h3>Demystifying EDL Mode: Recovering Hard-Bricked Devices via Unlocktool</h3>
-                        <p>An in-depth look at how Qualcomm Boot ROM handles Emergency Download states when primary partition targets fail.</p>
-                    </div>
-                </a>
+                    </a>
+                </div>
             </div>
 
-            <h3 style="color: var(--accent-color); margin: 1.5rem 0 1rem 0;">🔬 Chip-Level & Hardware Engineering</h3>
-            <div class="grid" style="margin-bottom: 2rem;">
-                <a href="dimensity-frp-hardware-guide.html" class="article-link">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="category">Hardware Engineering</div>
-                            <div class="badge-group">
-                                <span class="badge time">⏱️ 10 Min</span>
-                                <span class="badge hard">🔴 Advanced</span>
+            <div class="category-section">
+                <h3 class="category-title" style="color: var(--accent-color); margin: 1.5rem 0 1rem 0;">🔬 Chip-Level & Hardware Engineering</h3>
+                <div class="grid">
+                    <a href="dimensity-frp-hardware-guide.html" class="card-wrapper" data-tags="ufs_isp mediatek chip_level">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="category">Hardware Engineering</div>
+                                <div class="badge-group">
+                                    <span class="badge time">⏱️ 10 Min</span>
+                                    <span class="badge hard">🔴 Advanced</span>
+                                </div>
                             </div>
+                            <h3>Beyond Software Exploits: Why Modern MediaTek Dimensity FRP Requires Motherboard Drilling</h3>
+                            <p>Breaking down why cryptographic protection protocols and eFuses render software suites useless, forcing direct UFS chip-level micro-drilling.</p>
                         </div>
-                        <h3>Beyond Software Exploits: Why Modern MediaTek Dimensity FRP Requires Motherboard Drilling</h3>
-                        <p>Breaking down why cryptographic protection protocols and eFuses render software suites useless, forcing direct UFS chip-level micro-drilling.</p>
-                    </div>
-                </a>
+                    </a>
+                </div>
             </div>
 
-            <h3 style="color: var(--accent-color); margin: 1.5rem 0 1rem 0;">🔌 Toolchain Mechanics & Forensic Servicing</h3>
-            <div class="grid" style="margin-bottom: 2rem;">
-                <a href="windows-dse-gsm-tools.html" class="article-link">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="category">Toolchain Mechanics</div>
-                            <div class="badge-group">
-                                <span class="badge time">⏱️ 5 Min</span>
-                                <span class="badge easy">🟢 Beginner</span>
+            <div class="category-section">
+                <h3 class="category-title" style="color: var(--accent-color); margin: 1.5rem 0 1rem 0;">🔌 Toolchain Mechanics & Forensic Servicing</h3>
+                <div class="grid">
+                    <a href="windows-dse-gsm-tools.html" class="card-wrapper" data-tags="windowskernel unlocktool firmware">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="category">Toolchain Mechanics</div>
+                                <div class="badge-group">
+                                    <span class="badge time">⏱️ 5 Min</span>
+                                    <span class="badge easy">🟢 Beginner</span>
+                                </div>
                             </div>
+                            <h3>Why Windows Driver Signature Enforcement (DSE) Breaks GSM Tools: Registry Patches for Flashing Drivers</h3>
+                            <p>How third-party servicing tools deploy temporary, unsigned virtual drivers to handle raw USB COM traffic, and the specific BCDEDIT overrides required to prevent execution blocking.</p>
                         </div>
-                        <h3>Why Windows Driver Signature Enforcement (DSE) Breaks GSM Tools: Registry Patches for Flashing Drivers</h3>
-                        <p>How third-party servicing tools deploy temporary, unsigned virtual drivers to handle raw USB COM traffic, and the specific BCDEDIT overrides required to prevent execution blocking.</p>
-                    </div>
-                </a>
+                    </a>
+                </div>
             </div>
 
-            <h3 style="color: var(--accent-color); margin: 1.5rem 0 1rem 0;">💽 Partition Forensics & Low-Level Architecture</h3>
-            <div class="grid" style="margin-bottom: 2rem;">
-                <a href="demystifying-rpmb-partition.html" class="article-link">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="category">Partition Forensics</div>
-                            <div class="badge-group">
-                                <span class="badge time">⏱️ 8 Min</span>
-                                <span class="badge hard">🔴 Advanced</span>
+            <div class="category-section">
+                <h3 class="category-title" style="color: var(--accent-color); margin: 1.5rem 0 1rem 0;">💽 Partition Forensics & Low-Level Architecture</h3>
+                <div class="grid">
+                    <a href="demystifying-rpmb-partition.html" class="card-wrapper" data-tags="rpmb_crypto chip_level qualcomm mediatek">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="category">Partition Forensics</div>
+                                <div class="badge-group">
+                                    <span class="badge time">⏱️ 8 Min</span>
+                                    <span class="badge hard">🔴 Advanced</span>
+                                </div>
                             </div>
+                            <h3>Demystifying the RPMB: How Smartphone Hardware Binds Flash Storage to Specific CPUs</h3>
+                            <p>An architectural breakdown of the Replay Protected Memory Block. Explore how JEDEC storage standards use HMAC-SHA-256 keys and monotonic counters to prevent clean hardware parts swapping.</p>
                         </div>
-                        <h3>Demystifying the RPMB: How Smartphone Hardware Binds Flash Storage to Specific CPUs</h3>
-                        <p>An architectural breakdown of the Replay Protected Memory Block. Explore how JEDEC storage standards use HMAC-SHA-256 keys and monotonic counters to prevent clean hardware parts swapping.</p>
-                    </div>
-                </a>
+                    </a>
+                </div>
             </div>
         </main>
         
         <aside class="sidebar">
             <div class="sidebar-widget">
-                <h3>📌 Trending Tech Tags</h3>
+                <h3>📌 Filter by Target Tag</h3>
                 <div class="tag-cloud">
-                    <a href="#" class="tag-item">#Firmware</a>
-                    <a href="#" class="tag-item">#Qualcomm</a>
-                    <a href="#" class="tag-item">#MediaTek</a>
-                    <a href="#" class="tag-item">#UFS_ISP</a>
-                    <a href="#" class="tag-item">#OdinFlashing</a>
-                    <a href="#" class="tag-item">#WindowsKernel</a>
-                    <a href="#" class="tag-item">#RPMB_Crypto</a>
-                    <a href="#" class="tag-item">#Unlocktool</a>
-                    <a href="#" class="tag-item">#EDL_Mode</a>
+                    <span class="tag-item" onclick="filterByTag('firmware', this)">#Firmware</span>
+                    <span class="tag-item" onclick="filterByTag('qualcomm', this)">#Qualcomm</span>
+                    <span class="tag-item" onclick="filterByTag('mediatek', this)">#MediaTek</span>
+                    <span class="tag-item" onclick="filterByTag('ufs_isp', this)">#UFS_ISP</span>
+                    <span class="tag-item" onclick="filterByTag('odinflashing', this)">#OdinFlashing</span>
+                    <span class="tag-item" onclick="filterByTag('windowskernel', this)">#WindowsKernel</span>
+                    <span class="tag-item" onclick="filterByTag('rpmb_crypto', this)">#RPMB_Crypto</span>
+                    <span class="tag-item" onclick="filterByTag('unlocktool', this)">#Unlocktool</span>
+                    <span class="tag-item" onclick="filterByTag('edl_mode', this)">#EDL_Mode</span>
+                    <span class="tag-item" onclick="filterByTag('chip_level', this)">#Chip_Level</span>
                 </div>
             </div>
             
             <div class="sidebar-widget">
                 <h3>📢 Workbench Status</h3>
-                <p style="font-size: 0.9rem; color: #8b949e; margin: 0;"> Monitoring and documenting real-world firmware panics and board-level security revisions as they show up on the test bench.</p>
+                <p style="font-size: 0.9rem; color: #8b949e; margin: 0;">Monitoring and documenting real-world firmware panics and board-level security revisions as they show up on the test bench.</p>
             </div>
         </aside>
 
     </div>
+
     <footer>
         &copy; 2026 bitandboot. Built on GitHub Pages. Completely Open Source.
     </footer>
+
+    <script>
+        function filterByTag(tag, element) {
+            // Remove active style classes from all other tags
+            document.querySelectorAll('.tag-item').forEach(t => t.classList.remove('active'));
+            // Highlight the currently selected tag
+            element.classList.add('active');
+
+            // Show sorting status banner indicator
+            document.getElementById('activeTagName').innerText = '#' + tag;
+            document.getElementById('filterStatus').style.display = 'flex';
+            document.getElementById('feedHeading').innerText = 'Filtered Results';
+
+            // Scan through all article sections and cards
+            document.querySelectorAll('.category-section').forEach(section => {
+                let visibleCardsInSection = 0;
+                const cards = section.querySelectorAll('.card-wrapper');
+
+                cards.forEach(card => {
+                    // Extract list values from data-tags attribute
+                    const cardTags = card.getAttribute('data-tags').split(' ');
+                    if (cardTags.includes(tag.toLowerCase())) {
+                        card.style.display = 'block';
+                        visibleCardsInSection++;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                // If an entire category folder has 0 matching tags, hide its main section title entirely
+                if (visibleCardsInSection === 0) {
+                    section.style.display = 'none';
+                } else {
+                    section.style.display = 'block';
+                }
+            });
+        }
+
+        function clearFilter() {
+            // Un-highlight sidebar tags
+            document.querySelectorAll('.tag-item').forEach(t => t.classList.remove('active'));
+            // Reset layout and titles
+            document.getElementById('filterStatus').style.display = 'none';
+            document.getElementById('feedHeading').innerText = 'Recent Engineering Guides';
+
+            // Force display restoration across all tags and segments
+            document.querySelectorAll('.category-section').forEach(section => {
+                section.style.display = 'block';
+                section.querySelectorAll('.card-wrapper').forEach(card => {
+                    card.style.display = 'block';
+                });
+            });
+        }
+    </script>
 
 </body>
 </html>
