@@ -47,6 +47,12 @@
         </header>
 
         <main>
+            <div style="background-color: #1f242c; border: 1px solid var(--border-color); border-left: 4px solid var(--accent-color); padding: 1.25rem; border-radius: 6px; margin-bottom: 2rem;">
+            <h4 style="color: #fff; margin: 0 0 0.5rem 0; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.5px;">🔬 Workbench Notes</h4>
+            <p style="margin: 0; font-size: 0.9rem; color: #8b949e; font-style: italic;">
+                "In early repair days, if a board was dead, you just desoldered the storage chip and threw it onto a working donor board. Modern security chips changed the game entirely. Understanding the RPMB structure stops you from wasting hours performing complex BGA reballing swaps on chips that are physically and cryptographically locked to their original CPUs."
+            </p>
+        </div>
             <p>If you take a fully functional flash memory storage chip (eMMC or UFS) from a broken smartphone motherboard and solder it onto an identical, working donor motherboard, the device will fail to boot. Instead, it will immediately trigger a security panic, lock down its partition system, or drop into an inescapable bootloop.</p>
 
             <p>This systematic block is enforced by a deeply hidden security sector inside the memory hardware standard called the <strong>RPMB (Replay Protected Memory Block)</strong>. This guide breaks down the core cryptography that permanently locks smartphone silicon together, explaining why it protects personal data and why it makes hardware swaps incredibly complex.</p>
