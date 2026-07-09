@@ -47,6 +47,122 @@
         </header>
 
         <main>
+            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 4rem 0 2rem 0;">
+
+<div style="display: flex; gap: 2rem; align-items: flex-start; flex-wrap: wrap;">
+    
+    <div style="flex: 2; min-width: 300px;">
+        <h3 style="color: #fff; margin-top: 0; margin-bottom: 1.5rem;">💬 Community Bench Notes</h3>
+        <div id="commentsFeed">
+            <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1rem;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.25rem;">
+                    <strong style="color: var(--accent-color);">@KernelPanicPr0</strong>
+                    <span style="color: var(--text-color); opacity: 0.6;">July 2026</span>
+                </div>
+                <p style="margin: 0; font-size: 0.95rem; color: #c9d1d9;">Confirming the logic path checks out. Stopped my flashing environment from throwing random communication faults during low-level execution pipelines.</p>
+            </div>
+        </div>
+    </div>
+
+    <div style="flex: 1; min-width: 280px; position: sticky; top: 20px;">
+        
+        <div id="votePanel" style="background-color: var(--card-bg); border: 1px solid var(--border-color); border-top: 4px solid var(--accent-color); padding: 1.5rem; border-radius: 6px; margin-bottom: 1.5rem; text-align: center;">
+            <h3 style="color: #fff; margin-top: 0; margin-bottom: 0.5rem; font-size: 1.1rem;">⚡ Bench Verification</h3>
+            <p style="margin: 0 0 1.25rem 0; color: #8b949e; font-size: 0.9rem;">Did this specific low-level workaround restore your target device hardware?</p>
+            
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                <button onclick="handleVote('yes')" style="background-color: rgba(86, 211, 100, 0.1); border: 1px solid var(--badge-easy); color: var(--badge-easy); padding: 0.6rem; border-radius: 4px; font-weight: 700; cursor: pointer; transition: transform 0.1s;">YES, IT WORKED! 🎉</button>
+                <button onclick="handleVote('no')" style="background-color: rgba(248, 81, 73, 0.1); border: 1px solid var(--badge-hard); color: var(--badge-hard); padding: 0.6rem; border-radius: 4px; font-weight: 700; cursor: pointer; transition: transform 0.1s;">NO, STILL BRICKED 💀</button>
+            </div>
+        </div>
+
+        <div id="noFailureForm" style="display: none; background-color: #1f191a; border: 1px solid var(--badge-hard); padding: 1.5rem; border-radius: 6px; margin-bottom: 1.5rem;">
+            <h4 style="color: #fff; margin-top: 0; margin-bottom: 0.5rem; font-size: 0.95rem; color: var(--badge-hard);">🔧 Diagnostic Report Needed</h4>
+            <p style="margin: 0 0 1rem 0; font-size: 0.85rem; color: #8b949e;">Log the exact error behavior so we can review the configuration data.</p>
+            
+            <div style="margin-bottom: 0.75rem;">
+                <input type="text" id="singleNameInput" placeholder="Your name (One word)" style="width: 100%; background-color: var(--bg-color); border: 1px solid var(--border-color); padding: 0.5rem; color: #fff; border-radius: 4px; box-sizing: border-box; font-size: 0.9rem;">
+            </div>
+            <div style="margin-bottom: 0.75rem;">
+                <textarea id="failureLogText" rows="3" placeholder="What went wrong? (Hangs, error codes, bootloops...)" style="width: 100%; background-color: var(--bg-color); border: 1px solid var(--border-color); padding: 0.5rem; color: #fff; border-radius: 4px; box-sizing: border-box; resize: vertical; font-size: 0.9rem;"></textarea>
+            </div>
+            <div id="validationError" style="display: none; color: var(--badge-hard); font-size: 0.8rem; margin-bottom: 0.75rem;"></div>
+            
+            <button onclick="submitFailureToComments()" style="width: 100%; background: none; border: 1px solid var(--badge-hard); color: var(--badge-hard); padding: 0.5rem; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">Publish Error</button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    function handleVote(decision) {
+        const panel = document.getElementById('votePanel');
+        
+        if (decision === 'yes') {
+            panel.innerHTML = `
+                <h3 style="color: var(--badge-easy); margin: 0 0 0.5rem 0;">🔥 Optimization Confirmed!</h3>
+                <p style="margin: 0; color: #8b949e; font-size: 0.85rem;">Telemetry logged. Your successful bench run keeps the matrix pristine.</p>
+            `;
+        } else if (decision === 'no') {
+            document.getElementById('noFailureForm').style.display = 'block';
+            panel.style.opacity = '0.5';
+            panel.style.pointerEvents = 'none';
+        }
+    }
+
+    function submitFailureToComments() {
+        const nameField = document.getElementById('singleNameInput').value.trim();
+        const errorText = document.getElementById('failureLogText').value.trim();
+        const valError = document.getElementById('validationError');
+
+        valError.style.display = 'none';
+
+        if (!nameField || !errorText) {
+            valError.innerText = "Error: Fields cannot be empty.";
+            valError.style.display = 'block';
+            return;
+        }
+
+        if (nameField.split(' ').length > 1) {
+            valError.innerText = "Error: Supply strictly a single word.";
+            valError.style.display = 'block';
+            return;
+        }
+
+        let sanitizedName = nameField.replace(/[^a-zA-Z0-9]/g, '');
+        if (!sanitizedName) sanitizedName = "Tech";
+        
+        const generatedUserHandle = `@${sanitizedName}King`;
+
+        const feed = document.getElementById('commentsFeed');
+        const errorCommentCard = document.createElement('div');
+        errorCommentCard.setAttribute('style', 'border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1rem; background-color: rgba(248, 81, 73, 0.02);');
+        
+        errorCommentCard.innerHTML = `
+            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.25rem;">
+                <strong style="color: var(--badge-hard); font-family: monospace;">${generatedUserHandle} (Unresolved)</strong>
+                <span style="color: var(--text-color); opacity: 0.4;">Just Now</span>
+            </div>
+            <p style="margin: 0; font-size: 0.95rem; color: #c9d1d9; font-style: italic;">"${escapeHTML(errorText)}"</p>
+        `;
+
+        feed.insertBefore(errorCommentCard, feed.firstChild);
+
+        document.getElementById('noFailureForm').style.display = 'none';
+        const panel = document.getElementById('votePanel');
+        panel.innerHTML = `
+            <h3 style="color: var(--badge-hard); margin: 0 0 0.5rem 0;">📡 Transmitted</h3>
+            <p style="margin: 0; color: #8b949e; font-size: 0.85rem;">Logged to feed as <strong>${generatedUserHandle}</strong>.</p>
+        `;
+        panel.style.opacity = '1';
+    }
+
+    function escapeHTML(str) {
+        return str.replace(/[&<>'"]/g, 
+            tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+        );
+    }
+</script>
             <div style="background-color: #1f242c; border: 1px solid var(--border-color); border-left: 4px solid var(--accent-color); padding: 1.25rem; border-radius: 6px; margin-bottom: 2rem;">
             <h4 style="color: #fff; margin: 0 0 0.5rem 0; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.5px;">🔬 Workbench Notes</h4>
             <p style="margin: 0; font-size: 0.9rem; color: #8b949e; font-style: italic;">
@@ -89,225 +205,6 @@
 
             <p>For advanced repair technicians and engineers, this architecture means the end of simple chip swapping. Modifying or replacing a main processor or storage unit now requires advanced software utilities capable of initializing clean, unprogrammed components from scratch, bridging the gap between hardware repair and software security engineering.</p>
         </main>
-
-        <section style="margin-top: 4rem; border-top: 1px solid var(--border-color); padding-top: 2rem;">
-    <h3 style="color: #fff; margin-bottom: 1.5rem;">💬 Community Bench Notes</h3>
-    
-    <div style="background-color: var(--card-bg); border: 1px solid var(--border-color); padding: 1.5rem; border-radius: 6px; margin-bottom: 2rem;">
-        <h4 style="color: #fff; margin-top: 0; margin-bottom: 1rem; font-size: 0.95rem;">Leave a Technical Note</h4>
-        
-        <div style="margin-bottom: 1rem;">
-            <input type="text" id="commenterName" placeholder="Your Name or Handle" style="width: 100%; background-color: var(--bg-color); border: 1px solid var(--border-color); padding: 0.6rem; color: #fff; border-radius: 4px; box-sizing: border-box;">
-        </div>
-        <div style="margin-bottom: 1rem;">
-            <textarea id="commentText" rows="4" placeholder="Share your hardware observations or tool diagnostics... (Be civil)" style="width: 100%; background-color: var(--bg-color); border: 1px solid var(--border-color); padding: 0.6rem; color: #fff; border-radius: 4px; box-sizing: border-box; resize: vertical;"></textarea>
-        </div>
-        
-        <div id="commentError" style="display: none; background-color: rgba(248, 81, 73, 0.1); border: 1px solid var(--badge-hard); color: var(--badge-hard); padding: 0.75rem; border-radius: 4px; margin-bottom: 1rem; font-size: 0.9rem;"></div>
-
-        <button onclick="submitComment()" style="background-color: rgba(88, 166, 255, 0.1); border: 1px solid var(--accent-color); color: var(--accent-color); padding: 0.5rem 1.2rem; border-radius: 4px; cursor: pointer; font-weight: 600; transition: all 0.2s;">Post Note</button>
-    </div>
-
-    <div id="commentsFeed">
-        <div style="border-bottom: 1px solid var(--border-color); padding: 1rem 0;">
-            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.25rem;">
-                <strong style="color: var(--accent-color);">@SysEngineer_99</strong>
-                <span style="color: var(--text-color); opacity: 0.6;">July 2026</span>
-            </div>
-            <p style="margin: 0; font-size: 0.95rem; color: #c9d1d9;">Confirming this registry override completely fixed my Unlocktool interface drops on Windows 11 Build 22621. Absolute lifesaver for time-sensitive bench runs.</p>
-        </div>
-    </div>
-</section>
-
-<section style="margin-top: 4rem; border-top: 1px solid var(--border-color); padding-top: 2rem;">
-    <h3 style="color: #fff; margin-bottom: 1.5rem;">💬 Community Bench Notes</h3>
-    
-    <div style="background-color: var(--card-bg); border: 1px solid var(--border-color); padding: 1.5rem; border-radius: 6px; margin-bottom: 2rem;">
-        <h4 style="color: #fff; margin-top: 0; margin-bottom: 1rem; font-size: 0.95rem;">Leave a Technical Note</h4>
-        
-        <div style="margin-bottom: 1rem;">
-            <input type="text" id="commenterName" placeholder="Your Name or Handle" style="width: 100%; background-color: var(--bg-color); border: 1px solid var(--border-color); padding: 0.6rem; color: #fff; border-radius: 4px; box-sizing: border-box;">
-        </div>
-        <div style="margin-bottom: 1rem;">
-            <textarea id="commentText" rows="4" placeholder="Share your hardware observations or tool diagnostics..." style="width: 100%; background-color: var(--bg-color); border: 1px solid var(--border-color); padding: 0.6rem; color: #fff; border-radius: 4px; box-sizing: border-box; resize: vertical;"></textarea>
-        </div>
-        
-        <div id="commentError" style="display: none; background-color: rgba(248, 81, 73, 0.1); border: 1px solid var(--badge-hard); color: var(--badge-hard); padding: 0.75rem; border-radius: 4px; margin-bottom: 1rem; font-size: 0.9rem;"></div>
-
-        <button onclick="submitComment()" style="background-color: rgba(88, 166, 255, 0.1); border: 1px solid var(--accent-color); color: var(--accent-color); padding: 0.5rem 1.2rem; border-radius: 4px; cursor: pointer; font-weight: 600; transition: all 0.2s;">Post Note</button>
-    </div>
-
-    <div id="commentsFeed">
-        <div style="border-bottom: 1px solid var(--border-color); padding: 1rem 0;">
-            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.25rem;">
-                <strong style="color: var(--accent-color);">@SysEngineer_99</strong>
-                <span style="color: var(--text-color); opacity: 0.6;">July 2026</span>
-            </div>
-            <p style="margin: 0; font-size: 0.95rem; color: #c9d1d9;">Confirming this registry override completely fixed my Unlocktool interface drops on Windows 11 Build 22621. Absolute lifesaver for time-sensitive bench runs.</p>
-        </div>
-    </div>
-</section>
-
-<script>
-    function submitComment() {
-        const nameInput = document.getElementById('commenterName').value.trim();
-        const textInput = document.getElementById('commentText').value.trim();
-        const errorBox = document.getElementById('commentError');
-        
-        errorBox.style.display = "none";
-        errorBox.innerText = "";
-
-        // Only enforce that they actually wrote something
-        if (!nameInput || !textInput) {
-            errorBox.innerText = "Error: Name and comment strings cannot be empty fields.";
-            errorBox.style.display = "block";
-            return;
-        }
-
-        const targetFeed = document.getElementById('commentsFeed');
-        const newCommentBlock = document.createElement('div');
-        newCommentBlock.setAttribute('style', 'border-bottom: 1px solid var(--border-color); padding: 1rem 0;');
-        
-        newCommentBlock.innerHTML = `
-            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.25rem;">
-                <strong style="color: #fff;">${escapeHTML(nameInput)}</strong>
-                <span style="color: var(--text-color); opacity: 0.6;">Just Now</span>
-            </div>
-            <p style="margin: 0; font-size: 0.95rem; color: #c9d1d9;">${escapeHTML(textInput)}</p>
-        `;
-
-        targetFeed.insertBefore(newCommentBlock, targetFeed.firstChild);
-        
-        // Reset form inputs
-        document.getElementById('commenterName').value = "";
-        document.getElementById('commentText').value = "";
-    }
-
-    // Crucial guardrail left intact to prevent malicious script injection strings (XSS)
-    function escapeHTML(str) {
-        return str.replace(/[&<>'"]/g, 
-            tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
-        );
-    }
-</script>
-<hr style="border: 0; border-top: 1px solid var(--border-color); margin: 4rem 0 2rem 0;">
-
-<section class="feedback-comments-suite">
-    
-    <div id="votePanel" style="background-color: var(--card-bg); border: 1px solid var(--border-color); border-left: 4px solid var(--accent-color); padding: 1.5rem; border-radius: 6px; margin-bottom: 2rem; text-align: center;">
-        <h3 style="color: #fff; margin-top: 0; margin-bottom: 0.5rem; font-size: 1.2rem;">⚡ Bench Verification</h3>
-        <p style="margin: 0 0 1.25rem 0; color: #8b949e; font-size: 0.95rem;">Did this specific low-level workaround restore your target device hardware?</p>
-        
-        <div style="display: flex; justify-content: center; gap: 1rem;">
-            <button onclick="handleVote('yes')" style="background-color: rgba(86, 211, 100, 0.1); border: 1px solid var(--badge-easy); color: var(--badge-easy); padding: 0.6rem 1.5rem; border-radius: 4px; font-weight: 700; cursor: pointer; transition: transform 0.1s;">YES, PROBLEM SOLVED! 🎉</button>
-            <button onclick="handleVote('no')" style="background-color: rgba(248, 81, 73, 0.1); border: 1px solid var(--badge-hard); color: var(--badge-hard); padding: 0.6rem 1.5rem; border-radius: 4px; font-weight: 700; cursor: pointer; transition: transform 0.1s;">NO, STILL BRICKED 💀</button>
-        </div>
-    </div>
-
-    <div id="noFailureForm" style="display: none; background-color: #1f191a; border: 1px solid var(--badge-hard); padding: 1.5rem; border-radius: 6px; margin-bottom: 2rem;">
-        <h4 style="color: #fff; margin-top: 0; margin-bottom: 0.5rem; font-size: 1rem; color: var(--badge-hard);">🔧 Bench Diagnostic Report Needed</h4>
-        <p style="margin: 0 0 1rem 0; font-size: 0.9rem; color: #8b949e;">Don't just walk away frustrated. Log the exact error behavior so we can update the codebase matrix.</p>
-        
-        <div style="margin-bottom: 1rem;">
-            <input type="text" id="singleNameInput" placeholder="Your first name (One word only)" style="width: 100%; background-color: var(--bg-color); border: 1px solid var(--border-color); padding: 0.6rem; color: #fff; border-radius: 4px; box-sizing: border-box;">
-        </div>
-        <div style="margin-bottom: 1rem;">
-            <textarea id="failureLogText" rows="3" placeholder="What happened? Did the tool hang, throw a specific error code, or trigger a bootloop loop?" style="width: 100%; background-color: var(--bg-color); border: 1px solid var(--border-color); padding: 0.6rem; color: #fff; border-radius: 4px; box-sizing: border-box; resize: vertical;"></textarea>
-        </div>
-        <div id="validationError" style="display: none; color: var(--badge-hard); font-size: 0.85rem; margin-bottom: 1rem;"></div>
-        
-        <button onclick="submitFailureToComments()" style="background: none; border: 1px solid var(--badge-hard); color: var(--badge-hard); padding: 0.5rem 1.2rem; border-radius: 4px; cursor: pointer; font-weight: 600;">Publish Error to Feed</button>
-    </div>
-
-    <h3 style="color: #fff; margin-bottom: 1.5rem;">💬 Community Bench Notes</h3>
-    <div id="commentsFeed">
-        <div style="border-bottom: 1px solid var(--border-color); padding: 1rem 0;">
-            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.25rem;">
-                <strong style="color: var(--accent-color);">@KernelPanicPr0</strong>
-                <span style="color: var(--text-color); opacity: 0.6;">July 2026</span>
-            </div>
-            <p style="margin: 0; font-size: 0.95rem; color: #c9d1d9;">Confirming the logic path checks out. Stopped my flashing environment from throwing random communication faults during low-level execution pipelines.</p>
-        </div>
-    </div>
-</section>
-
-<script>
-    // Handle Initial Vote Trigger Block
-    function handleVote(decision) {
-        const panel = document.getElementById('votePanel');
-        
-        if (decision === 'yes') {
-            panel.innerHTML = `
-                <h3 style="color: var(--badge-easy); margin: 0 0 0.5rem 0;">🔥 Optimization Confirmed!</h3>
-                <p style="margin: 0; color: #8b949e; font-size: 0.95rem;">Telemetry logged. Your successful bench run keeps the hardware matrix pristine. Back to execution.</p>
-            `;
-        } else if (decision === 'no') {
-            // Instantly unroll the diagnostic failure entry block
-            document.getElementById('noFailureForm').style.display = 'block';
-            panel.style.opacity = '0.5';
-            panel.style.pointerEvents = 'none'; // Lock voting toggles
-        }
-    }
-
-    // Process and Inject the Error Logs into the live Timeline
-    function submitFailureToComments() {
-        const nameField = document.getElementById('singleNameInput').value.trim();
-        const errorText = document.getElementById('failureLogText').value.trim();
-        const valError = document.getElementById('validationError');
-
-        valError.style.display = 'none';
-
-        if (!nameField || !errorText) {
-            valError.innerText = "Error: Input constraints triggered. Fill out both parameters to publish.";
-            valError.style.display = 'block';
-            return;
-        }
-
-        if (nameField.split(' ').length > 1) {
-            valError.innerText = "Error: Please supply strictly a single word for your handle.";
-            valError.style.display = 'block';
-            return;
-        }
-
-        // Clean any weird symbols out of the name and append King directly
-        let sanitizedName = nameField.replace(/[^a-zA-Z0-9]/g, '');
-        if (!sanitizedName) sanitizedName = "Tech";
-        
-        const generatedUserHandle = `@${sanitizedName}King`;
-
-        // Append seamlessly straight to the timeline module feed
-        const feed = document.getElementById('commentsFeed');
-        const errorCommentCard = document.createElement('div');
-        errorCommentCard.setAttribute('style', 'border-bottom: 1px solid var(--border-color); padding: 1rem 0; background-color: rgba(248, 81, 73, 0.02);');
-        
-        errorCommentCard.innerHTML = `
-            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.25rem;">
-                <strong style="color: var(--badge-hard); font-family: monospace;">${generatedUserHandle} (Unresolved)</strong>
-                <span style="color: var(--text-color); opacity: 0.4;">Just Now</span>
-            </div>
-            <p style="margin: 0; font-size: 0.95rem; color: #c9d1d9; font-style: italic;">"${escapeHTML(errorText)}"</p>
-        `;
-
-        // Inject at the absolute top layer of our dynamic feed
-        feed.insertBefore(errorCommentCard, feed.firstChild);
-
-        // Completely clear and hide entry layout panels upon processing resolution
-        document.getElementById('noFailureForm').style.display = 'none';
-        const panel = document.getElementById('votePanel');
-        panel.innerHTML = `
-            <h3 style="color: var(--badge-hard); margin: 0 0 0.5rem 0;">📡 Diagnostic Transmitted</h3>
-            <p style="margin: 0; color: #8b949e; font-size: 0.95rem;">Your hardware bottleneck profile has been appended to the dashboard feed as <strong>${generatedUserHandle}</strong>.</p>
-        `;
-        panel.style.opacity = '1';
-    }
-
-    // Safety mitigation mechanism to destroy cross-site script execution vectors
-    function escapeHTML(str) {
-        return str.replace(/[&<>'"]/g, 
-            tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
-        );
-    }
-</script>
 
         <footer>
             <p>&copy; 2026 bitandboot. All rights reserved.</p>
