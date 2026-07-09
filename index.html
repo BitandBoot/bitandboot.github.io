@@ -73,6 +73,36 @@
             margin-top: 0;
             color: #fff;
         }
+
+        /* Real-Time Search Bar Styling */
+        .search-container {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+        .search-bar {
+            width: 100%;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            color: #fff;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .search-bar:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15);
+        }
+        .search-icon {
+            position: absolute;
+            left: 0.9rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #8b949e;
+            pointer-events: none;
+        }
         
         .grid {
             display: grid;
@@ -80,7 +110,6 @@
             gap: 1.25rem;
         }
         
-        /* Wrapper for handling category header hiding along with filtered items */
         .category-section {
             margin-bottom: 2rem;
         }
@@ -212,6 +241,18 @@
             color: var(--badge-hard);
         }
 
+        /* "No Results Found" Alert Box */
+        .no-results {
+            display: none;
+            background-color: rgba(248, 81, 73, 0.05);
+            border: 1px dashed var(--border-color);
+            color: #8b949e;
+            padding: 2rem;
+            text-align: center;
+            border-radius: 6px;
+            margin-top: 1rem;
+        }
+
         footer {
             text-align: center;
             padding: 3rem 1rem;
@@ -244,6 +285,11 @@
                 <p>Welcome to <strong>bitandboot</strong>. This platform is dedicated to deep-dive technical explanations of how code compiles down, interacts with silicon, and executes.</p>
             </section>
 
+            <div class="search-container">
+                <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" id="searchInput" class="search-bar" placeholder="Search articles by keywords (e.g., Qualcomm, Unlocktool, Odin)..." onkeyup="executeSearch()">
+            </div>
+
             <div id="filterStatus" class="filter-status">
                 <span>Active Filter: <strong id="activeTagName" style="color: var(--accent-color);"></strong></span>
                 <button class="clear-filter-btn" onclick="clearFilter()">Clear Filter ×</button>
@@ -251,6 +297,10 @@
 
             <h2 id="feedHeading" style="color: #fff; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">Recent Engineering Guides</h2>
             
+            <div id="noResultsBox" class="no-results">
+                No matching systems documentation or architecture guides found. Try a different search string.
+            </div>
+
             <div class="category-section">
                 <h3 class="category-title" style="color: var(--accent-color); margin: 1.5rem 0 1rem 0;">📁 Mobile Servicing & Firmware</h3>
                 <div class="grid">
@@ -384,24 +434,67 @@
     </footer>
 
     <script>
-        function filterByTag(tag, element) {
-            // Remove active style classes from all other tags
+        function executeSearch() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            
+            // Clear tag-cloud highlights since text search takes priority
             document.querySelectorAll('.tag-item').forEach(t => t.classList.remove('active'));
-            // Highlight the currently selected tag
-            element.classList.add('active');
+            document.getElementById('filterStatus').style.display = 'none';
+            
+            if (query.trim() === "") {
+                clearFilter();
+                return;
+            }
 
-            // Show sorting status banner indicator
-            document.getElementById('activeTagName').innerText = '#' + tag;
-            document.getElementById('filterStatus').style.display = 'flex';
-            document.getElementById('feedHeading').innerText = 'Filtered Results';
+            document.getElementById('feedHeading').innerText = 'Search Results';
+            let totalVisibleCards = 0;
 
-            // Scan through all article sections and cards
             document.querySelectorAll('.category-section').forEach(section => {
                 let visibleCardsInSection = 0;
                 const cards = section.querySelectorAll('.card-wrapper');
 
                 cards.forEach(card => {
-                    // Extract list values from data-tags attribute
+                    const titleText = card.querySelector('h3').innerText.toLowerCase();
+                    const bodyText = card.querySelector('p').innerText.toLowerCase();
+                    const tagAttribute = card.getAttribute('data-tags').toLowerCase();
+
+                    if (titleText.includes(query) || bodyText.includes(query) || tagAttribute.includes(query)) {
+                        card.style.display = 'block';
+                        visibleCardsInSection++;
+                        totalVisibleCards++;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                if (visibleCardsInSection === 0) {
+                    section.style.display = 'none';
+                } else {
+                    section.style.display = 'block';
+                }
+            });
+
+            // Display "No Results Found" if search index matches nothing
+            document.getElementById('noResultsBox').style.display = totalVisibleCards === 0 ? 'block' : 'none';
+        }
+
+        function filterByTag(tag, element) {
+            // Reset text search bar input state when using tag cloud
+            document.getElementById('searchInput').value = "";
+            document.getElementById('noResultsBox').style.display = 'none';
+
+            document.querySelectorAll('.tag-item').forEach(t => t.classList.remove('active'));
+            element.classList.add('active');
+
+            document.getElementById('activeTagName').innerText = '#' + tag;
+            document.getElementById('filterStatus').style.display = 'flex';
+            document.getElementById('feedHeading').innerText = 'Filtered Results';
+
+            document.querySelectorAll('.category-section').forEach(section => {
+                let visibleCardsInSection = 0;
+                const cards = section.querySelectorAll('.card-wrapper');
+
+                cards.forEach(card => {
                     const cardTags = card.getAttribute('data-tags').split(' ');
                     if (cardTags.includes(tag.toLowerCase())) {
                         card.style.display = 'block';
@@ -411,7 +504,6 @@
                     }
                 });
 
-                // If an entire category folder has 0 matching tags, hide its main section title entirely
                 if (visibleCardsInSection === 0) {
                     section.style.display = 'none';
                 } else {
@@ -421,13 +513,12 @@
         }
 
         function clearFilter() {
-            // Un-highlight sidebar tags
+            document.getElementById('searchInput').value = "";
             document.querySelectorAll('.tag-item').forEach(t => t.classList.remove('active'));
-            // Reset layout and titles
             document.getElementById('filterStatus').style.display = 'none';
+            document.getElementById('noResultsBox').style.display = 'none';
             document.getElementById('feedHeading').innerText = 'Recent Engineering Guides';
 
-            // Force display restoration across all tags and segments
             document.querySelectorAll('.category-section').forEach(section => {
                 section.style.display = 'block';
                 section.querySelectorAll('.card-wrapper').forEach(card => {
