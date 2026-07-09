@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BitandBoot - Systems Engineering Hub</title>
     <meta name="description" content="bitandboot - A deep-dive engineering hub dedicated to low-level code compilation, firmware architectures, and device systems execution.">
-    <meta name="keywords" content="Low level systems, C++, Firmware optimization, Embedded engineering, Android firmware kernel, ARM architecture">
+    <meta name="keywords" content="Low level systems, C++, Firmware optimization, Embedded engineering, Android firmware kernel, ARM architecture, Dirty COW, Dirty Pipe">
     <meta name="robots" content="index, follow">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2358a6ff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='16 18 22 12 16 6'></polyline><polyline points='8 6 2 12 8 18'></polyline></svg>">
     <style>
@@ -374,6 +374,19 @@
             <div class="category-section">
                 <h3 class="category-title" style="color: var(--accent-color); margin: 1.5rem 0 1rem 0;">💽 Partition Forensics & Low-Level Architecture</h3>
                 <div class="grid">
+                    <a href="dirty-kernel-privilege-escalation.html" class="card-wrapper" data-tags="linuxkernel firmware privesc android security">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="category">Firmware Architectures</div>
+                                <div class="badge-group">
+                                    <span class="badge time">⏱️ 7 Min</span>
+                                    <span class="badge hard">🔴 Advanced</span>
+                                </div>
+                            </div>
+                            <h3>Demystifying Dirty COW & Dirty Pipe: Linux Kernel Privilege Escalation in Mobile Environments</h3>
+                            <p>An architectural deep dive into Copy-on-Write race conditions and uninitialized pipe buffer merge flags used to force unprivileged root access.</p>
+                        </div>
+                    </a>
                     <a href="demystifying-rpmb-partition.html" class="card-wrapper" data-tags="rpmb_crypto chip_level qualcomm mediatek">
                         <div class="card">
                             <div class="card-header">
@@ -414,6 +427,8 @@
                     <span class="tag-item" onclick="filterByTag('ufs_isp', this)">#UFS_ISP</span>
                     <span class="tag-item" onclick="filterByTag('odinflashing', this)">#OdinFlashing</span>
                     <span class="tag-item" onclick="filterByTag('windowskernel', this)">#WindowsKernel</span>
+                    <span class="tag-item" onclick="filterByTag('linuxkernel', this)">#LinuxKernel</span>
+                    <span class="tag-item" onclick="filterByTag('privesc', this)">#PrivEsc</span>
                     <span class="tag-item" onclick="filterByTag('rpmb_crypto', this)">#RPMB_Crypto</span>
                     <span class="tag-item" onclick="filterByTag('unlocktool', this)">#Unlocktool</span>
                     <span class="tag-item" onclick="filterByTag('edl_mode', this)">#EDL_Mode</span>
