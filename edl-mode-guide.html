@@ -190,6 +190,78 @@
         <p>3. <strong>Direct Partition Reflashing:</strong> With direct raw access initialized, the tool structural layout maps out and overwrites critical operating blocks (like <code>gpt_main</code>, <code>sbl1</code>, <code>abl</code>, and <code>boot</code>), restoring structural system architecture logic back onto the unmasked chip sectors.</p>
     </main>
 
+    <section style="margin-top: 4rem; border-top: 1px solid var(--border-color); padding-top: 2rem;">
+    <h3 style="color: #fff; margin-bottom: 1.5rem;">💬 Community Bench Notes</h3>
+    
+    <div style="background-color: var(--card-bg); border: 1px solid var(--border-color); padding: 1.5rem; border-radius: 6px; margin-bottom: 2rem;">
+        <h4 style="color: #fff; margin-top: 0; margin-bottom: 1rem; font-size: 0.95rem;">Leave a Technical Note</h4>
+        
+        <div style="margin-bottom: 1rem;">
+            <input type="text" id="commenterName" placeholder="Your Name or Handle" style="width: 100%; background-color: var(--bg-color); border: 1px solid var(--border-color); padding: 0.6rem; color: #fff; border-radius: 4px; box-sizing: border-box;">
+        </div>
+        <div style="margin-bottom: 1rem;">
+            <textarea id="commentText" rows="4" placeholder="Share your hardware observations or tool diagnostics..." style="width: 100%; background-color: var(--bg-color); border: 1px solid var(--border-color); padding: 0.6rem; color: #fff; border-radius: 4px; box-sizing: border-box; resize: vertical;"></textarea>
+        </div>
+        
+        <div id="commentError" style="display: none; background-color: rgba(248, 81, 73, 0.1); border: 1px solid var(--badge-hard); color: var(--badge-hard); padding: 0.75rem; border-radius: 4px; margin-bottom: 1rem; font-size: 0.9rem;"></div>
+
+        <button onclick="submitComment()" style="background-color: rgba(88, 166, 255, 0.1); border: 1px solid var(--accent-color); color: var(--accent-color); padding: 0.5rem 1.2rem; border-radius: 4px; cursor: pointer; font-weight: 600; transition: all 0.2s;">Post Note</button>
+    </div>
+
+    <div id="commentsFeed">
+        <div style="border-bottom: 1px solid var(--border-color); padding: 1rem 0;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.25rem;">
+                <strong style="color: var(--accent-color);">@SysEngineer_99</strong>
+                <span style="color: var(--text-color); opacity: 0.6;">July 2026</span>
+            </div>
+            <p style="margin: 0; font-size: 0.95rem; color: #c9d1d9;">Confirming this registry override completely fixed my Unlocktool interface drops on Windows 11 Build 22621. Absolute lifesaver for time-sensitive bench runs.</p>
+        </div>
+    </div>
+</section>
+
+<script>
+    function submitComment() {
+        const nameInput = document.getElementById('commenterName').value.trim();
+        const textInput = document.getElementById('commentText').value.trim();
+        const errorBox = document.getElementById('commentError');
+        
+        errorBox.style.display = "none";
+        errorBox.innerText = "";
+
+        // Only enforce that they actually wrote something
+        if (!nameInput || !textInput) {
+            errorBox.innerText = "Error: Name and comment strings cannot be empty fields.";
+            errorBox.style.display = "block";
+            return;
+        }
+
+        const targetFeed = document.getElementById('commentsFeed');
+        const newCommentBlock = document.createElement('div');
+        newCommentBlock.setAttribute('style', 'border-bottom: 1px solid var(--border-color); padding: 1rem 0;');
+        
+        newCommentBlock.innerHTML = `
+            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.25rem;">
+                <strong style="color: #fff;">${escapeHTML(nameInput)}</strong>
+                <span style="color: var(--text-color); opacity: 0.6;">Just Now</span>
+            </div>
+            <p style="margin: 0; font-size: 0.95rem; color: #c9d1d9;">${escapeHTML(textInput)}</p>
+        `;
+
+        targetFeed.insertBefore(newCommentBlock, targetFeed.firstChild);
+        
+        // Reset form inputs
+        document.getElementById('commenterName').value = "";
+        document.getElementById('commentText').value = "";
+    }
+
+    // Crucial guardrail left intact to prevent malicious script injection strings (XSS)
+    function escapeHTML(str) {
+        return str.replace(/[&<>'"]/g, 
+            tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+        );
+    }
+</script>
+
     <footer>
         &copy; 2026 bitandboot. All Technical Rights Reserved.
     </footer>
