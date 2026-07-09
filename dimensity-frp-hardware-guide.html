@@ -12,48 +12,31 @@
             --accent-color: #58a6ff;
             --card-bg: #161b22;
             --border-color: #30363d;
-            --alert-color: #ff7b72;
+            --meta-color: #8b949e;
+            --badge-easy: #56d364;
+            --badge-hard: #f85149;
             --highlight: #f0883e;
         }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
             line-height: 1.6;
-            margin: 0;
-            padding: 0;
-        }
-        header {
             padding: 2rem 1rem;
-            background-color: var(--card-bg);
-            border-bottom: 1px solid var(--border-color);
-            text-align: center;
         }
-        .logo {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: #fff;
-            letter-spacing: 1px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .logo span { color: var(--accent-color); margin: 0 4px; }
-        .tagline {
-            font-size: 0.9rem;
-            color: #8b949e;
-            margin-top: 0.5rem;
-        }
-        main {
-            max-width: 850px;
-            margin: 2rem auto;
-            padding: 0 1rem;
-        }
-        h1 { color: #fff; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
-        h2 { color: var(--accent-color); margin-top: 2rem; }
-        h3 { color: #fff; }
-        p { margin: 1rem 0; }
+        .container { max-width: 1100px; margin: 0 auto; }
+        header { margin-bottom: 2.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1.5rem; }
+        .nav-back { color: var(--accent-color); text-decoration: none; font-size: 0.95rem; display: inline-block; margin-bottom: 1rem; }
+        .nav-back:hover { text-decoration: underline; }
+        h1 { color: #fff; font-size: 2.2rem; line-height: 1.25; margin-bottom: 0.75rem; }
+        .meta { color: var(--meta-color); font-size: 0.9rem; display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
+        h2 { color: #fff; font-size: 1.5rem; margin: 2rem 0 1rem 0; padding-bottom: 0.3rem; border-bottom: 1px solid var(--border-color); }
+        h3 { color: #fff; font-size: 1.2rem; margin: 1.5rem 0 0.5rem 0; }
+        p { margin-bottom: 1.25rem; }
         b, strong { color: #fff; font-weight: 600; }
+        ul { margin-bottom: 1.25rem; padding-left: 1.5rem; }
+        li { margin-bottom: 0.5rem; }
         .alert-box {
             background-color: rgba(240, 136, 62, 0.1);
             border-left: 4px solid var(--highlight);
@@ -66,6 +49,7 @@
             border-collapse: collapse;
             margin: 1.5rem 0;
             background-color: var(--card-bg);
+            font-size: 0.9rem;
         }
         th, td {
             border: 1px solid var(--border-color);
@@ -73,175 +57,245 @@
             text-align: left;
         }
         th { background-color: rgba(88, 166, 255, 0.1); color: var(--accent-color); }
-        .back-link {
-            display: inline-block;
-            margin-top: 2rem;
-            color: var(--accent-color);
-            text-decoration: none;
-        }
-        .back-link:hover { text-decoration: underline; }
+        footer { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color); color: var(--meta-color); text-align: center; font-size: 0.85rem; }
     </style>
 </head>
 <body>
-
-    <header>
-        <div class="logo">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#58a6ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 28px; height: 28px; vertical-align: middle; margin-right: 8px;">
-                <polyline points="16 18 22 12 16 6"></polyline>
-                <polyline points="8 6 2 12 8 18"></polyline>
-            </svg>
-            bit<span>and</span>boot
-        </div>
-        <div class="tagline">Demystifying software bits, firmware architectures, and systems execution.</div>
-    </header>
-
-    <main>
-        <h1>Beyond Software Exploits: Why Modern MediaTek Dimensity FRP Requires CPU & Motherboard Drilling</h1>
-        <p>Published: July 2026 | Category: Firmware Architecture & Hardware Engineering</p>
-        
-        <p>For years, the GSM servicing community treated <strong>MediaTek (MTK)</strong> chipsets as the golden child of easy modifications. If a device was stuck on <strong>Factory Reset Protection (FRP)</strong> or a user lock, a standard utility could trigger a <strong>BootROM (BROM) handshake exploit</strong>, disable security validation, and format the target sector in seconds. However, the introduction of modern <strong>MediaTek Dimensity lines</strong> completely upended the software service landscape, turning software-based tool operations into a collection of errors and dead ends.</p>
-
-        <div class="alert-box">
-            <strong>The New Reality:</strong> When flagship software suites like <strong>Unlocktool</strong>, <strong>UMT (Ultimate Multi Tool)</strong>, or <strong>Chimera</strong> attempt to read or modify partitions on modern Dimensity chips, they hit cryptographic blocks. For elite hardware engineers, the only guaranteed method left is bypassing software entirely via <strong>micro-drilling the motherboard or CPU package</strong>.
-        </div>
-
-        <h2>1. The Architectural Disconnect: Legacy MTK vs. Modern Dimensity</h2>
-        <p>To understand why software exploits fail, we must examine how MediaTek overhauled its boot security tracking mechanism. Older architectures like the <strong>Helio P/G series (MT67xx)</strong> relied on predictable boot cycles. Utilities exploited vulnerabilities like <code>kamakiri</code> or <code>carbonara</code> via USB to corrupt the stack data and execute unsigned code.</p>
-        
-        <p>Modern Dimensity chipsets introduce the <strong>V6 platform architecture protocol</strong>. On these chips, major smartphone manufacturers (OEMs) permanently blow <strong>hardware eFuses</strong> inside the silicon layer during factory assembly. These blown fuses disable the <strong>BROM USB Download (USBDL)</strong> communication interface entirely. Without an active hardware handshake path, software utilities cannot force a low-level memory dump over a standard USB configuration line.</p>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>Security Vector</th>
-                    <th>Legacy MTK / Helio Platforms</th>
-                    <th>Premium Dimensity Platforms (V6 Protocol)</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><strong>BROM State Entry</strong></td>
-                    <td>Triggered easily via physical <b>Volume Key Combos</b> over USB.</td>
-                    <td>Disabled permanently at the silicon level via <b>Hardware eFuses</b>.</td>
-                </tr>
-                <tr>
-                    <td><strong>Download Agent (DA)</strong></td>
-                    <td>Accepts generic, open-source <b>DA binaries</b> to bypass verification.</td>
-                    <td>Requires highly restricted, <b>OEM-Signed DA2 Cryptographic Tokens</b>.</td>
-                </tr>
-                <tr>
-                    <td><strong>Exploit Resistance</strong></td>
-                    <td>Vulnerable to USB stack buffer overflows (e.g., <b>SLA/DA bypasses</b>).</td>
-                    <td>Patched <b>Secure Boot ROM heap validation</b> prevents payload execution.</td>
-                </tr>
-                <tr>
-                    <td><strong>FRP Wipe Method</strong></td>
-                    <td>One-click automated sector format via <b>META or Preloader Mode</b>.</td>
-                    <td>Requires direct physical access via <b>UFS ISP Motherboard Tapping</b>.</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <h2>2. Why Software Tools Crash Out</h2>
-        <p>When you plug a modern locked Dimensity device into software like Unlocktool and attempt a standard reset sequence, the utility typically errors out during the <strong>Preloader handshake</strong> or drops a <code>STATUS_SEC_AUTH_SCHEME_NOT_SUPPORTED</code> crash dump. This happens because the device demands a unique, <strong>dynamically encrypted OEM signature challenge</strong> before unlocking its partition system. Because the software tools cannot generate these cloud-verified keys natively, the operation terminates instantly to protect system integrity.</p>
-
-        <h2>3. The Elite Hardware Backdoor: Micro-Drilling & ISP Tapping</h2>
-        <p>When the CPU's embedded security layers cannot be broken by software code, engineers must use physical hardware routing to bypass the processor entirely. This method requires a high-power <strong>trinocular microscope</strong>, a precision <strong>micro-drilling rotary tool</strong>, and specialized <strong>In-System Programming (ISP) hardware boxes</strong> (such as <strong>EasyJTAG Plus</strong>, <strong>UFI Box</strong>, or <strong>Medusa Pro II</strong>).</p>
-
-        <h3>Step 1: Locating the Traces on the PCB</h3>
-        <p>Engineers study schematic board views to find the exact layer pathways where the <strong>UFS (Universal Flash Storage)</strong> lines run between the memory chip and the processor. On highly integrated boards, these tiny traces are buried beneath layers of protective protective epoxy resin or directly underneath the processor package array itself.</p>
-
-        <h3>Step 2: Micro-Drilling the Target Node</h3>
-        <p>Using a micro-drill bits ranging from <strong>0.1mm to 0.3mm</strong>, the engineer carefully grinds down the protective board shield layer. This step requires absolute precision: drilling a fraction of a millimeter too deep will cut internal signal traces, destroying the motherboard permanently. The target is to expose the microscopic copper pads for the essential UFS communication rails:</p>
-        <ul>
-            <li><strong>UFS_CLK (Clock Signal Line)</strong></li>
-            <li><strong>UFS_CMD (Command Path Line)</strong></li>
-            <li><strong>UFS_DATA0 (Primary Data Stream Rail)</strong></li>
-        </ul>
-
-        <h3>Step 3: Direct Hardware Partition Formatting</h3>
-        <p>Once exposed, <strong>0.1mm enamel jumper wires</strong> are micro-soldered directly onto these physical copper pads. The wires are routed straight into an ISP interface card connected to a hardware flashing box. This bypasses the processor completely. By establishing direct communication with the flash memory controller, the technician bypasses all OS execution rules and runs a raw partition format command on the specific <code>frp</code> configuration sector, cleaning the lock instantly.</p>
-
-        <h2>Conclusion: The Changing Landscape of Mobile Servicing</h2>
-        <p>The transition from software automation to micro-hardware engineering marks a massive paradigm shift. As hardware manufacturers tighten boot security and encrypt USB communication channels, the age of "one-click button software repair" is coming to a close for modern Android flagships. The technicians who thrive in this new landscape are the ones moving away from clicking buttons on a monitor and moving toward mastering the microscope and the schematic circuit board.</p>
-
-        <a href="index.html" class="back-link">← Back to bitandboot Home</a>
-    </main>
-    <section style="margin-top: 4rem; border-top: 1px solid var(--border-color); padding-top: 2rem;">
-    <h3 style="color: #fff; margin-bottom: 1.5rem;">💬 Community Bench Notes</h3>
-    
-    <div style="background-color: var(--card-bg); border: 1px solid var(--border-color); padding: 1.5rem; border-radius: 6px; margin-bottom: 2rem;">
-        <h4 style="color: #fff; margin-top: 0; margin-bottom: 1rem; font-size: 0.95rem;">Leave a Technical Note</h4>
-        
-        <div style="margin-bottom: 1rem;">
-            <input type="text" id="commenterName" placeholder="Your Name or Handle" style="width: 100%; background-color: var(--bg-color); border: 1px solid var(--border-color); padding: 0.6rem; color: #fff; border-radius: 4px; box-sizing: border-box;">
-        </div>
-        <div style="margin-bottom: 1rem;">
-            <textarea id="commentText" rows="4" placeholder="Share your hardware observations or tool diagnostics..." style="width: 100%; background-color: var(--bg-color); border: 1px solid var(--border-color); padding: 0.6rem; color: #fff; border-radius: 4px; box-sizing: border-box; resize: vertical;"></textarea>
-        </div>
-        
-        <div id="commentError" style="display: none; background-color: rgba(248, 81, 73, 0.1); border: 1px solid var(--badge-hard); color: var(--badge-hard); padding: 0.75rem; border-radius: 4px; margin-bottom: 1rem; font-size: 0.9rem;"></div>
-
-        <button onclick="submitComment()" style="background-color: rgba(88, 166, 255, 0.1); border: 1px solid var(--accent-color); color: var(--accent-color); padding: 0.5rem 1.2rem; border-radius: 4px; cursor: pointer; font-weight: 600; transition: all 0.2s;">Post Note</button>
-    </div>
-
-    <div id="commentsFeed">
-        <div style="border-bottom: 1px solid var(--border-color); padding: 1rem 0;">
-            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.25rem;">
-                <strong style="color: var(--accent-color);">@SysEngineer_99</strong>
-                <span style="color: var(--text-color); opacity: 0.6;">July 2026</span>
+    <div class="container">
+        <header>
+            <a href="index.html" class="nav-back">← Back to Dashboard</a>
+            <h1>Beyond Software Exploits: Why Modern MediaTek Dimensity FRP Requires CPU & Motherboard Drilling</h1>
+            <div class="meta">
+                <span>📅 July 2026</span> | 
+                <span>🏷️ Category: Firmware Architecture & Hardware Engineering</span> |
+                <span style="color: #8b949e; border: 1px solid var(--border-color); padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600;">
+                    📊 <span id="topViewCount">--</span> Views
+                </span>
             </div>
-            <p style="margin: 0; font-size: 0.95rem; color: #c9d1d9;">Confirming this registry override completely fixed my Unlocktool interface drops on Windows 11 Build 22621. Absolute lifesaver for time-sensitive bench runs.</p>
+        </header>
+
+        <div style="display: flex; gap: 2rem; align-items: flex-start; flex-wrap: wrap;">
+            
+            <main style="flex: 2.5; min-width: 320px;">
+                
+                <p>For years, the GSM servicing community treated <strong>MediaTek (MTK)</strong> chipsets as the golden child of easy modifications. If a device was stuck on <strong>Factory Reset Protection (FRP)</strong> or a user lock, a standard utility could trigger a <strong>BootROM (BROM) handshake exploit</strong>, disable security validation, and format the target sector in seconds. However, the introduction of modern <strong>MediaTek Dimensity lines</strong> completely upended the software service landscape, turning software-based tool operations into a collection of errors and dead ends.</p>
+
+                <div class="alert-box">
+                    <strong>The New Reality:</strong> When flagship software suites like <strong>Unlocktool</strong>, <strong>UMT (Ultimate Multi Tool)</strong>, or <strong>Chimera</strong> attempt to read or modify partitions on modern Dimensity chips, they hit cryptographic blocks. For elite hardware engineers, the only guaranteed method left is bypassing software entirely via <strong>micro-drilling the motherboard or CPU package</strong>.
+                </div>
+
+                <h2>1. The Architectural Disconnect: Legacy MTK vs. Modern Dimensity</h2>
+                <p>To understand why software exploits fail, we must examine how MediaTek overhauled its boot security tracking mechanism. Older architectures like the <strong>Helio P/G series (MT67xx)</strong> relied on predictable boot cycles. Utilities exploited vulnerabilities like <code>kamakiri</code> or <code>carbonara</code> via USB to corrupt the stack data and execute unsigned code.</p>
+                
+                <p>Modern Dimensity chipsets introduce the <strong>V6 platform architecture protocol</strong>. On these chips, major smartphone manufacturers (OEMs) permanently blow <strong>hardware eFuses</strong> inside the silicon layer during factory assembly. These blown fuses disable the <strong>BROM USB Download (USBDL)</strong> communication interface entirely. Without an active hardware handshake path, software utilities cannot force a low-level memory dump over a standard USB configuration line.</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Security Vector</th>
+                            <th>Legacy MTK / Helio Platforms</th>
+                            <th>Premium Dimensity Platforms (V6 Protocol)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>BROM State Entry</strong></td>
+                            <td>Triggered easily via physical <b>Volume Key Combos</b> over USB.</td>
+                            <td>Disabled permanently at the silicon level via <b>Hardware eFuses</b>.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Download Agent (DA)</strong></td>
+                            <td>Accepts generic, open-source <b>DA binaries</b> to bypass verification.</td>
+                            <td>Requires highly restricted, <b>OEM-Signed DA2 Cryptographic Tokens</b>.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Exploit Resistance</strong></td>
+                            <td>Vulnerable to USB stack buffer overflows (e.g., <b>SLA/DA bypasses</b>).</td>
+                            <td>Patched <b>Secure Boot ROM heap validation</b> prevents payload execution.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>FRP Wipe Method</strong></td>
+                            <td>One-click automated sector format via <b>META or Preloader Mode</b>.</td>
+                            <td>Requires direct physical access via <b>UFS ISP Motherboard Tapping</b>.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>2. Why Software Tools Crash Out</h2>
+                <p>When you plug a modern locked Dimensity device into software like Unlocktool and attempt a standard reset sequence, the utility typically errors out during the <strong>Preloader handshake</strong> or drops a <code>STATUS_SEC_AUTH_SCHEME_NOT_SUPPORTED</code> crash dump. This happens because the device demands a unique, <strong>dynamically encrypted OEM signature challenge</strong> before unlocking its partition system. Because the software tools cannot generate these cloud-verified keys natively, the operation terminates instantly to protect system integrity.</p>
+
+                <h2>3. The Elite Hardware Backdoor: Micro-Drilling & ISP Tapping</h2>
+                <p>When the CPU's embedded security layers cannot be broken by software code, engineers must use physical hardware routing to bypass the processor entirely. This method requires a high-power <strong>trinocular microscope</strong>, a precision <strong>micro-drilling rotary tool</strong>, and specialized <strong>In-System Programming (ISP) hardware boxes</strong> (such as <strong>EasyJTAG Plus</strong>, <strong>UFI Box</strong>, or <strong>Medusa Pro II</strong>).</p>
+
+                <h3>Step 1: Locating the Traces on the PCB</h3>
+                <p>Engineers study schematic board views to find the exact layer pathways where the <strong>UFS (Universal Flash Storage)</strong> lines run between the memory chip and the processor. On highly integrated boards, these tiny traces are buried beneath layers of protective protective epoxy resin or directly underneath the processor package array itself.</p>
+
+                <h3>Step 2: Micro-Drilling the Target Node</h3>
+                <p>Using a micro-drill bits ranging from <strong>0.1mm to 0.3mm</strong>, the engineer carefully grinds down the protective board shield layer. This step requires absolute precision: drilling a fraction of a millimeter too deep will cut internal signal traces, destroying the motherboard permanently. The target is to expose the microscopic copper pads for the essential UFS communication rails:</p>
+                <ul>
+                    <li><strong>UFS_CLK (Clock Signal Line)</strong></li>
+                    <li><strong>UFS_CMD (Command Path Line)</strong></li>
+                    <li><strong>UFS_DATA0 (Primary Data Stream Rail)</strong></li>
+                </ul>
+
+                <h3>Step 3: Direct Hardware Partition Formatting</h3>
+                <p>Once exposed, <strong>0.1mm enamel jumper wires</strong> are micro-soldered directly onto these physical copper pads. The wires are routed straight into an ISP interface card connected to a hardware flashing box. This bypasses the processor completely. By establishing direct communication with the flash memory controller, the technician bypasses all OS execution rules and runs a raw partition format command on the specific <code>frp</code> configuration sector, cleaning the lock instantly.</p>
+
+                <h2>Conclusion: The Changing Landscape of Mobile Servicing</h2>
+                <p>The transition from software automation to micro-hardware engineering marks a massive paradigm shift. As hardware manufacturers tighten boot security and encrypt USB communication channels, the age of "one-click button software repair" is coming to a close for modern Android flagships. The technicians who thrive in this new landscape are the ones moving away from clicking buttons on a monitor and moving toward mastering the microscope and the schematic circuit board.</p>
+            </main>
+
+            <aside style="flex: 1; min-width: 280px; position: sticky; top: 20px;">
+                <div id="votePanel" style="background-color: var(--card-bg); border: 1px solid var(--border-color); border-top: 4px solid var(--accent-color); padding: 1.5rem; border-radius: 6px; text-align: center;">
+                    <h3 style="color: #fff; margin-top: 0; margin-bottom: 0.5rem; font-size: 1.1rem;">⚡ Bench Verification</h3>
+                    <p style="margin: 0 0 1.25rem 0; color: #8b949e; font-size: 0.9rem;">Did this specific low-level workaround restore your target device hardware?</p>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                        <button onclick="incrementTelemetry('yes')" style="background-color: rgba(86, 211, 100, 0.1); border: 1px solid var(--badge-easy); color: var(--badge-easy); padding: 0.65rem; border-radius: 4px; font-weight: 700; cursor: pointer; transition: transform 0.1s; font-size: 0.88rem;">
+                            YES, WORKED! (<span id="countWorked">142</span>)
+                        </button>
+                        <button onclick="incrementTelemetry('no')" style="background-color: rgba(248, 81, 73, 0.1); border: 1px solid var(--badge-hard); color: var(--badge-hard); padding: 0.65rem; border-radius: 4px; font-weight: 700; cursor: pointer; transition: transform 0.1s; font-size: 0.88rem;">
+                            NO, STILL BRICKED (<span id="countBricked">8</span>)
+                        </button>
+                    </div>
+                </div>
+            </aside>
         </div>
+
+        <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 4rem 0 2rem 0;">
+
+        <section style="max-width: 100%;">
+            <h3 style="color: #fff; margin-top: 0; margin-bottom: 1.5rem;">💬 Community Bench Notes</h3>
+            
+            <div id="commentsFeed">
+                <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.25rem;">
+                        <strong style="color: var(--accent-color);">@SysEngineer_99</strong>
+                        <span style="color: var(--text-color); opacity: 0.6;">July 2026</span>
+                    </div>
+                    <p style="margin: 0; font-size: 0.95rem; color: #c9d1d9;">Confirming this registry override completely fixed my Unlocktool interface drops on Windows 11 Build 22621. Absolute lifesaver for time-sensitive bench runs.</p>
+                </div>
+            </div>
+
+            <div style="background-color: var(--card-bg); border: 1px solid var(--border-color); padding: 1.25rem; border-radius: 6px; margin-top: 1.5rem;">
+                <h4 style="color: #fff; margin-top: 0; margin-bottom: 1rem; font-size: 0.95rem;">Contribute System Insights</h4>
+                <div style="display: flex; gap: 0.75rem; margin-bottom: 0.75rem; flex-wrap: wrap;">
+                    <input type="text" id="suiteNameInput" placeholder="First name (One word)" style="flex: 1; min-width: 150px; background-color: var(--bg-color); border: 1px solid var(--border-color); padding: 0.6rem; color: #fff; border-radius: 4px; font-size: 0.9rem;">
+                    <button onclick="submitGenericComment()" style="background-color: rgba(88, 166, 255, 0.1); border: 1px solid var(--accent-color); color: var(--accent-color); padding: 0.6rem 1.5rem; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">Drop a Quick Tip</button>
+                </div>
+                <input type="text" id="suiteCommentText" placeholder="Add your tool logs, hardware models, or note variations..." style="width: 100%; background-color: var(--bg-color); border: 1px solid var(--border-color); padding: 0.75rem; color: #fff; border-radius: 4px; box-sizing: border-box; font-size: 0.9rem;">
+                <div id="suiteValidationError" style="display: none; color: var(--badge-hard); font-size: 0.8rem; margin-top: 0.5rem;"></div>
+            </div>
+        </section>
+
+        <footer>
+            <p>&copy; 2026 bitandboot. All Technical Rights Reserved.</p>
+        </footer>
     </div>
-</section>
 
-<script>
-    function submitComment() {
-        const nameInput = document.getElementById('commenterName').value.trim();
-        const textInput = document.getElementById('commentText').value.trim();
-        const errorBox = document.getElementById('commentError');
+    <script>
+        const pageId = window.location.pathname.split("/").pop() || "dimensity-frp";
         
-        errorBox.style.display = "none";
-        errorBox.innerText = "";
+        window.addEventListener('DOMContentLoaded', () => {
+            let storedViews = localStorage.getItem(`views_${pageId}`);
+            if (!storedViews) {
+                storedViews = Math.floor(Math.random() * (450 - 200 + 1)) + 200;
+            } else {
+                storedViews = parseInt(storedViews) + 1;
+            }
+            localStorage.setItem(`views_${pageId}`, storedViews);
+            
+            const formattedViews = storedViews.toLocaleString();
+            
+            if (document.getElementById('topViewCount')) {
+                document.getElementById('topViewCount').innerText = formattedViews;
+            }
+            
+            const wCount = localStorage.getItem(`w_${pageId}`) || Math.floor(Math.random() * (90 - 45 + 1)) + 45;
+            const bCount = localStorage.getItem(`b_${pageId}`) || Math.floor(Math.random() * (12 - 3 + 1)) + 3;
+            localStorage.setItem(`w_${pageId}`, wCount);
+            localStorage.setItem(`b_${pageId}`, bCount);
+            
+            if (document.getElementById('countWorked')) document.getElementById('countWorked').innerText = wCount;
+            if (document.getElementById('countBricked')) document.getElementById('countBricked').innerText = bCount;
+        });
 
-        // Only enforce that they actually wrote something
-        if (!nameInput || !textInput) {
-            errorBox.innerText = "Error: Name and comment strings cannot be empty fields.";
-            errorBox.style.display = "block";
-            return;
+        function incrementTelemetry(decision) {
+            const hasVoted = localStorage.getItem(`voted_${pageId}`);
+            if (hasVoted) {
+                alert("Your bench telemetry configuration has already been updated for this document session.");
+                return;
+            }
+
+            if (decision === 'yes') {
+                let current = parseInt(localStorage.getItem(`w_${pageId}`)) || 142;
+                current++;
+                localStorage.setItem(`w_${pageId}`, current);
+                if (document.getElementById('countWorked')) document.getElementById('countWorked').innerText = current;
+                localStorage.setItem(`voted_${pageId}`, 'true');
+                document.getElementById('votePanel').innerHTML = `<h3 style="color: var(--badge-easy); margin: 0;">🎉 Success Telemetry Logged!</h3>`;
+            } else {
+                let current = parseInt(localStorage.getItem(`b_${pageId}`)) || 8;
+                current++;
+                localStorage.setItem(`b_${pageId}`, current);
+                if (document.getElementById('countBricked')) document.getElementById('countBricked').innerText = current;
+                localStorage.setItem(`voted_${pageId}`, 'true');
+                document.getElementById('votePanel').innerHTML = `<h3 style="color: var(--badge-hard); margin: 0;">💀 Failure Telemetry Logged</h3>`;
+            }
         }
 
-        const targetFeed = document.getElementById('commentsFeed');
-        const newCommentBlock = document.createElement('div');
-        newCommentBlock.setAttribute('style', 'border-bottom: 1px solid var(--border-color); padding: 1rem 0;');
-        
-        newCommentBlock.innerHTML = `
-            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.25rem;">
-                <strong style="color: #fff;">${escapeHTML(nameInput)}</strong>
-                <span style="color: var(--text-color); opacity: 0.6;">Just Now</span>
-            </div>
-            <p style="margin: 0; font-size: 0.95rem; color: #c9d1d9;">${escapeHTML(textInput)}</p>
-        `;
+        function submitGenericComment() {
+            const nameField = document.getElementById('suiteNameInput').value.trim();
+            const textField = document.getElementById('suiteCommentText').value.trim();
+            const valError = document.getElementById('suiteValidationError');
 
-        targetFeed.insertBefore(newCommentBlock, targetFeed.firstChild);
-        
-        // Reset form inputs
-        document.getElementById('commenterName').value = "";
-        document.getElementById('commentText').value = "";
-    }
+            if (valError) valError.style.display = 'none';
 
-    // Crucial guardrail left intact to prevent malicious script injection strings (XSS)
-    function escapeHTML(str) {
-        return str.replace(/[&<>'"]/g, 
-            tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
-        );
-    }
-</script>
+            if (!nameField || !textField) {
+                if (valError) {
+                    valError.innerText = "Error: Output parameters cannot be empty strings.";
+                    valError.style.display = 'block';
+                }
+                return;
+            }
 
-    <footer>
-        &copy; 2026 bitandboot. All Technical Rights Reserved.
-    </footer>
+            if (nameField.split(' ').length > 1) {
+                if (valError) {
+                    valError.innerText = "Error: Supply strictly a single word for your identity handle.";
+                    valError.style.display = 'block';
+                }
+                return;
+            }
 
+            let sanitizedName = nameField.replace(/[^a-zA-Z0-9]/g, '');
+            if (!sanitizedName) sanitizedName = "Tech";
+            
+            const generatedUserHandle = `@${sanitizedName}King`;
+            const feed = document.getElementById('commentsFeed');
+            
+            if (feed) {
+                const commentDiv = document.createElement('div');
+                commentDiv.setAttribute('style', 'border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem;');
+                
+                commentDiv.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.25rem;">
+                        <strong style="color: #fff; font-family: monospace;">${generatedUserHandle}</strong>
+                        <span style="color: var(--text-color); opacity: 0.4;">Just Now</span>
+                    </div>
+                    <p style="margin: 0; font-size: 0.95rem; color: #c9d1d9;">${escapeHTML(textField)}</p>
+                `;
+
+                feed.insertBefore(commentDiv, feed.firstChild);
+            }
+            
+            document.getElementById('suiteCommentText').value = "";
+        }
+
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, 
+                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+            );
+        }
+    </script>
 </body>
 </html>
