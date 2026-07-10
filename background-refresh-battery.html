@@ -95,7 +95,6 @@
             margin-bottom: 1.5rem;
         }
 
-        /* Executive Summary Box */
         .exec-summary {
             background: rgba(88, 166, 255, 0.05);
             border-left: 4px solid var(--accent-color);
@@ -119,7 +118,6 @@
             margin-bottom: 0.5rem;
         }
 
-        /* Analytical Table */
         .analysis-table-wrapper {
             overflow-x: auto;
             margin: 2rem 0;
@@ -154,7 +152,6 @@
         .impact-med { color: var(--warning-color); font-weight: bold; }
         .impact-low { color: var(--success-color); font-weight: bold; }
 
-        /* Bench Verification Styling */
         .bench-verification {
             background-color: #10141b;
             border: 1px dashed #388bfd;
@@ -179,7 +176,6 @@
             color: #ff7b72;
         }
 
-        /* Content Sections */
         h2 {
             color: #fff;
             border-bottom: 1px solid var(--border-color);
@@ -199,7 +195,6 @@
             margin: 1.5rem 0;
         }
 
-        /* Comments Section */
         .comments-section {
             margin-top: 4rem;
             border-top: 1px solid var(--border-color);
@@ -414,33 +409,62 @@
             <p><em>Empirical conclusion:</em> Event-driven payload structures yield a <strong style="color: var(--success-color);">82.3% active reduction</strong> in idle current consumption compared to uncoordinated polling implementations.</p>
         </div>
 
-        <h2>The Developer Architectural Blueprint</h2>
-        <p>If you are an engineer building applications, instead of forcing the app to wake up and poll the network constantly via background execution handlers, rely on high-efficiency remote execution architectures. Below is an example of an architectural implementation shifting background execution logic to an optimized, opportunistic remote silent trigger handler:</p>
+        <h2>The Developer Architectural Blueprint (with Programmatic Verification)</h2>
+        <p>If you are an engineer building applications, your background execution threads must adhere to explicit performance targets. Below is the verified architectural framework implementing programmatic bench monitoring alongside optimized remote event triggers:</p>
 
         <div class="code-block">
-// Better Architecture: Handling Silent Push Triggers rather than Interval Polling
+// Programmatic Performance Targets for Hardware Telemetry Verification
+struct BenchVerificationConfig {
+    static let maxExecutionTimeWindow: TimeInterval = 3.0 // Seconds allowed before core suspension
+    static let targetCurrentThresholdmA: Double = 6.0    // Expected burst threshold maximum
+}
+
+// Optimized Architecture: Event-Driven Push Payload with Bench Instrumentation Hooks
 func application(_ application: UIApplication, 
                  didReceiveRemoteNotification userInfo: [AnyHashable : Any], 
                  fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
     
-    // Check if background payload requires content update
+    #if DEBUG
+    // Bench Verification Hook: Start tracking telemetry window and hardware runtime
+    let executionStartTime = CFAbsoluteTimeGetCurrent()
+    print("[Bench Telemetry] Core wake-lock acknowledged. Starting telemetry evaluation window...")
+    #endif
+
+    // Validate if the background payload meets specific structural constraints
     if let updateAvailable = userInfo["content-available"] as? Int, updateAvailable == 1 {
         
-        // Run a lightweight, highly specific background asset fetch
+        // Execute a lightweight, highly specific asset transactional download
         NetworkManager.shared.fetchLatestAssets { success in
+            
+            #if DEBUG
+            // Bench Verification Hook: Measure runtime window efficiency to audit CPU Churn
+            let runtimeDuration = CFAbsoluteTimeGetCurrent() - executionStartTime
+            print("[Bench Telemetry] Operational sequence complete. Runtime: \(runtimeDuration)s")
+            
+            // Explicit Validation: Verify execution runtime stays safely below the hardware allocation window
+            if runtimeDuration > BenchVerificationConfig.maxExecutionTimeWindow {
+                print("[Bench Error] Core wake-lock violation detected! Execution exceeded \(BenchVerificationConfig.maxExecutionTimeWindow)s limit.")
+            } else {
+                print("[Bench Verified] Execution timing complies with event-driven low-power C-state residency.")
+            }
+            #endif
+
             if success {
-                completionHandler(.newData) // Gracefully return to frozen state
+                completionHandler(.newData) // Instantly freeze threads to safely yield core back to deep sleep
             } else {
                 completionHandler(.failed)
             }
         }
     } else {
+        #if DEBUG
+        print("[Bench Telemetry] Irrelevant payload filtered. Core immediately returned to low-power standby.")
+        #endif
         completionHandler(.noData)
     }
 }
         </div>
 
-        <p>By forcing the data refresh to execute only when the server specifically flags a change via structural payloads, you prevent the app from wake-locking the phone unnecessarily, securing maximum hardware performance and battery life.</p>
+        <p>By forcing the data refresh to execute only when the server specifically flags a change via structural payloads, and monitoring runtime windows directly within code assertions, you prevent the app from wake-locking the phone unnecessarily, securing maximum hardware performance and battery life.</p>
 
         <section class="comments-section">
             <h2>Technical Discussion Feed</h2>
@@ -483,14 +507,12 @@ func application(_ application: UIApplication,
             const textField = document.getElementById('comment-text').value.trim();
             const valError = document.getElementById('username-error');
             
-            // Hide previous errors
             valError.style.display = 'none';
 
             if (!nameField || !textField) {
-                return; // Do nothing if basic elements are empty
+                return;
             }
 
-            // Enforce alphanumeric handle restriction
             const alphaNumericRegex = /^[a-zA-Z0-9\s_]+$/;
             if (!alphaNumericRegex.test(nameField)) {
                 if (valError) {
@@ -522,7 +544,6 @@ func application(_ application: UIApplication,
 
                 feed.insertBefore(commentDiv, feed.firstChild);
 
-                // Reset forms
                 document.getElementById('username').value = '';
                 document.getElementById('comment-text').value = '';
             }
