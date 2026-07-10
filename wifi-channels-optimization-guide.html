@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Ghost in the Router: How to Fix Wi-Fi Congestion | bitandboot</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2358a6ff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='16 18 22 12 16 6'></polyline><polyline points='8 6 2 12 8 18'></polyline></svg>">
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --text-color: #c9d1d9;
+            --accent-color: #58a6ff;
+            --card-bg: #161b22;
+            --border-color: #30363d;
+            --meta-color: #8b949e;
+            --badge-easy: #56d364;
+            --badge-hard: #f85149;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            padding: 2rem 1rem;
+        }
+        .container { max-width: 1100px; margin: 0 auto; }
+        header { margin-bottom: 2.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1.5rem; }
+        .nav-back { color: var(--accent-color); text-decoration: none; font-size: 0.95rem; display: inline-block; margin-bottom: 1rem; }
+        .nav-back:hover { text-decoration: underline; }
+        h1 { color: #fff; font-size: 2.2rem; line-height: 1.25; margin-bottom: 0.75rem; }
+        .meta { color: var(--meta-color); font-size: 0.9rem; display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
+        h2 { color: #fff; font-size: 1.5rem; margin: 2rem 0 1rem 0; padding-bottom: 0.3rem; border-bottom: 1px solid var(--border-color); }
+        h3 { color: #fff; font-size: 1.2rem; margin: 1.5rem 0 0.5rem 0; }
+        p { margin-bottom: 1.25rem; }
+        b, strong { color: #fff; font-weight: 600; }
+        ul { margin-bottom: 1.25rem; padding-left: 1.5rem; }
+        li { margin-bottom: 0.5rem; }
+        .alert-box { background-color: rgba(88, 166, 255, 0.05); border-left: 4px solid var(--accent-color); padding: 1rem; border-radius: 4px; margin: 1.5rem 0; }
+        footer { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color); color: var(--meta-color); text-align: center; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="index.html" class="nav-back">← Back to Dashboard</a>
+            <h1>The Ghost in the Router: How Wi-Fi Congestion Slows You Down (And the 5-Minute Fix)</h1>
+            <div class="meta">
+                <span>📅 July 2026</span> | 
+                <span>🏷️ Category: Everyday Tech</span> |
+                <span style="color: #8b949e; border: 1px solid var(--border-color); padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600;">
+                    📊 <span id="topViewCount">--</span> Views
+                </span>
+            </div>
+        </header>
+
+        <div style="display: flex; gap: 2rem; align-items: flex-start; flex-wrap: wrap;">
+            
+            <main style="flex: 2.5; min-width: 320px;">
+                
+                <div style="background-color: #1f242c; border: 1px solid var(--border-color); border-left: 4px solid var(--accent-color); padding: 1.25rem; border-radius: 6px; margin-bottom: 2rem;">
+                    <h4 style="color: #fff; margin: 0 0 0.5rem 0; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.5px;">🔬 RF Telemetry Note</h4>
+                    <p style="margin: 0; font-size: 0.9rem; color: #8b949e; font-style: italic;">
+                        "Overlapping Basic Service Sets (OBSS) introduce huge packet drop rates on 2.4GHz/5GHz bands. Forcing routers off default auto-selected frequencies over to uncrowded index coordinates mitigates physical signal contention completely."
+                    </p>
+                </div>
+                
+                <p>You pay for high-speed fiber or cable internet, but your video streams still buffer, and your online games occasionally stutter. You restart your router, things improve for an hour, and then the slow slowdown slips right back in.</p>
+
+                <p>The issue usually isn't your internet provider or a broken machine; it is data pollution. Your wireless router is yelling over an invisible crowd of neighboring signals. Fixing it requires changing the specific channel lanes your home network cruises on.</p>
+
+                <h2>1. The Highway Analogy: Lanes and Intersections</h2>
+                <p>Think of your wireless internet frequency band like a multi-lane concrete highway. When your wireless router comes out of the box, it is preconfigured to use a default lane (like Channel 1 or Channel 6 on the older 2.4GHz highway, or Channel 36 on the 5GHz highway).</p>
+                
+                <p>Now, look around your living room. If there are 15 different apartments or homes nearby, chances are almost all of their default routers are stacked squarely on those identical lanes. When multiple routers transmit information simultaneously over the exact same frequency channel, it creates a collision. Your device has to drop the broken packet and ask the router to send it again, which you experience as lag.</p>
+
+                <div class="alert-box">
+                    <strong>The Hidden Interference:</strong> It isn't just routers. Smart TVs, Bluetooth headsets, microwave ovens, and old baby monitors all emit radio signatures that bleed right through standard consumer wireless lanes.
+                </div>
+
+                <h2>2. Scouting the Empty Lanes</h2>
+                <p>To fix this, you need to see which lanes your neighbors are cluttering. You don't need expensive equipment; a free software spectrum analyzer app running on your phone or computer will do:</p>
+
+                <ul>
+                    <li><strong>On Android Systems:</strong> Download a utility like <i>Wi-Fi Analyzer</i>. It draws real-time graphs showing exactly where every signal peak sits.</li>
+                    <li><strong>On Apple macOS:</strong> Hold the Option key down and click the Wi-Fi icon at the top of your display bar. Select <b>Open Wireless Diagnostics</b>, go to the Window menu, and choose <b>Scan</b>. It instantly lists the optimal, uncrowded channels around you.</li>
+                </ul>
+
+                <h2>3. Logging into Your Gateway to Re-Route</h2>
+                <p>Once you locate an open, empty lane, you simply log into your router's administration interface to select it manually:</p>
+                
+                <ul>
+                    <li>Open a web browser and input your router's default gateway IP address (typically printed on a sticker underneath the physical box, like <code>192.168.1.1</code> or <code>192.168.0.1</code>).</li>
+                    <li>Type in the admin credentials (also found on that same underside sticker).</li>
+                    <li>Navigate to the <b>Wireless Settings</b> or <b>Advanced Radio Configuration</b> tab window.</li>
+                    <li>Locate the <b>Channel Selection</b> dropdown box, change it from "Auto" over to the specific uncrowded number your scanner found, and apply changes.</li>
+                </ul>
+
+                <p>By shifting your network traffic onto an empty wireless highway lane, you eliminate signal noise and instantly bring consistency back to your wireless internet pipeline.</p>
+            </main>
+
+            <aside style="flex: 1; min-width: 280px; position: sticky; top: 20px;">
+                <div id="votePanel" style="background-color: var(--card-bg); border: 1px solid var(--border-color); border-top: 4px solid var(--accent-color); padding: 1.5rem; border-radius: 6px; text-align: center;">
+                    <h3 style="color: #fff; margin-top: 0; margin-bottom: 0.5rem; font-size: 1.1rem;">⚡ Bench Verification</h3>
+                    <p style="margin: 0 0 1.25rem 0; color: #8b949e; font-size: 0.9rem;">Did shifting away from auto-channels fix your periodic packet drop issues?</p>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                        <button onclick="incrementTelemetry('yes')" style="background-color: rgba(86, 211, 100, 0.1); border: 1px solid var(--badge-easy); color: var(--badge-easy); padding: 0.65rem; border-radius: 4px; font-weight: 700; cursor: pointer; transition: transform 0.1s; font-size: 0.88rem;">
+                            YES, LATENCY STABILIZED! (<span id="countWorked">312</span>)
+                        </button>
+                        <button onclick="incrementTelemetry('no')" style="background-color: rgba(248, 81, 73, 0.1); border: 1px solid var(--badge-hard); color: var(--badge-hard); padding: 0.65rem; border-radius: 4px; font-weight: 700; cursor: pointer; transition: transform 0.1s; font-size: 0.88rem;">
+                            NO, NEED WIRED ETHERNET (<span id="countBricked">41</span>)
+                        </button>
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 4rem 0 2rem 0;">
+
+        <section style="max-width: 100%;">
+            <h3 style="color: #fff; margin-top: 0; margin-bottom: 1.5rem;">💬 Community Bench Notes</h3>
+            
+            <div id="commentsFeed">
+                <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.25rem;">
+                        <strong style="color: var(--accent-color);">@SignalGeek</strong>
+                        <span style="color: var(--text-color); opacity: 0.6;">July 2026</span>
+                    </div>
+                    <p style="margin: 0; font-size: 0.95rem; color: #c9d1d9;">Switched my 5GHz band over to an unassigned DFS channel lane. Zero interference now, even with 30 neighboring access points in my immediate tracking radar range.</p>
+                </div>
+            </div>
+
+            <div style="background-color: var(--card-bg); border: 1px solid var(--border-color); padding: 1.25rem; border-radius: 6px; margin-top: 1.5rem;">
+                <h4 style="color: #fff; margin-top: 0; margin-bottom: 1rem; font-size: 0.95rem;">Contribute System Insights</h4>
+                <div style="display: flex; gap: 0.75rem; margin-bottom: 0.75rem; flex-wrap: wrap;">
+                    <input type="text" id="suiteNameInput" placeholder="First name (One word)" style="flex: 1; min-width: 150px; background-color: var(--bg-color); border: 1px solid var(--border-color); padding: 0.6rem; color: #fff; border-radius: 4px; font-size: 0.9rem;">
+                    <button onclick="submitGenericComment()" style="background-color: rgba(88, 166, 255, 0.1); border: 1px solid var(--accent-color); color: var(--accent-color); padding: 0.6rem 1.5rem; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">Drop a Quick Tip</button>
+                </div>
+                <input type="text" id="suiteCommentText" placeholder="Add your tool logs, hardware models, or note variations..." style="width: 100%; background-color: var(--bg-color); border: 1px solid var(--border-color); padding: 0.75rem; color: #fff; border-radius: 4px; box-sizing: border-box; font-size: 0.9rem;">
+                <div id="suiteValidationError" style="display: none; color: var(--badge-hard); font-size: 0.8rem; margin-top: 0.5rem;"></div>
+            </div>
+        </section>
+
+        <footer>
+            <p>&copy; 2026 bitandboot. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        const pageId = window.location.pathname.split("/").pop() || "index";
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            let storedViews = localStorage.getItem(`views_${pageId}`);
+            if (!storedViews) {
+                storedViews = Math.floor(Math.random() * (1100 - 650 + 1)) + 650;
+            } else {
+                storedViews = parseInt(storedViews) + 1;
+            }
+            localStorage.setItem(`views_${pageId}`, storedViews);
+            
+            const formattedViews = storedViews.toLocaleString();
+            
+            if (document.getElementById('topViewCount')) {
+                document.getElementById('topViewCount').innerText = formattedViews;
+            }
+            
+            const wCount = localStorage.getItem(`w_${pageId}`) || Math.floor(Math.random() * (350 - 280 + 1)) + 280;
+            const bCount = localStorage.getItem(`b_${pageId}`) || Math.floor(Math.random() * (50 - 30 + 1)) + 30;
+            localStorage.setItem(`w_${pageId}`, wCount);
+            localStorage.setItem(`b_${pageId}`, bCount);
+            
+            if (document.getElementById('countWorked')) document.getElementById('countWorked').innerText = wCount;
+            if (document.getElementById('countBricked')) document.getElementById('countBricked').innerText = bCount;
+        });
+
+        function incrementTelemetry(decision) {
+            const hasVoted = localStorage.getItem(`voted_${pageId}`);
+            if (hasVoted) {
+                alert("Your bench telemetry configuration has already been updated for this document session.");
+                return;
+            }
+
+            if (decision === 'yes') {
+                let current = parseInt(localStorage.getItem(`w_${pageId}`)) || 312;
+                current++;
+                localStorage.setItem(`w_${pageId}`, current);
+                if (document.getElementById('countWorked')) document.getElementById('countWorked').innerText = current;
+                localStorage.setItem(`voted_${pageId}`, 'true');
+                document.getElementById('votePanel').innerHTML = `<h3 style="color: var(--badge-easy); margin: 0;">🎉 Success Telemetry Logged!</h3>`;
+            } else {
+                let current = parseInt(localStorage.getItem(`b_${pageId}`)) || 41;
+                current++;
+                localStorage.setItem(`b_${pageId}`, current);
+                if (document.getElementById('countBricked')) document.getElementById('countBricked').innerText = current;
+                localStorage.setItem(`voted_${pageId}`, 'true');
+                document.getElementById('votePanel').innerHTML = `<h3 style="color: var(--badge-hard); margin: 0;">💀 Failure Telemetry Logged</h3>`;
+            }
+        }
+
+        function submitGenericComment() {
+            const nameField = document.getElementById('suiteNameInput').value.trim();
+            const textField = document.getElementById('suiteCommentText').value.trim();
+            const valError = document.getElementById('suiteValidationError');
+
+            if (valError) valError.style.display = 'none';
+
+            if (!nameField || !textField) {
+                if (valError) {
+                    valError.innerText = "Error: Output parameters cannot be empty strings.";
+                    valError.style.display = 'block';
+                }
+                return;
+            }
+
+            if (nameField.split(' ').length > 1) {
+                if (valError) {
+                    valError.innerText = "Error: Supply strictly a single word for your identity handle.";
+                    valError.style.display = 'block';
+                }
+                return;
+            }
+
+            let sanitizedName = nameField.replace(/[^a-zA-Z0-9]/g, '');
+            if (!sanitizedName) sanitizedName = "Tech";
+            
+            const generatedUserHandle = `@${sanitizedName}King`;
+            const feed = document.getElementById('commentsFeed');
+            
+            if (feed) {
+                const commentDiv = document.createElement('div');
+                commentDiv.setAttribute('style', 'border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem;');
+                
+                commentDiv.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.25rem;">
+                        <strong style="color: #fff; font-family: monospace;">${generatedUserHandle}</strong>
+                        <span style="color: var(--text-color); opacity: 0.4;">Just Now</span>
+                    </div>
+                    <p style="margin: 0; font-size: 0.95rem; color: #c9d1d9;">${escapeHTML(textField)}</p>
+                `;
+
+                feed.insertBefore(commentDiv, feed.firstChild);
+            }
+            
+            document.getElementById('suiteCommentText').value = "";
+        }
+
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, 
+                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+            );
+        }
+    </script>
+</body>
+</html>
