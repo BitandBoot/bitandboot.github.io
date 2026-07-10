@@ -173,9 +173,72 @@
             margin: 1.5rem 0;
         }
 
+        /* Telemetry Vote Panel Styling */
+        .vote-panel-container {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 1.5rem;
+            margin: 3rem 0;
+            text-align: center;
+        }
+
+        .vote-panel-container h3 {
+            margin-top: 0;
+            color: #fff;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .vote-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .btn-vote-success {
+            background-color: transparent;
+            color: var(--success-color);
+            border: 1px solid var(--success-color);
+        }
+
+        .btn-vote-success:hover {
+            background-color: rgba(46, 164, 79, 0.1);
+        }
+
+        .btn-vote-danger {
+            background-color: transparent;
+            color: var(--danger-color);
+            border: 1px solid var(--danger-color);
+        }
+
+        .btn-vote-danger:hover {
+            background-color: rgba(248, 81, 73, 0.1);
+        }
+
+        .telemetry-status-box {
+            padding: 1rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: inline-block;
+        }
+
+        .status-box-success {
+            background-color: rgba(46, 164, 79, 0.15);
+            color: var(--success-color);
+            border: 1px solid rgba(46, 164, 79, 0.3);
+        }
+
+        .status-box-failure {
+            background-color: rgba(248, 81, 73, 0.15);
+            color: var(--danger-color);
+            border: 1px solid rgba(248, 81, 73, 0.3);
+        }
+
         /* Comments Styling */
         .comments-section {
-            margin-top: 4rem;
+            margin-top: 3rem;
             border-top: 1px solid var(--border-color);
             padding-top: 2rem;
         }
@@ -385,6 +448,14 @@ void optimize_charging_profile(BatteryState* state, PowerManagementIC* pmic) {
 }
         </div>
 
+        <div class="vote-panel-container" id="votePanel">
+            <h3>Was this architectural brief clear and helpful?</h3>
+            <div class="vote-actions">
+                <button type="button" class="btn btn-vote-success" onclick="logTelemetry(true)">Submit Positive Telemetry</button>
+                <button type="button" class="btn btn-vote-danger" onclick="logTelemetry(false)">Submit Negative Telemetry</button>
+            </div>
+        </div>
+
         <section class="comments-section">
             <h2>Technical Discussion Feed</h2>
             
@@ -421,31 +492,64 @@ void optimize_charging_profile(BatteryState* state, PowerManagementIC* pmic) {
     </footer>
 
     <script>
+        // Persistent Dynamic Keying via localStorage Architecture Layer
+        const pageKey = window.location.pathname;
+        const storageKeys = {
+            voted: `voted_${pageKey}`,
+            wCount: `wCount_${pageKey}`,
+            bCount: `bCount_${pageKey}`
+        };
+
+        // Initialize and verify status on window paint
+        window.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem(storageKeys.voted)) {
+                const status = localStorage.getItem(storageKeys.voted);
+                shiftVotePanelState(status === 'success');
+            }
+        });
+
+        // votePanel Element State Shifting Function
+        function logTelemetry(isPositive) {
+            localStorage.setItem(storageKeys.voted, isPositive ? 'success' : 'failure');
+            shiftVotePanelState(isPositive);
+        }
+
+        function shiftVotePanelState(isSuccess) {
+            const votePanel = document.getElementById('votePanel');
+            if (votePanel) {
+                if (isSuccess) {
+                    votePanel.innerHTML = `<div class="telemetry-status-box status-box-success">🎉 Success Telemetry Logged!</div>`;
+                } else {
+                    votePanel.innerHTML = `<div class="telemetry-status-box status-box-failure">💀 Failure Telemetry Logged</div>`;
+                }
+            }
+        }
+
+        // Comment processing with Structured String Cleansing
         function submitComment() {
             const nameField = document.getElementById('username').value.trim();
             const textField = document.getElementById('comment-text').value.trim();
             const valError = document.getElementById('username-error');
             
-            valError.style.display = 'none';
+            if (valError) valError.style.display = 'none';
 
             if (!nameField || !textField) {
                 return; 
             }
 
-            // Alphanumeric handle enforcement
-            const alphaNumericRegex = /^[a-zA-Z0-9\s_]+$/;
-            if (!alphaNumericRegex.test(nameField)) {
+            // Standardized Regex parameter tracking on username entity handling
+            const alphaNumericRegex = /^[a-zA-Z0-9_]+$/;
+            const continuousCleanedHandle = nameField.replace(/\s+/g, '_');
+
+            if (!alphaNumericRegex.test(continuousCleanedHandle)) {
                 if (valError) {
-                    valError.textContent = "Please enter a valid alphanumeric entity handle.";
+                    valError.textContent = "Please enter a valid alphanumeric entity handle (letters, numbers, underscores).";
                     valError.style.display = 'block';
                 }
                 return;
             }
 
-            let sanitizedName = nameField.replace(/[^a-zA-Z0-9_]/g, '');
-            if (!sanitizedName) sanitizedName = "TechReader";
-
-            const generatedUserHandle = `@${sanitizedName}`;
+            const generatedUserHandle = `@${continuousCleanedHandle}`;
             const feed = document.getElementById('commentsFeed');
 
             if (feed) {
@@ -463,6 +567,10 @@ void optimize_charging_profile(BatteryState* state, PowerManagementIC* pmic) {
                 `;
 
                 feed.insertBefore(commentDiv, feed.firstChild);
+
+                // Update standard limit metrics in local state cache
+                let wCount = parseInt(localStorage.getItem(storageKeys.wCount) || "0") + textField.split(/\s+/).length;
+                localStorage.setItem(storageKeys.wCount, wCount.toString());
 
                 // Reset inputs
                 document.getElementById('username').value = '';
