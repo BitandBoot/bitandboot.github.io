@@ -2,43 +2,127 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
         <loc>https://bitandboot.github.io/index.html</loc>
-        <lastmod>2026-07-09</lastmod>
+        <lastmod>2026-07-11</lastmod>
         <changefreq>daily</changefreq>
         <priority>1.00</priority>
     </url>
     <url>
+        <loc>https://bitandboot.github.io/phantom-space-storage-guide.html</loc>
+        <lastmod>2026-07-11</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.80</priority>
+    </url>
+    <url>
+        <loc>https://bitandboot.github.io/wifi-ghost-router-guide.html</loc>
+        <lastmod>2026-07-11</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.80</priority>
+    </url>
+    <url>
+        <loc>https://bitandboot.github.io/incognito-mode-myths.html</loc>
+        <lastmod>2026-07-11</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.80</priority>
+    </url>
+    <url>
+        <loc>https://bitandboot.github.io/background-refresh-battery.html</loc>
+        <lastmod>2026-07-11</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.80</priority>
+    </url>
+    <url>
+        <loc>https://bitandboot.github.io/fast-charging-battery-truth.html</loc>
+        <lastmod>2026-07-11</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.80</priority>
+    </url>
+    <url>
+        <loc>https://bitandboot.github.io/phone-screen-fragility.html</loc>
+        <lastmod>2026-07-11</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.80</priority>
+    </url>
+    <url>
+        <loc>https://bitandboot.github.io/device-battery-lifespan-guide.html</loc>
+        <lastmod>2026-07-11</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.80</priority>
+    </url>
+    <url>
+        <loc>https://bitandboot.github.io/native-laptop-maintenance-guide.html</loc>
+        <lastmod>2026-07-11</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.80</priority>
+    </url>
+    <url>
+        <loc>https://bitandboot.github.io/dns-speed-privacy-guide.html</loc>
+        <lastmod>2026-07-11</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.80</priority>
+    </url>
+    <url>
+        <loc>https://bitandboot.github.io/wifi-channels-optimization-guide.html</loc>
+        <lastmod>2026-07-11</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.80</priority>
+    </url>
+    <url>
         <loc>https://bitandboot.github.io/samsung-touch-issue-guide.html</loc>
-        <lastmod>2026-07-09</lastmod>
+        <lastmod>2026-07-10</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.80</priority>
     </url>
     <url>
         <loc>https://bitandboot.github.io/edl-mode-guide.html</loc>
-        <lastmod>2026-07-09</lastmod>
+        <lastmod>2026-07-10</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.80</priority>
     </url>
     <url>
         <loc>https://bitandboot.github.io/dimensity-frp-hardware-guide.html</loc>
-        <lastmod>2026-07-09</lastmod>
+        <lastmod>2026-07-10</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.80</priority>
+    </url>
+    <url>
+        <loc>https://bitandboot.github.io/optimistic-ui-psychology-guide.html</loc>
+        <lastmod>2026-07-11</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.80</priority>
+    </url>
+    <url>
+        <loc>https://bitandboot.github.io/proximity-tracking-ads-guide.html</loc>
+        <lastmod>2026-07-11</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.80</priority>
     </url>
     <url>
         <loc>https://bitandboot.github.io/windows-dse-gsm-tools.html</loc>
-        <lastmod>2026-07-09</lastmod>
+        <lastmod>2026-07-10</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.80</priority>
+    </url>
+    <url>
+        <loc>https://bitandboot.github.io/wsl2-libusb-udev-rules.html</loc>
+        <lastmod>2026-07-10</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.80</priority>
+    </url>
+    <url>
+        <loc>https://bitandboot.github.io/linux-dirty-kernel.html</loc>
+        <lastmod>2026-07-10</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.80</priority>
     </url>
     <url>
         <loc>https://bitandboot.github.io/demystifying-rpmb-partition.html</loc>
-        <lastmod>2026-07-09</lastmod>
+        <lastmod>2026-07-10</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.80</priority>
     </url>
     <url>
         <loc>https://bitandboot.github.io/nvram-nvdata-cellular-repair.html</loc>
-        <lastmod>2026-07-09</lastmod>
+        <lastmod>2026-07-10</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.80</priority>
     </url>
