@@ -16,166 +16,180 @@
             --card-bg: #161b22;
             --border-color: #30363d;
             --badge-easy: #56d364;
-            --badge-hard: #f85149;
             --badge-medium: #e3b341;
+            --badge-hard: #f85149;
         }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
             line-height: 1.6;
-        }
-        header {
-            border-bottom: 1px solid var(--border-color);
             padding: 2rem 1rem;
-            text-align: center;
         }
-        .logo {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: #fff;
-            letter-spacing: -1px;
-        }
-        .logo span {
-            color: var(--accent-color);
-        }
-        .tagline {
-            color: #8b949e;
-            font-size: 1.1rem;
-            margin-top: 0.5rem;
-        }
-        
-        .layout-wrapper {
-            max-width: 1100px;
-            margin: 2rem auto;
-            padding: 0 1rem;
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
             display: grid;
-            grid-template-columns: 2fr 1fr;
+            grid-template-columns: 1fr;
             gap: 2rem;
         }
-        
-        @media (max-width: 850px) {
-            .layout-wrapper {
-                grid-template-columns: 1fr;
+        @media (min-width: 768px) {
+            .container {
+                grid-template-columns: 3fr 1fr;
             }
         }
-
-        .intro-box {
-            background: linear-gradient(45deg, #1f2937, #111827);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
+        header {
+            grid-column: 1 / -1;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1.5rem;
+            margin-bottom: 1rem;
         }
-        .intro-box h2 {
-            margin-top: 0;
+        header h1 {
             color: #fff;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
         }
-
-        /* Real-Time Search Bar Styling */
+        header p {
+            color: #8b949e;
+            font-size: 1.1rem;
+        }
         .search-container {
-            margin-bottom: 1.5rem;
             position: relative;
+            margin-bottom: 2rem;
+            grid-column: 1 / -1;
         }
         .search-bar {
             width: 100%;
+            padding: 0.8rem 1rem 0.8rem 2.5rem;
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 6px;
-            padding: 0.75rem 1rem 0.75rem 2.5rem;
             color: #fff;
             font-size: 1rem;
-            box-sizing: border-box;
-            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+            transition: border-color 0.2s;
         }
         .search-bar:focus {
-            outline: none;
             border-color: var(--accent-color);
-            box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15);
         }
         .search-icon {
             position: absolute;
-            left: 0.9rem;
+            left: 0.8rem;
             top: 50%;
             transform: translateY(-50%);
             color: #8b949e;
             pointer-events: none;
         }
-        
+        .filter-status {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            background-color: rgba(88, 166, 255, 0.1);
+            border: 1px solid var(--accent-color);
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            margin-bottom: 1.5rem;
+            grid-column: 1 / -1;
+        }
+        .clear-filter-btn {
+            background: none;
+            border: none;
+            color: var(--accent-color);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .clear-filter-btn:hover {
+            text-decoration: underline;
+        }
+        .no-results {
+            display: none;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 2rem;
+            text-align: center;
+            border-radius: 6px;
+            color: #8b949e;
+            grid-column: 1 / -1;
+        }
+        .category-section {
+            margin-bottom: 2.5rem;
+        }
+        .category-title {
+            color: var(--accent-color);
+            margin: 1.5rem 0 1rem 0;
+            font-size: 1.4rem;
+        }
         .grid {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 1.25rem;
+            gap: 1.5rem;
         }
-        
-        .category-section {
-            margin-bottom: 2rem;
+        @media (min-width: 992px) {
+            .grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
-
         .card-wrapper {
             text-decoration: none;
             color: inherit;
             display: block;
-            transition: opacity 0.2s ease, transform 0.2s ease;
         }
-
         .card {
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 6px;
             padding: 1.5rem;
-            box-sizing: border-box;
-            transition: border-color 0.2s;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s, border-color 0.2s;
         }
-        .card-wrapper:hover .card {
-            transform: translateY(-2px);
-            border-color: var(--accent-color);
+        .card:hover {
+            transform: translateY(-3px);
+            border-color: #8b949e;
         }
         .card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin-bottom: 0.5rem;
+            margin-bottom: 1rem;
         }
-        .card .category {
-            font-size: 0.8rem;
+        .category {
+            font-size: 0.85rem;
+            color: #8b949e;
             text-transform: uppercase;
-            color: var(--accent-color);
-            font-weight: 600;
-            letter-spacing: 1px;
+            letter-spacing: 0.05em;
         }
-        
         .badge-group {
             display: flex;
             gap: 0.5rem;
-            font-size: 0.75rem;
         }
         .badge {
-            padding: 2px 8px;
-            border-radius: 12px;
+            font-size: 0.75rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
             font-weight: 600;
-            background: rgba(255,255,255,0.05);
+            background-color: rgba(255,255,255,0.05);
         }
         .badge.easy { color: var(--badge-easy); border: 1px solid rgba(86, 211, 100, 0.3); }
         .badge.medium { color: var(--badge-medium); border: 1px solid rgba(227, 179, 65, 0.3); }
         .badge.hard { color: var(--badge-hard); border: 1px solid rgba(248, 81, 73, 0.3); }
-        .badge.time { color: #8b949e; border: 1px solid var(--border-color); }
-
         .card h3 {
-            margin: 0.25rem 0 0.5rem 0;
             color: #fff;
+            margin-bottom: 0.75rem;
+            font-size: 1.2rem;
         }
         .card p {
             color: #8b949e;
             font-size: 0.95rem;
-            margin-bottom: 0;
+            flex-grow: 1;
         }
-
-        /* Sidebar Elements */
         .sidebar {
             display: flex;
             flex-direction: column;
@@ -189,8 +203,8 @@
         }
         .sidebar-widget h3 {
             color: #fff;
-            margin-bottom: 1rem;
             font-size: 1.1rem;
+            margin-bottom: 1rem;
             border-bottom: 1px solid var(--border-color);
             padding-bottom: 0.5rem;
         }
@@ -200,101 +214,54 @@
             gap: 0.5rem;
         }
         .tag-item {
-            font-size: 0.8rem;
-            background-color: var(--bg-color);
+            font-size: 0.85rem;
+            background-color: #21262d;
             border: 1px solid var(--border-color);
-            color: #8b949e;
-            padding: 4px 10px;
-            border-radius: 4px;
-            text-decoration: none;
+            padding: 0.3rem 0.6rem;
+            border-radius: 6px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            color: var(--text-color);
+            transition: background-color 0.2s, border-color 0.2s;
         }
-        .tag-item:hover, .tag-item.active {
+        .tag-item:hover {
+            background-color: #30363d;
+            border-color: #8b949e;
+        }
+        .tag-item.active {
+            background-color: rgba(88, 166, 255, 0.2);
             border-color: var(--accent-color);
             color: #fff;
-            background-color: rgba(88, 166, 255, 0.1);
         }
-
-        /* Active Filter Indicator Status Banner */
-        .filter-status {
-            display: none;
-            background-color: rgba(88, 166, 255, 0.1);
-            border: 1px solid var(--accent-color);
-            padding: 0.75rem 1rem;
-            border-radius: 6px;
-            margin-bottom: 1.5rem;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .clear-filter-btn {
-            background: none;
-            border: 1px solid var(--border-color);
-            color: #fff;
-            padding: 2px 10px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            cursor: pointer;
-        }
-        .clear-filter-btn:hover {
-            border-color: var(--badge-hard);
-            color: var(--badge-hard);
-        }
-
-        /* "No Results Found" Alert Box */
-        .no-results {
-            display: none;
-            background-color: rgba(248, 81, 73, 0.05);
-            border: 1px dashed var(--border-color);
-            color: #8b949e;
-            padding: 2rem;
-            text-align: center;
-            border-radius: 6px;
-            margin-top: 1rem;
-        }
-
         footer {
+            grid-column: 1 / -1;
             text-align: center;
-            padding: 3rem 1rem;
+            padding: 2rem 0;
             color: #8b949e;
             font-size: 0.85rem;
             border-top: 1px solid var(--border-color);
-            margin-top: 4rem;
+            margin-top: 2rem;
         }
     </style>
 </head>
-
 <body>
 
-    <header>
-        <div class="logo">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#58a6ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 28px; height: 28px; vertical-align: middle; margin-right: 8px;">
-                <polyline points="16 18 22 12 16 6"></polyline>
-                <polyline points="8 6 2 12 8 18"></polyline>
-            </svg>
-            bit<span>and</span>boot
+    <div class="container">
+        <header>
+            <h1>BitandBoot</h1>
+            <p>Low-Level Firmware Architectures & System Forensics Laboratory</p>
+        </header>
+
+        <div class="search-container">
+            <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" id="searchInput" class="search-bar" placeholder="Search articles by keywords (e.g., Qualcomm, Unlocktool, Odin)..." onkeyup="executeSearch()">
         </div>
-        <div class="tagline">Demystifying software bits, firmware architectures, and systems execution.</div>
-    </header>
 
-    <div class="layout-wrapper">
-        
+        <div id="filterStatus" class="filter-status">
+            <span>Active Filter: <strong id="activeTagName" style="color: var(--accent-color);"></strong></span>
+            <button class="clear-filter-btn" onclick="clearFilter()">Clear Filter ×</button>
+        </div>
+
         <main>
-            <section class="intro-box">
-                <h2>The Engineering Philosophy</h2>
-                <p>Welcome to <strong>bitandboot</strong>. This platform is dedicated to deep-dive technical explanations of how code compiles down, interacts with silicon, and executes.</p>
-            </section>
-
-            <div class="search-container">
-                <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                <input type="text" id="searchInput" class="search-bar" placeholder="Search articles by keywords (e.g., Qualcomm, Unlocktool, Odin)..." onkeyup="executeSearch()">
-            </div>
-
-            <div id="filterStatus" class="filter-status">
-                <span>Active Filter: <strong id="activeTagName" style="color: var(--accent-color);"></strong></span>
-                <button class="clear-filter-btn" onclick="clearFilter()">Clear Filter ×</button>
-            </div>
-
             <h2 id="feedHeading" style="color: #fff; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">Recent Engineering Guides</h2>
             
             <div id="noResultsBox" class="no-results">
@@ -302,7 +269,7 @@
             </div>
 
             <div class="category-section">
-                <h3 class="category-title" style="color: var(--accent-color); margin: 1.5rem 0 1rem 0;">📁 Mobile Servicing & Firmware</h3>
+                <h3 class="category-title">⚙️ Everyday Tech & Network Optimization</h3>
                 <div class="grid">
                     <a href="phantom-space-storage-guide.html" class="card-wrapper" data-tags="firmware troubleshooting optimization storage">
                         <div class="card">
@@ -317,13 +284,71 @@
                             <p>Demystifying ghost data, hidden app caches, and system storage snapshots that trap your phone's memory—and how to clear them cleanly.</p>
                         </div>
                     </a>
+                    <a href="device-battery-lifespan-guide.html" class="card-wrapper" data-tags="optimization hardware troubleshooting battery">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="category">Everyday Tech</div>
+                                <div class="badge-group">
+                                    <span class="badge time">⏱️ 6 Min</span>
+                                    <span class="badge easy">🟢 Beginner</span>
+                                </div>
+                            </div>
+                            <h3>Maximizing Device Battery Lifespan: The Science Behind Degradation</h3>
+                            <p>An engineering look at lithium-ion charge cycles, thermal stress factors, and voltage thresholds that dictate cell longevity over time.</p>
+                        </div>
+                    </a>
+                    <a href="native-laptop-maintenance-guide.html" class="card-wrapper" data-tags="optimization hardware troubleshooting laptop">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="category">Everyday Tech</div>
+                                <div class="badge-group">
+                                    <span class="badge time">⏱️ 5 Min</span>
+                                    <span class="badge easy">🟢 Beginner</span>
+                                </div>
+                            </div>
+                            <h3>Native Laptop Maintenance: Keeping Hardware Running Cool and Efficient</h3>
+                            <p>A hands-on breakdown of thermal paste degradation, dust clearing strategies, and operating system optimizations to prevent hardware throttling.</p>
+                        </div>
+                    </a>
+                    <a href="dns-speed-privacy-guide.html" class="card-wrapper" data-tags="networking privacy security optimization">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="category">Network Optimization</div>
+                                <div class="badge-group">
+                                    <span class="badge time">⏱️ 6 Min</span>
+                                    <span class="badge easy">🟢 Beginner</span>
+                                </div>
+                            </div>
+                            <h3>DNS Configuration: Optimizing for Speed, Privacy, and Unfiltered Access</h3>
+                            <p>Understanding how Domain Name System lookups impact latency, and how migrating to private DNS alternatives routes traffic securely away from ISP monitoring.</p>
+                        </div>
+                    </a>
+                    <a href="wifi-channels-optimization-guide.html" class="card-wrapper" data-tags="networking troubleshooting optimization wifi">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="category">Network Optimization</div>
+                                <div class="badge-group">
+                                    <span class="badge time">⏱️ 5 Min</span>
+                                    <span class="badge medium">🟡 Intermediate</span>
+                                </div>
+                            </div>
+                            <h3>Demystifying Wi-Fi Channels: Shifting Frequencies to Eliminate Congestion</h3>
+                            <p>Isolating signal attenuation and overlapping channel interference on 2.4GHz and 5GHz bands to reconfigure local access points for optimal throughput.</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <div class="category-section">
+                <h3 class="category-title">📁 Mobile Servicing & Firmware</h3>
+                <div class="grid">
                     <a href="samsung-touch-issue-guide.html" class="card-wrapper" data-tags="firmware odinflashing samfirm">
                         <div class="card">
                             <div class="card-header">
                                 <div class="category">Mobile Servicing</div>
                                 <div class="badge-group">
                                     <span class="badge time">⏱️ 6 Min</span>
-                                    <span class="badge medium">🟢 Intermediate</span>
+                                    <span class="badge medium">🟡 Intermediate</span>
                                 </div>
                             </div>
                             <h3>Fixing Samsung M34 5G Touch Dead After Update: Firmware Downgrade Methods</h3>
@@ -347,7 +372,7 @@
             </div>
 
             <div class="category-section">
-                <h3 class="category-title" style="color: var(--accent-color); margin: 1.5rem 0 1rem 0;">🔬 Chip-Level & Hardware Engineering</h3>
+                <h3 class="category-title">🔬 Chip-Level & Hardware Engineering</h3>
                 <div class="grid">
                     <a href="dimensity-frp-hardware-guide.html" class="card-wrapper" data-tags="ufs_isp mediatek chip_level">
                         <div class="card">
@@ -366,7 +391,39 @@
             </div>
 
             <div class="category-section">
-                <h3 class="category-title" style="color: var(--accent-color); margin: 1.5rem 0 1rem 0;">🔌 Toolchain Mechanics & Forensic Servicing</h3>
+                <h3 class="category-title">🧠 Software Design & Architecture</h3>
+                <div class="grid">
+                    <a href="optimistic-ui-psychology-guide.html" class="card-wrapper" data-tags="ui_design frontend architecture psychology">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="category">Frontend Design</div>
+                                <div class="badge-group">
+                                    <span class="badge time">⏱️ 7 Min</span>
+                                    <span class="badge medium">🟡 Intermediate</span>
+                                </div>
+                            </div>
+                            <h3>The Psychology of Optimistic UI: Designing Apps That Feel Instant</h3>
+                            <p>Deconstructing modern frontend paradigms where interfaces anticipate successful server mutations to reduce perceived user latency.</p>
+                        </div>
+                    </a>
+                    <a href="proximity-tracking-ads-guide.html" class="card-wrapper" data-tags="security privacy mobile tracking">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="category">Security & Privacy</div>
+                                <div class="badge-group">
+                                    <span class="badge time">⏱️ 8 Min</span>
+                                    <span class="badge hard">🔴 Advanced</span>
+                                </div>
+                            </div>
+                            <h3>Proximity Tracking & Hyper-Targeted Ads: How Adtech Follows You</h3>
+                            <p>Mapping the architecture behind Bluetooth beacons, geofencing, and cross-device graph mapping used to serve physical real-world location advertisements.</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <div class="category-section">
+                <h3 class="category-title">🔌 Toolchain Mechanics & Forensic Servicing</h3>
                 <div class="grid">
                     <a href="windows-dse-gsm-tools.html" class="card-wrapper" data-tags="windowskernel unlocktool firmware">
                         <div class="card">
@@ -398,7 +455,7 @@
             </div>
 
             <div class="category-section">
-                <h3 class="category-title" style="color: var(--accent-color); margin: 1.5rem 0 1rem 0;">💽 Partition Forensics & Low-Level Architecture</h3>
+                <h3 class="category-title">💽 Partition Forensics & Low-Level Architecture</h3>
                 <div class="grid">
                     <a href="linux-dirty-kernel.html" class="card-wrapper" data-tags="linuxkernel firmware privesc android security">
                         <div class="card">
@@ -432,7 +489,7 @@
                                 <div class="category">Low-Level Architecture</div>
                                 <div class="badge-group">
                                     <span class="badge time">⏱️ 7 Min</span>
-                                    <span class="badge medium">🟢 Intermediate</span>
+                                    <span class="badge medium">🟡 Intermediate</span>
                                 </div>
                             </div>
                             <h3>Recovering Lost Baseband: Managing /nvram, /nvdata, and Security Registers in MediaTek Environments</h3>
@@ -459,6 +516,10 @@
                     <span class="tag-item" onclick="filterByTag('unlocktool', this)">#Unlocktool</span>
                     <span class="tag-item" onclick="filterByTag('edl_mode', this)">#EDL_Mode</span>
                     <span class="tag-item" onclick="filterByTag('chip_level', this)">#Chip_Level</span>
+                    <span class="tag-item" onclick="filterByTag('optimization', this)">#Optimization</span>
+                    <span class="tag-item" onclick="filterByTag('networking', this)">#Networking</span>
+                    <span class="tag-item" onclick="filterByTag('privacy', this)">#Privacy</span>
+                    <span class="tag-item" onclick="filterByTag('ui_design', this)">#UI_Design</span>
                 </div>
             </div>
             
@@ -478,7 +539,6 @@
         function executeSearch() {
             const query = document.getElementById('searchInput').value.toLowerCase();
             
-            // Clear tag-cloud highlights since text search takes priority
             document.querySelectorAll('.tag-item').forEach(t => t.classList.remove('active'));
             document.getElementById('filterStatus').style.display = 'none';
             
@@ -515,12 +575,10 @@
                 }
             });
 
-            // Display "No Results Found" if search index matches nothing
             document.getElementById('noResultsBox').style.display = totalVisibleCards === 0 ? 'block' : 'none';
         }
 
         function filterByTag(tag, element) {
-            // Reset text search bar input state when using tag cloud
             document.getElementById('searchInput').value = "";
             document.getElementById('noResultsBox').style.display = 'none';
 
