@@ -271,109 +271,158 @@ func application(_ application: UIApplication,
         </footer>
     </div>
 
-    <script>
-        const pageId = window.location.pathname.split("/").pop() || "index";
+    <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+        getFirestore, doc, getDoc, setDoc, updateDoc, increment,
+        collection, addDoc, query, orderBy, onSnapshot, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        window.addEventListener('DOMContentLoaded', () => {
-            let storedViews = localStorage.getItem(`views_${pageId}`);
-            if (!storedViews) {
-                storedViews = Math.floor(Math.random() * (450 - 200 + 1)) + 200;
-            } else {
-                storedViews = parseInt(storedViews) + 1;
-            }
-            localStorage.setItem(`views_${pageId}`, storedViews);
+    const firebaseConfig = {
+        apiKey: "AIzaSyAZ5kORicxNAp4iCWlGn1C3XkP0vPJ5vQw",
+        authDomain: "bitandboot.firebaseapp.com",
+        projectId: "bitandboot",
+        storageBucket: "bitandboot.firebasestorage.app",
+        messagingSenderId: "687841897835",
+        appId: "1:687841897835:web:16e8a1b9f31e23f069b02e"
+    };
 
-            const formattedViews = storedViews.toLocaleString();
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-            if (document.getElementById('topViewCount')) {
-                document.getElementById('topViewCount').innerText = formattedViews;
-            }
+    const pageId = (window.location.pathname.split("/").pop() || "index").replace(".html", "");
+    const articleRef = doc(db, "articles", pageId);
+    const commentsRef = collection(db, "articles", pageId, "comments");
 
-            const wCount = localStorage.getItem(`w_${pageId}`) || Math.floor(Math.random() * (90 - 45 + 1)) + 45;
-            const bCount = localStorage.getItem(`b_${pageId}`) || Math.floor(Math.random() * (12 - 3 + 1)) + 3;
-            localStorage.setItem(`w_${pageId}`, wCount);
-            localStorage.setItem(`b_${pageId}`, bCount);
+    // --- Views + Vote counts: live, shared, real ---
+    async function initArticle() {
+        const snap = await getDoc(articleRef);
 
-            if (document.getElementById('countWorked')) document.getElementById('countWorked').innerText = wCount;
-            if (document.getElementById('countBricked')) document.getElementById('countBricked').innerText = bCount;
+        if (!snap.exists()) {
+            // First ever visitor to this article creates it — honest zero start
+            try {
+                await setDoc(articleRef, { viewCount: 0, workedCount: 0, brickedCount: 0 });
+            } catch (e) { /* another visitor may have created it first — fine, ignore */ }
+        }
+
+        // Count this visit once per browser session (not every page reload/scroll)
+        if (!sessionStorage.getItem(`viewed_${pageId}`)) {
+            try {
+                await updateDoc(articleRef, { viewCount: increment(1) });
+            } catch (e) { console.warn("View count update failed:", e); }
+            sessionStorage.setItem(`viewed_${pageId}`, "true");
+        }
+
+        // Live-sync counts to the UI — updates instantly for every visitor watching
+        onSnapshot(articleRef, (docSnap) => {
+            const data = docSnap.data();
+            if (!data) return;
+            const viewEl = document.getElementById("topViewCount");
+            const workedEl = document.getElementById("countWorked");
+            const brickedEl = document.getElementById("countBricked");
+            if (viewEl) viewEl.innerText = (data.viewCount || 0).toLocaleString();
+            if (workedEl) workedEl.innerText = data.workedCount || 0;
+            if (brickedEl) brickedEl.innerText = data.brickedCount || 0;
         });
+    }
+    initArticle();
 
-        function incrementTelemetry(decision) {
-            const hasVoted = localStorage.getItem(`voted_${pageId}`);
-            if (hasVoted) {
-                alert("Your bench telemetry configuration has already been updated for this document session.");
-                return;
-            }
+    window.incrementTelemetry = async function (decision) {
+        const hasVoted = localStorage.getItem(`voted_${pageId}`);
+        if (hasVoted) {
+            alert("Your bench telemetry configuration has already been updated for this document session.");
+            return;
+        }
 
-            if (decision === 'yes') {
-                let current = parseInt(localStorage.getItem(`w_${pageId}`)) || 142;
-                current++;
-                localStorage.setItem(`w_${pageId}`, current);
-                if (document.getElementById('countWorked')) document.getElementById('countWorked').innerText = current;
-                localStorage.setItem(`voted_${pageId}`, 'true');
-                document.getElementById('votePanel').innerHTML = `<h3 style="color: var(--badge-easy); margin: 0;">🎉 Success Telemetry Logged!</h3>`;
+        try {
+            if (decision === "yes") {
+                await updateDoc(articleRef, { workedCount: increment(1) });
+                document.getElementById("votePanel").innerHTML =
+                    `<h3 style="color: var(--badge-easy); margin: 0;">🎉 Success Telemetry Logged!</h3>`;
             } else {
-                let current = parseInt(localStorage.getItem(`b_${pageId}`)) || 8;
-                current++;
-                localStorage.setItem(`b_${pageId}`, current);
-                if (document.getElementById('countBricked')) document.getElementById('countBricked').innerText = current;
-                localStorage.setItem(`voted_${pageId}`, 'true');
-                document.getElementById('votePanel').innerHTML = `<h3 style="color: var(--badge-hard); margin: 0;">💀 Failure Telemetry Logged</h3>`;
+                await updateDoc(articleRef, { brickedCount: increment(1) });
+                document.getElementById("votePanel").innerHTML =
+                    `<h3 style="color: var(--badge-hard); margin: 0;">💀 Failure Telemetry Logged</h3>`;
             }
+            localStorage.setItem(`voted_${pageId}`, "true");
+        } catch (e) {
+            console.error("Vote failed:", e);
+            alert("Something went wrong logging your vote — please try again.");
+        }
+    };
+
+    // --- Comments: real, shared, permanent ---
+    const commentsQuery = query(commentsRef, orderBy("timestamp", "desc"));
+    onSnapshot(commentsQuery, (snapshot) => {
+        const feed = document.getElementById("commentsFeed");
+        if (!feed) return;
+        feed.innerHTML = "";
+        snapshot.forEach((docSnap) => {
+            const c = docSnap.data();
+            const dateStr = c.timestamp ? new Date(c.timestamp.toDate()).toLocaleDateString("en-US", { month: "short", year: "numeric" }) : "Just now";
+            const div = document.createElement("div");
+            div.setAttribute("style", "border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem;");
+            div.innerHTML = `
+                <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.25rem;">
+                    <strong style="color: #fff; font-family: monospace;">${escapeHTML(c.name)}</strong>
+                    <span style="color: var(--text-color); opacity: 0.4;">${dateStr}</span>
+                </div>
+                <p style="margin: 0; font-size: 0.95rem; color: #c9d1d9;">${escapeHTML(c.text)}</p>
+            `;
+            feed.appendChild(div);
+        });
+        if (snapshot.empty) {
+            feed.innerHTML = `<p style="color: var(--meta-color); font-size: 0.9rem;">No notes yet — be the first to leave one.</p>`;
+        }
+    });
+
+    window.submitGenericComment = async function () {
+        const nameField = document.getElementById("suiteNameInput").value.trim();
+        const textField = document.getElementById("suiteCommentText").value.trim();
+        const valError = document.getElementById("suiteValidationError");
+        if (valError) valError.style.display = "none";
+
+        if (!nameField || !textField) {
+            if (valError) {
+                valError.innerText = "Error: Output parameters cannot be empty strings.";
+                valError.style.display = "block";
+            }
+            return;
+        }
+        if (nameField.split(" ").length > 1) {
+            if (valError) {
+                valError.innerText = "Error: Supply strictly a single word for your identity handle.";
+                valError.style.display = "block";
+            }
+            return;
         }
 
-        function submitGenericComment() {
-            const nameField = document.getElementById('suiteNameInput').value.trim();
-            const textField = document.getElementById('suiteCommentText').value.trim();
-            const valError = document.getElementById('suiteValidationError');
+        let sanitizedName = nameField.replace(/[^a-zA-Z0-9]/g, "");
+        if (!sanitizedName) sanitizedName = "Tech";
+        const generatedUserHandle = `@${sanitizedName}King`;
 
-            if (valError) valError.style.display = 'none';
-
-            if (!nameField || !textField) {
-                if (valError) {
-                    valError.innerText = "Error: Output parameters cannot be empty strings.";
-                    valError.style.display = 'block';
-                }
-                return;
+        try {
+            await addDoc(commentsRef, {
+                name: generatedUserHandle,
+                text: textField,
+                timestamp: serverTimestamp()
+            });
+            document.getElementById("suiteCommentText").value = "";
+        } catch (e) {
+            console.error("Comment submit failed:", e);
+            if (valError) {
+                valError.innerText = "Error: Could not post comment — please try again.";
+                valError.style.display = "block";
             }
-
-            if (nameField.split(' ').length > 1) {
-                if (valError) {
-                    valError.innerText = "Error: Supply strictly a single word for your identity handle.";
-                    valError.style.display = 'block';
-                }
-                return;
-            }
-
-            let sanitizedName = nameField.replace(/[^a-zA-Z0-9]/g, '');
-            if (!sanitizedName) sanitizedName = "Tech";
-
-            const generatedUserHandle = `@${sanitizedName}King`;
-            const feed = document.getElementById('commentsFeed');
-
-            if (feed) {
-                const commentDiv = document.createElement('div');
-                commentDiv.setAttribute('style', 'border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem;');
-
-                commentDiv.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.25rem;">
-                        <strong style="color: #fff; font-family: monospace;">${generatedUserHandle}</strong>
-                        <span style="color: var(--text-color); opacity: 0.4;">Just Now</span>
-                    </div>
-                    <p style="margin: 0; font-size: 0.95rem; color: #c9d1d9;">${escapeHTML(textField)}</p>
-                `;
-
-                feed.insertBefore(commentDiv, feed.firstChild);
-            }
-
-            document.getElementById('suiteCommentText').value = "";
         }
+    };
 
-        function escapeHTML(str) {
-            return str.replace(/[&<>'"]/g,
-                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
-            );
-        }
-    </script>
+    function escapeHTML(str) {
+        return str.replace(/[&<>'"]/g,
+            tag => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[tag] || tag)
+        );
+    }
+</script>
+
 </body>
 </html>
