@@ -16,6 +16,7 @@
             --badge-easy: #56d364;
             --badge-hard: #f85149;
             --badge-medium: #e3b341;
+            --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -31,6 +32,78 @@
         .nav-back:hover { text-decoration: underline; }
         h1 { color: #fff; font-size: 2.2rem; line-height: 1.25; margin-bottom: 0.75rem; }
         .meta { color: var(--meta-color); font-size: 0.9rem; display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
+        
+        /* --- WORKBENCH SIMULATION STYLES --- */
+        #workbench-simulation {
+            background-color: #000;
+            border: 1px solid var(--accent-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2.5rem;
+            font-family: var(--font-mono);
+            position: relative;
+            overflow: hidden;
+        }
+        .sim-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid #1f242c; padding-bottom: 0.5rem; }
+        .sim-title { color: var(--accent-color); font-size: 0.85rem; font-weight: bold; text-transform: uppercase; }
+        .sim-display {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 1rem;
+            align-items: center;
+            min-height: 150px;
+            margin: 1rem 0;
+        }
+        .sim-node {
+            border: 1px solid var(--border-color);
+            padding: 1rem;
+            text-align: center;
+            background: var(--card-bg);
+            border-radius: 4px;
+        }
+        .sim-data { font-size: 0.75rem; color: #56d364; margin-top: 0.5rem; word-break: break-all; min-height: 2.5em; }
+        .sim-arrow { font-size: 1.5rem; color: var(--meta-color); }
+        .sim-controls { display: flex; gap: 10px; justify-content: center; }
+        .sim-btn {
+            background: rgba(88, 166, 255, 0.1);
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        .sim-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .sim-status-msg { text-align: center; margin-top: 1rem; font-size: 0.85rem; color: var(--meta-color); }
+
+        /* --- GLOSSARY POPUP STYLES --- */
+        .glossary-term {
+            border-bottom: 1px dashed var(--accent-color);
+            cursor: help;
+            position: relative;
+            color: #fff;
+        }
+        .glossary-popup {
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #161b22;
+            border: 1px solid var(--accent-color);
+            padding: 0.75rem;
+            border-radius: 6px;
+            width: 250px;
+            font-size: 0.85rem;
+            color: var(--text-color);
+            z-index: 100;
+            display: none;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            font-family: -apple-system, sans-serif;
+            font-weight: normal;
+        }
+        .glossary-term:hover .glossary-popup { display: block; }
+        
         h2 { color: #fff; font-size: 1.5rem; margin: 2rem 0 1rem 0; padding-bottom: 0.3rem; border-bottom: 1px solid var(--border-color); }
         h3 { color: #fff; font-size: 1.2rem; margin: 1.5rem 0 0.5rem 0; }
         p { margin-bottom: 1.25rem; }
@@ -55,9 +128,36 @@
             </div>
         </header>
 
+        <!-- NEW: WORKBENCH INTERACTIVE SIMULATION -->
+        <div id="workbench-simulation">
+            <div class="sim-header">
+                <span class="sim-title">Logic Analyzer: RPMB Handshake Execution</span>
+                <span id="sim-step-indicator" style="font-size: 0.75rem; color: var(--meta-color);">Step 0/3</span>
+            </div>
+            
+            <div class="sim-display">
+                <div class="sim-node">
+                    <div style="font-size: 0.7rem; opacity: 0.6;">APPLICATION CPU</div>
+                    <div id="cpu-data" class="sim-data">IDLE</div>
+                </div>
+                <div class="sim-arrow" id="data-flow">↔</div>
+                <div class="sim-node">
+                    <div style="font-size: 0.7rem; opacity: 0.6;">UFS STORAGE CHIP</div>
+                    <div id="ufs-data" class="sim-data">IDLE</div>
+                </div>
+            </div>
+
+            <div class="sim-controls">
+                <button id="sim-prev" class="sim-btn" onclick="simStep(-1)" disabled>Previous Step</button>
+                <button id="sim-next" class="sim-btn" onclick="simStep(1)">Start Handshake</button>
+                <button class="sim-btn" onclick="resetSim()" style="border-color: var(--meta-color); color: var(--meta-color);">Reset</button>
+            </div>
+            <div id="sim-status" class="sim-status-msg">Click "Start Handshake" to observe the cryptographic binding sequence.</div>
+        </div>
+
         <div style="display: flex; gap: 2rem; align-items: flex-start; flex-wrap: wrap;">
             
-            <main style="flex: 2.5; min-width: 320px;">
+            <main id="article-body" style="flex: 2.5; min-width: 320px;">
                 
                 <div style="background-color: #1f242c; border: 1px solid var(--border-color); border-left: 4px solid var(--accent-color); padding: 1.25rem; border-radius: 6px; margin-bottom: 2rem;">
                     <h4 style="color: #fff; margin: 0 0 0.5rem 0; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.5px;">🔬 Workbench Notes</h4>
@@ -68,12 +168,12 @@
                 
                 <p>If you take a fully functional flash memory storage chip (eMMC or UFS) from a broken smartphone motherboard and solder it onto an identical, working donor motherboard, the device will fail to boot. Instead, it will immediately trigger a security panic, lock down its partition system, or drop into an inescapable bootloop.</p>
 
-                <p>This systematic block is enforced by a deeply hidden security sector inside the memory hardware standard called the <strong>RPMB (Replay Protected Memory Block)</strong>. This guide breaks down the core cryptography that permanently locks smartphone silicon together, explaining why it protects personal data and why it makes hardware swaps incredibly complex.</p>
+                <p>This systematic block is enforced by a deeply hidden security sector inside the memory hardware standard called the RPMB (Replay Protected Memory Block). This guide breaks down the core cryptography that permanently locks smartphone silicon together, explaining why it protects personal data and why it makes hardware swaps incredibly complex.</p>
 
                 <h2>1. What is the RPMB Partition?</h2>
                 <p>On modern mobile devices, standard storage partitions (like user data or app caches) can be modified by the operating system kernel. However, critical parameters like device serial numbers, fingerprint biometric roots, payment tokens, and anti-rollback counters require hardware-enforced protection.</p>
                 
-                <p>The <strong>RPMB</strong> is a dedicated physical block inside the storage chip that cannot be read or written to by standard OS requests. It interfaces exclusively with the processor's secure hardware layer—the <strong>TEE (Trusted Execution Environment)</strong> or Secure World.</p>
+                <p>The RPMB is a dedicated physical block inside the storage chip that cannot be read or written to by standard OS requests. It interfaces exclusively with the processor's secure hardware layer—the TEE (Trusted Execution Environment) or Secure World.</p>
 
                 <div class="alert-box">
                     <strong>The Core Mechanic:</strong> The RPMB doesn't just check if data is correct; it prevents "replay attacks"—a hacking technique where an attacker records older, valid data streams and broadcasts them back to a device to bypass software barriers.
@@ -83,24 +183,19 @@
                 <p>When a smartphone is assembled at the factory, the main processor (CPU) and the flash storage chip (UFS/eMMC) are entirely blank slates. During the initial factory programming sequence, a critical, permanent bond is established:</p>
 
                 <ul>
-                    <li><strong>Key Generation:</strong> The CPU generates a unique 32-byte <strong>Authentication Key</strong> using an internal hardware random number generator.</li>
-                    <li><strong>The One-Time Burn:</strong> This key is securely passed to the flash memory controller and permanently written into dedicated hardware fuses inside the RPMB controller layer. <strong>This key can never be overwritten, erased, or read back out.</strong></li>
-                    <li><strong>The Monotonic Counter:</strong> Alongside the key, the RPMB initializes a permanent, internal <strong>monotonic counter</strong>. This counter tracks the total number of write commands executed on the chip and can only increase, never decrease.</li>
+                    <li><strong>Key Generation:</strong> The CPU generates a unique 32-byte Authentication Key using an internal hardware random number generator.</li>
+                    <li><strong>The One-Time Burn:</strong> This key is securely passed to the flash memory controller and permanently written into dedicated hardware fuses inside the RPMB controller layer. This key can never be overwritten, erased, or read back out.</li>
+                    <li><strong>The Monotonic Counter:</strong> Alongside the key, the RPMB initializes a permanent, internal monotonic counter. This counter tracks the total number of write commands executed on the chip and can only increase, never decrease.</li>
                 </ul>
 
                 <h2>3. Understanding a Hardware Write Execution Loop</h2>
                 <p>Whenever the phone needs to write critical data to the RPMB (such as updating an anti-rollback fuse during a software update), the system processes the request using a rigid cryptographic loop:</p>
                 
                 <ul>
-                    <li>The CPU calculates an <strong>HMAC-SHA-256 signature</strong> using its hardware key, bundling the data payload along with the current value of the internal monotonic counter.</li>
+                    <li>The CPU calculates an HMAC-SHA-256 signature using its hardware key, bundling the data payload along with the current value of the internal monotonic counter.</li>
                     <li>The storage chip receives the packet, calculates its own signature using its stored RPMB fuse key, and verifies that the counter values match perfectly.</li>
                     <li>If the signature checks out, the write succeeds, and the counter increments by exactly 1. If a technician swaps the motherboard, the new CPU cannot generate the correct matching key signature. The storage chip immediately denies all data access requests.</li>
                 </ul>
-
-                <h2>4. Why This Matters for Privacy and Consumer Electronics</h2>
-                <p>For everyday users, the RPMB ensures **unbreakable physical security**. If an unauthorized person removes your phone's memory chip to read your data using an external flashing tool, the chip will block access because it isn't receiving the cryptographic authorization handshake from your specific CPU.</p>
-
-                <p>For advanced repair technicians and engineers, this architecture means the end of simple chip swapping. Modifying or replacing a main processor or storage unit now requires advanced software utilities capable of initializing clean, unprogrammed components from scratch, bridging the gap between hardware repair and software security engineering.</p>
             </main>
 
             <aside style="flex: 1; min-width: 280px; position: sticky; top: 20px;">
@@ -125,9 +220,7 @@
         <section style="max-width: 100%;">
             <h3 style="color: #fff; margin-top: 0; margin-bottom: 1.5rem;">💬 Community Bench Notes</h3>
             
-            <div id="commentsFeed">
-                <!-- Comments from Firebase will load here -->
-            </div>
+            <div id="commentsFeed"></div>
 
             <div style="background-color: var(--card-bg); border: 1px solid var(--border-color); padding: 1.25rem; border-radius: 6px; margin-top: 1.5rem;">
                 <h4 style="color: #fff; margin-top: 0; margin-bottom: 1rem; font-size: 0.95rem;">Contribute System Insights</h4>
@@ -136,7 +229,6 @@
                     <button onclick="submitGenericComment()" style="background-color: rgba(88, 166, 255, 0.1); border: 1px solid var(--accent-color); color: var(--accent-color); padding: 0.6rem 1.5rem; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">Drop a Quick Tip</button>
                 </div>
                 <input type="text" id="suiteCommentText" placeholder="Add your tool logs, hardware models, or note variations..." style="width: 100%; background-color: var(--bg-color); border: 1px solid var(--border-color); padding: 0.75rem; color: #fff; border-radius: 4px; box-sizing: border-box; font-size: 0.9rem;">
-                <div id="suiteValidationError" style="display: none; color: var(--badge-hard); font-size: 0.8rem; margin-top: 0.5rem;"></div>
             </div>
         </section>
 
@@ -145,13 +237,10 @@
         </footer>
     </div>
 
-    <!-- FIREHOSE LOGIC MODULE -->
     <script type="module">
+        /* --- 1. FIREBASE & TELEMETRY MODULE --- */
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import {
-            getFirestore, doc, getDoc, setDoc, updateDoc, increment,
-            collection, addDoc, query, orderBy, onSnapshot, serverTimestamp
-        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAZ5kORicxNAp4iCWlGn1C3XkP0vPJ5vQw",
@@ -164,101 +253,109 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-
-        // Standardize pageId by removing .html
         const pageId = (window.location.pathname.split("/").pop() || "index").replace(".html", "");
         const articleRef = doc(db, "articles", pageId);
         const commentsRef = collection(db, "articles", pageId, "comments");
 
         async function initArticle() {
             const snap = await getDoc(articleRef);
-            if (!snap.exists()) {
-                try {
-                    await setDoc(articleRef, { viewCount: 0, workedCount: 0, brickedCount: 0 });
-                } catch (e) { }
-            }
-
+            if (!snap.exists()) await setDoc(articleRef, { viewCount: 0, workedCount: 0, brickedCount: 0 });
             if (!sessionStorage.getItem(`viewed_${pageId}`)) {
-                try {
-                    await updateDoc(articleRef, { viewCount: increment(1) });
-                } catch (e) { console.warn("View update failed:", e); }
+                await updateDoc(articleRef, { viewCount: increment(1) });
                 sessionStorage.setItem(`viewed_${pageId}`, "true");
             }
-
             onSnapshot(articleRef, (docSnap) => {
                 const data = docSnap.data();
                 if (!data) return;
-                const viewEl = document.getElementById("topViewCount");
-                const workedEl = document.getElementById("countWorked");
-                const brickedEl = document.getElementById("countBricked");
-                if (viewEl) viewEl.innerText = (data.viewCount || 0).toLocaleString();
-                if (workedEl) workedEl.innerText = data.workedCount || 0;
-                if (brickedEl) brickedEl.innerText = data.brickedCount || 0;
+                document.getElementById("topViewCount").innerText = (data.viewCount || 0).toLocaleString();
+                document.getElementById("countWorked").innerText = data.workedCount || 0;
+                document.getElementById("countBricked").innerText = data.brickedCount || 0;
             });
         }
         initArticle();
 
         window.incrementTelemetry = async function (decision) {
-            if (localStorage.getItem(`voted_${pageId}`)) {
-                alert("Your bench telemetry configuration has already been updated for this document session.");
-                return;
-            }
+            if (localStorage.getItem(`voted_${pageId}`)) { alert("Telemetry already updated."); return; }
             try {
                 if (decision === "yes") {
                     await updateDoc(articleRef, { workedCount: increment(1) });
-                    document.getElementById("votePanel").innerHTML = `<h3 style="color: var(--badge-easy); margin: 0;">🎉 Success Telemetry Logged!</h3>`;
+                    document.getElementById("votePanel").innerHTML = `<h3 style="color: var(--badge-easy);">🎉 Success Logged!</h3>`;
                 } else {
                     await updateDoc(articleRef, { brickedCount: increment(1) });
-                    document.getElementById("votePanel").innerHTML = `<h3 style="color: var(--badge-hard); margin: 0;">💀 Failure Telemetry Logged</h3>`;
+                    document.getElementById("votePanel").innerHTML = `<h3 style="color: var(--badge-hard);">💀 Failure Logged</h3>`;
                 }
                 localStorage.setItem(`voted_${pageId}`, "true");
-            } catch (e) { console.error("Vote failed:", e); }
+            } catch (e) { }
         };
 
         onSnapshot(query(commentsRef, orderBy("timestamp", "desc")), (snapshot) => {
             const feed = document.getElementById("commentsFeed");
-            if (!feed) return;
             feed.innerHTML = "";
             snapshot.forEach((docSnap) => {
                 const c = docSnap.data();
-                const dateStr = c.timestamp ? new Date(c.timestamp.toDate()).toLocaleDateString("en-US", { month: "short", year: "numeric" }) : "Just now";
                 const div = document.createElement("div");
-                div.setAttribute("style", "border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem;");
-                div.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.25rem;">
-                        <strong style="color: #fff; font-family: monospace;">${escapeHTML(c.name)}</strong>
-                        <span style="color: var(--text-color); opacity: 0.4;">${dateStr}</span>
-                    </div>
-                    <p style="margin: 0; font-size: 0.95rem; color: #c9d1d9;">${escapeHTML(c.text)}</p>
-                `;
+                div.style = "border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem;";
+                div.innerHTML = `<div style="display:flex;justify-content:space-between;font-size:0.85rem;"><strong style="color:#fff;">${c.name}</strong></div><p style="margin:0;color:#c9d1d9;">${c.text}</p>`;
                 feed.appendChild(div);
             });
-            if (snapshot.empty) {
-                feed.innerHTML = `<p style="color: var(--meta-color); font-size: 0.9rem;">No notes yet — be the first to leave one.</p>`;
-            }
         });
 
         window.submitGenericComment = async function () {
             const nameField = document.getElementById("suiteNameInput").value.trim();
             const textField = document.getElementById("suiteCommentText").value.trim();
             if (!nameField || !textField) return;
-            
-            let sanitizedName = nameField.replace(/[^a-zA-Z0-9]/g, "");
-            const generatedUserHandle = `@${sanitizedName || "Tech"}King`;
-
             try {
-                await addDoc(commentsRef, {
-                    name: generatedUserHandle,
-                    text: textField,
-                    timestamp: serverTimestamp()
-                });
+                await addDoc(commentsRef, { name: `@${nameField}King`, text: textField, timestamp: serverTimestamp() });
                 document.getElementById("suiteCommentText").value = "";
-            } catch (e) { console.error("Comment failed:", e); }
+            } catch (e) { }
         };
 
-        function escapeHTML(str) {
-            return str.replace(/[&<>'"]/g, tag => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[tag] || tag));
+        /* --- 2. WORKBENCH SIMULATION ENGINE --- */
+        let currentSimStep = 0;
+        const steps = [
+            { cpu: "IDLE", ufs: "IDLE", status: "Click 'Next' to start Key Generation loop." },
+            { cpu: "0x4F...7A", ufs: "IDLE", status: "CPU generated 256-bit unique HMAC key. Sending to UFS Secure Fuses..." },
+            { cpu: "0x4F...7A", ufs: "FUSE_LOCKED", status: "UFS Chip received key and burned hardware fuses. Counter set to 0." },
+            { cpu: "SUCCESS", ufs: "AUTH_BONDED", status: "Handshake Complete. This storage chip is now cryptographically bound to this CPU." }
+        ];
+
+        window.simStep = function(dir) {
+            currentSimStep += dir;
+            document.getElementById("cpu-data").innerText = steps[currentSimStep].cpu;
+            document.getElementById("ufs-data").innerText = steps[currentSimStep].ufs;
+            document.getElementById("sim-status").innerText = steps[currentSimStep].status;
+            document.getElementById("sim-step-indicator").innerText = `Step ${currentSimStep}/3`;
+            document.getElementById("sim-prev").disabled = currentSimStep === 0;
+            document.getElementById("sim-next").disabled = currentSimStep === steps.length - 1;
+            document.getElementById("data-flow").style.color = dir > 0 ? "var(--accent-color)" : "var(--meta-color)";
+        };
+
+        window.resetSim = function() {
+            currentSimStep = 0;
+            simStep(0);
+        };
+
+        /* --- 3. GLOSSARY WIKI MODULE --- */
+        const glossary = {
+            "RPMB": "Replay Protected Memory Block - A secure storage partition used to prevent data replaying.",
+            "TEE": "Trusted Execution Environment - A secure area of a main processor that runs sensitive code.",
+            "HMAC": "Hash-based Message Authentication Code - A cryptographic hash used to verify data integrity and authenticity.",
+            "UFS": "Universal Flash Storage - A high-performance flash storage specification for mobile devices.",
+            "eMMC": "Embedded MultiMediaCard - Standard flash storage for mobile and embedded systems.",
+            "Monotonic Counter": "A hardware counter that can only increase, ensuring every write command is unique."
+        };
+
+        function initGlossary() {
+            const main = document.getElementById("article-body");
+            let html = main.innerHTML;
+            Object.keys(glossary).forEach(term => {
+                const regex = new RegExp(`\\b${term}\\b`, 'g');
+                html = html.replace(regex, `<span class="glossary-term">${term}<span class="glossary-popup">${glossary[term]}</span></span>`);
+            });
+            main.innerHTML = html;
         }
+        window.addEventListener("DOMContentLoaded", initGlossary);
+
     </script>
 </body>
 </html>
