@@ -14,15 +14,6 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://bitandboot.github.io/index.html">
 
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "BitandBoot",
-      "url": "https://bitandboot.github.io/index.html",
-      "description": "A deep-dive engineering hub dedicated to low-level code compilation, firmware architectures, and device systems execution."
-    }
-    </script>
     <style>
         :root {
             --bg-color: #0d1117;
@@ -34,11 +25,7 @@
             --badge-medium: #e3b341;
             --badge-hard: #f85149;
         }
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
@@ -53,217 +40,104 @@
             grid-template-columns: 1fr;
             gap: 2rem;
         }
-        @media (min-width: 768px) {
-            .container {
-                grid-template-columns: 3fr 1fr;
-            }
-        }
+        @media (min-width: 768px) { .container { grid-template-columns: 3fr 1fr; } }
         header {
             grid-column: 1 / -1;
             border-bottom: 1px solid var(--border-color);
             padding-bottom: 1.5rem;
             margin-bottom: 1rem;
+            text-align: center;
         }
-        header h1 {
-            color: #fff;
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-        }
-        header p {
-            color: #8b949e;
-            font-size: 1.1rem;
-        }
-        .search-container {
-            position: relative;
-            margin-bottom: 2rem;
-            grid-column: 1 / -1;
-        }
-        .search-bar {
-            width: 100%;
-            padding: 0.8rem 1rem 0.8rem 2.5rem;
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            color: #fff;
-            font-size: 1rem;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-        .search-bar:focus {
-            border-color: var(--accent-color);
-        }
-        .search-icon {
-            position: absolute;
-            left: 0.8rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #8b949e;
-            pointer-events: none;
-        }
-        .filter-status {
-            display: none;
-            align-items: center;
-            justify-content: space-between;
-            background-color: rgba(88, 166, 255, 0.1);
-            border: 1px solid var(--accent-color);
-            padding: 0.75rem 1rem;
-            border-radius: 6px;
-            margin-bottom: 1.5rem;
-            grid-column: 1 / -1;
-        }
-        .clear-filter-btn {
-            background: none;
-            border: none;
+        header h1 { color: #fff; font-size: 2.5rem; margin-bottom: 0.5rem; }
+        header p { color: #8b949e; font-size: 1.1rem; }
+        
+        .glossary-cta {
+            display: inline-block;
+            margin-top: 15px;
             color: var(--accent-color);
+            text-decoration: none;
+            font-size: 0.9rem;
+            border: 1px solid var(--border-color);
+            padding: 6px 18px;
+            border-radius: 20px;
+            transition: all 0.2s;
+        }
+        .glossary-cta:hover { background: rgba(88, 166, 255, 0.1); border-color: var(--accent-color); }
+
+        .search-container { position: relative; margin-bottom: 1rem; grid-column: 1 / -1; }
+        .search-bar {
+            width: 100%; padding: 0.8rem 1rem 0.8rem 2.5rem;
+            background-color: var(--card-bg); border: 1px solid var(--border-color);
+            border-radius: 6px; color: #fff; font-size: 1rem; outline: none; transition: border-color 0.2s;
+        }
+        .search-bar:focus { border-color: var(--accent-color); }
+        .search-icon { position: absolute; left: 0.8rem; top: 50%; transform: translateY(-50%); color: #8b949e; pointer-events: none; }
+
+        /* Diagnostic Tool Styles */
+        #diagnostic-outer { grid-column: 1 / -1; margin-bottom: 1rem; }
+        #diagnostic-container {
+            background: var(--card-bg);
+            border: 1px solid var(--accent-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .diag-btn {
+            padding: 10px 18px;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: var(--accent-color);
+            border-radius: 4px;
             cursor: pointer;
             font-weight: 600;
-            font-size: 0.9rem;
+            transition: all 0.2s;
+            margin: 5px;
         }
-        .clear-filter-btn:hover {
-            text-decoration: underline;
+        .diag-btn:hover { border-color: var(--accent-color); background: rgba(88, 166, 255, 0.05); }
+
+        .filter-status {
+            display: none; align-items: center; justify-content: space-between;
+            background-color: rgba(88, 166, 255, 0.1); border: 1px solid var(--accent-color);
+            padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1.5rem; grid-column: 1 / -1;
         }
-        .no-results {
-            display: none;
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            padding: 2rem;
-            text-align: center;
-            border-radius: 6px;
-            color: #8b949e;
-            grid-column: 1 / -1;
-        }
-        .category-section {
-            margin-bottom: 2.5rem;
-        }
-        .category-title {
-            color: var(--accent-color);
-            margin: 1.5rem 0 1rem 0;
-            font-size: 1.4rem;
-        }
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1.5rem;
-        }
-        @media (min-width: 992px) {
-            .grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-        .card-wrapper {
-            text-decoration: none;
-            color: inherit;
-            display: block;
-        }
+        .clear-filter-btn { background: none; border: none; color: var(--accent-color); cursor: pointer; font-weight: 600; }
+
+        .category-section { margin-bottom: 2.5rem; }
+        .category-title { color: var(--accent-color); margin: 1.5rem 0 1rem 0; font-size: 1.4rem; }
+        .grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
+        @media (min-width: 992px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+        .card-wrapper { text-decoration: none; color: inherit; display: block; }
         .card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 1.5rem;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            transition: transform 0.2s, border-color 0.2s;
+            background-color: var(--card-bg); border: 1px solid var(--border-color);
+            border-radius: 6px; padding: 1.5rem; height: 100%; display: flex;
+            flex-direction: column; transition: transform 0.2s, border-color 0.2s;
         }
-        .card:hover {
-            transform: translateY(-3px);
-            border-color: #8b949e;
-        }
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-        .category {
-            font-size: 0.85rem;
-            color: #8b949e;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        .badge-group {
-            display: flex;
-            gap: 0.5rem;
-        }
-        .badge {
-            font-size: 0.75rem;
-            padding: 0.2rem 0.6rem;
-            border-radius: 20px;
-            font-weight: 600;
-            background-color: rgba(255,255,255,0.05);
-        }
+        .card:hover { transform: translateY(-3px); border-color: #8b949e; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .category { font-size: 0.85rem; color: #8b949e; text-transform: uppercase; letter-spacing: 0.05em; }
+        .badge { font-size: 0.75rem; padding: 0.2rem 0.6rem; border-radius: 20px; font-weight: 600; background-color: rgba(255,255,255,0.05); }
         .badge.easy { color: var(--badge-easy); border: 1px solid rgba(86, 211, 100, 0.3); }
         .badge.medium { color: var(--badge-medium); border: 1px solid rgba(227, 179, 65, 0.3); }
         .badge.hard { color: var(--badge-hard); border: 1px solid rgba(248, 81, 73, 0.3); }
-        .card h3 {
-            color: #fff;
-            margin-bottom: 0.75rem;
-            font-size: 1.2rem;
-        }
-        .card p {
-            color: #8b949e;
-            font-size: 0.95rem;
-            flex-grow: 1;
-        }
-        .sidebar {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-        .sidebar-widget {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 1.5rem;
-        }
-        .sidebar-widget h3 {
-            color: #fff;
-            font-size: 1.1rem;
-            margin-bottom: 1rem;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 0.5rem;
-        }
-        .tag-cloud {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-        }
-        .tag-item {
-            font-size: 0.85rem;
-            background-color: #21262d;
-            border: 1px solid var(--border-color);
-            padding: 0.3rem 0.6rem;
-            border-radius: 6px;
-            cursor: pointer;
-            color: var(--text-color);
-            transition: background-color 0.2s, border-color 0.2s;
-        }
-        .tag-item:hover {
-            background-color: #30363d;
-            border-color: #8b949e;
-        }
-        .tag-item.active {
-            background-color: rgba(88, 166, 255, 0.2);
-            border-color: var(--accent-color);
-            color: #fff;
-        }
-        footer {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 2rem 0;
-            color: #8b949e;
-            font-size: 0.85rem;
-            border-top: 1px solid var(--border-color);
-            margin-top: 2rem;
-        }
+        
+        .sidebar { display: flex; flex-direction: column; gap: 1.5rem; }
+        .sidebar-widget { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 6px; padding: 1.5rem; }
+        .sidebar-widget h3 { color: #fff; font-size: 1.1rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
+        .tag-item { font-size: 0.85rem; background-color: #21262d; border: 1px solid var(--border-color); padding: 0.3rem 0.6rem; border-radius: 6px; cursor: pointer; color: var(--text-color); margin: 2px; display: inline-block; }
+        .tag-item:hover { border-color: #8b949e; }
+        
+        footer { grid-column: 1 / -1; text-align: center; padding: 2rem 0; color: #8b949e; font-size: 0.85rem; border-top: 1px solid var(--border-color); margin-top: 2rem; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <header style="text-align: center; margin-bottom: 2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1.5rem;">
-            <h1 style="color: #fff; font-size: 2.5rem; margin-bottom: 0.5rem;">Bit<span style="color: var(--accent-color);">and</span>Boot</h1>
-            <p style="color: #8b949e; font-size: 1.1rem;">Low-Level Firmware Architectures & System Forensics Laboratory</p>
+        <header>
+            <h1>Bit<span style="color: var(--accent-color);">and</span>Boot</h1>
+            <p>Low-Level Firmware Architectures & System Forensics Laboratory</p>
+            <a href="glossary.html" class="glossary-cta">📚 Browse Systems Glossary</a>
         </header>
 
         <div class="search-container">
@@ -276,304 +150,216 @@
             <button class="clear-filter-btn" onclick="clearFilter()">Clear Filter ×</button>
         </div>
 
+        <!-- DIAGNOSTIC TOOL -->
+        <div id="diagnostic-outer">
+            <button onclick="document.getElementById('diagnostic-container').style.display='block'; this.style.display='none';" id="start-diag-btn" style="width: 100%; padding: 1rem; background: rgba(88, 166, 255, 0.05); border: 1px solid var(--accent-color); color: var(--accent-color); border-radius: 6px; cursor: pointer; font-weight: 700;">
+                Not sure what's wrong? Start Lab Diagnostic →
+            </button>
+            <div id="diagnostic-container">
+                <h3 style="color: #fff; margin-bottom: 10px;">🔍 System Diagnostic Router</h3>
+                <p id="diag-question" style="color: var(--text-color); margin-bottom: 1.5rem;">Select the primary category:</p>
+                <div id="diag-options"></div>
+                <button onclick="resetDiagnostic()" style="margin-top: 1.5rem; background: transparent; border: none; color: var(--meta-color); cursor: pointer; font-size: 0.8rem; text-decoration: underline;">Restart</button>
+            </div>
+        </div>
+
         <main>
             <h2 id="feedHeading" style="color: #fff; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">Recent Engineering Guides</h2>
-            
-            <div id="noResultsBox" class="no-results">
-                No matching systems documentation or architecture guides found. Try a different search string.
+
+            <!-- SECTION: AI BLOCK -->
+            <div class="category-section" id="ai-block">
+                <h3 class="category-title">🤖 AI & Machine Learning Deep-Dives</h3>
+                <div class="grid">
+                    <a href="ai-tokenization-counting-mystery.html" class="card-wrapper" data-tags="ai_mechanics tokens llm_forensics optimization">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="category">AI Block</div>
+                                <div class="badge medium">🟡 Intermediate</div>
+                            </div>
+                            <h3>Why AI Sometimes Can't Count the Letters in a Word</h3>
+                            <p>Deconstructing the Tokenization process. Learn why Byte Pair Encoding (BPE) creates a character-level blindspot for Large Language Models.</p>
+                        </div>
+                    </a>
+                </div>
             </div>
 
+            <!-- SECTION: EVERYDAY TECH -->
             <div class="category-section">
                 <h3 class="category-title">⚙️ Everyday Tech & Network Optimization</h3>
                 <div class="grid">
                     <a href="phantom-space-storage-guide.html" class="card-wrapper" data-tags="firmware troubleshooting optimization storage">
                         <div class="card">
-                            <div class="card-header">
-                                <div class="category">Everyday Tech</div>
-                                <div class="badge-group">
-                                    <span class="badge time">⏱️ 5 Min</span>
-                                    <span class="badge easy">🟢 Beginner</span>
-                                </div>
-                            </div>
+                            <div class="card-header"><div class="category">Everyday Tech</div><div class="badge easy">🟢 Beginner</div></div>
                             <h3>The Phantom Space: Why Your Device Says 'Storage Full' When You’ve Deleted Everything</h3>
-                            <p>Demystifying ghost data, hidden app caches, and system storage snapshots that trap your phone's memory—and how to clear them cleanly.</p>
+                            <p>Demystifying ghost data, hidden app caches, and system storage snapshots that trap your phone's memory.</p>
                         </div>
                     </a>
                     <a href="wifi-ghost-router-guide.html" class="card-wrapper" data-tags="networking security troubleshooting wifi hardware">
                         <div class="card">
-                            <div class="card-header">
-                                <div class="category">Network Security</div>
-                                <div class="badge-group">
-                                    <span class="badge time">⏱️ 7 Min</span>
-                                    <span class="badge hard">🔴 Advanced</span>
-                                </div>
-                            </div>
+                            <div class="card-header"><div class="category">Network Security</div><div class="badge hard">🔴 Advanced</div></div>
                             <h3>The Ghost Router Phenomenon: Diagnosing Zombie SSID Broadcasts</h3>
-                            <p>Analyzing non-responsive network beacons and phantom wireless infrastructure. Learn how rogue firmware states and overlapping beacon frames generate unconnectable phantom access points.</p>
+                            <p>Analyzing non-responsive network beacons and phantom wireless infrastructure. Rogue firmware states explained.</p>
                         </div>
                     </a>
                     <a href="incognito-mode-myths.html" class="card-wrapper" data-tags="security privacy networking web-browsing">
                         <div class="card">
-                            <div class="card-header">
-                                <div class="category">Data Privacy</div>
-                                <div class="badge-group">
-                                    <span class="badge time">⏱️ 4 Min</span>
-                                    <span class="badge easy">🟢 Beginner</span>
-                                </div>
-                            </div>
+                            <div class="card-header"><div class="category">Data Privacy</div><div class="badge easy">🟢 Beginner</div></div>
                             <h3>Deconstructing Incognito Mode: The Reality of Browser Isolation</h3>
-                            <p>Demystifying local storage wiping versus network-layer visibility. Trace how DNS queries, ISP tracking logs, and upstream gateways render private tabs highly visible.</p>
+                            <p>Trace how DNS queries, ISP tracking logs, and upstream gateways render private tabs highly visible.</p>
                         </div>
                     </a>
                     <a href="background-refresh-battery.html" class="card-wrapper" data-tags="optimization hardware software troubleshooting mobile">
                         <div class="card">
-                            <div class="card-header">
-                                <div class="category">OS Optimization</div>
-                                <div class="badge-group">
-                                    <span class="badge time">⏱️ 6 Min</span>
-                                    <span class="badge medium">🟡 Intermediate</span>
-                                </div>
-                            </div>
-                            <h3>Background App Refresh vs. Lifespan: The Silent Battery Drainers</h3>
-                            <p>Isolating asynchronous background processes, wake locks, and periodic fetch daemons to optimize system-level daemon polling and reclaim device standby efficiency.</p>
+                            <div class="card-header"><div class="category">OS Optimization</div><div class="badge medium">🟡 Intermediate</div></div>
+                            <h3>The Invisible Energy Vampires: Background Refresh vs. Battery Lifespan</h3>
+                            <p>Isolating asynchronous background processes, wake locks, and periodic fetch daemons to reclaim standby efficiency.</p>
                         </div>
                     </a>
                     <a href="fast-charging-battery-truth.html" class="card-wrapper" data-tags="hardware engineering physics battery safety">
                         <div class="card">
-                            <div class="card-header">
-                                <div class="category">Hardware Engineering</div>
-                                <div class="badge-group">
-                                    <span class="badge time">⏱️ 8 Min</span>
-                                    <span class="badge hard">🔴 Advanced</span>
-                                </div>
-                            </div>
+                            <div class="card-header"><div class="category">Hardware Engineering</div><div class="badge hard">🔴 Advanced</div></div>
                             <h3>The Physics of Fast Charging: Degradation, Thermal Throttling, and Lithium Mechanics</h3>
-                            <p>Deconstructing the impacts of high-wattage power delivery on anode-cathode integrity. Explore how multi-stage current control protects cells from premature crystalline breakdown.</p>
+                            <p>Deconstructing the impacts of high-wattage power delivery on anode-cathode integrity.</p>
                         </div>
                     </a>
                     <a href="phone-screen-fragility.html" class="card-wrapper" data-tags="hardware engineering materials chemistry safety">
                         <div class="card">
-                            <div class="card-header">
-                                <div class="category">Materials Science</div>
-                                <div class="badge-group">
-                                    <span class="badge time">⏱️ 5 Min</span>
-                                    <span class="badge medium">🟡 Intermediate</span>
-                                </div>
-                            </div>
+                            <div class="card-header"><div class="category">Materials Science</div><div class="badge medium">🟡 Intermediate</div></div>
                             <h3>Why Screens Still Shatter: The Brittle Trade-Off of Scratch-Resistant Glass</h3>
-                            <p>Investigating the molecular limits of chemically strengthened glass structures. Analyze why increasing Vickers hardness rating to stop surface scratches makes panels inherently vulnerable to drop impacts.</p>
+                            <p>Investigating the molecular limits of chemically strengthened glass structures.</p>
                         </div>
                     </a>
                     <a href="device-battery-lifespan-guide.html" class="card-wrapper" data-tags="optimization hardware troubleshooting battery">
                         <div class="card">
-                            <div class="card-header">
-                                <div class="category">Everyday Tech</div>
-                                <div class="badge-group">
-                                    <span class="badge time">⏱️ 6 Min</span>
-                                    <span class="badge easy">🟢 Beginner</span>
-                                </div>
-                            </div>
+                            <div class="card-header"><div class="category">Everyday Tech</div><div class="badge easy">🟢 Beginner</div></div>
                             <h3>Maximizing Device Battery Lifespan: The Science Behind Degradation</h3>
-                            <p>An engineering look at lithium-ion charge cycles, thermal stress factors, and voltage thresholds that dictate cell longevity over time.</p>
+                            <p>An engineering look at lithium-ion charge cycles and voltage thresholds that dictate cell longevity.</p>
                         </div>
                     </a>
                     <a href="native-laptop-maintenance-guide.html" class="card-wrapper" data-tags="optimization hardware troubleshooting laptop">
                         <div class="card">
-                            <div class="card-header">
-                                <div class="category">Everyday Tech</div>
-                                <div class="badge-group">
-                                    <span class="badge time">⏱️ 5 Min</span>
-                                    <span class="badge easy">🟢 Beginner</span>
-                                </div>
-                            </div>
+                            <div class="card-header"><div class="category">Everyday Tech</div><div class="badge easy">🟢 Beginner</div></div>
                             <h3>Native Laptop Maintenance: Keeping Hardware Running Cool and Efficient</h3>
-                            <p>A hands-on breakdown of thermal paste degradation, dust clearing strategies, and operating system optimizations to prevent hardware throttling.</p>
+                            <p>A hands-on breakdown of thermal paste degradation and dust clearing strategies.</p>
                         </div>
                     </a>
                     <a href="dns-speed-privacy-guide.html" class="card-wrapper" data-tags="networking privacy security optimization">
                         <div class="card">
-                            <div class="card-header">
-                                <div class="category">Network Optimization</div>
-                                <div class="badge-group">
-                                    <span class="badge time">⏱️ 6 Min</span>
-                                    <span class="badge easy">🟢 Beginner</span>
-                                </div>
-                            </div>
+                            <div class="card-header"><div class="category">Network Optimization</div><div class="badge easy">🟢 Beginner</div></div>
                             <h3>DNS Configuration: Optimizing for Speed, Privacy, and Unfiltered Access</h3>
-                            <p>Understanding how Domain Name System lookups impact latency, and how migrating to private DNS alternatives routes traffic securely away from ISP monitoring.</p>
+                            <p>Understanding how Domain Name System lookups impact latency and privacy.</p>
                         </div>
                     </a>
                     <a href="wifi-channels-optimization-guide.html" class="card-wrapper" data-tags="networking troubleshooting optimization wifi">
                         <div class="card">
-                            <div class="card-header">
-                                <div class="category">Network Optimization</div>
-                                <div class="badge-group">
-                                    <span class="badge time">⏱️ 5 Min</span>
-                                    <span class="badge medium">🟡 Intermediate</span>
-                                </div>
-                            </div>
+                            <div class="card-header"><div class="category">Network Optimization</div><div class="badge medium">🟡 Intermediate</div></div>
                             <h3>Demystifying Wi-Fi Channels: Shifting Frequencies to Eliminate Congestion</h3>
-                            <p>Isolating signal attenuation and overlapping channel interference on 2.4GHz and 5GHz bands to reconfigure local access points for optimal throughput.</p>
+                            <p>Isolating signal attenuation and overlapping channel interference on 2.4GHz and 5GHz bands.</p>
                         </div>
                     </a>
                 </div>
             </div>
 
+            <!-- SECTION: MOBILE SERVICING -->
             <div class="category-section">
                 <h3 class="category-title">📁 Mobile Servicing & Firmware</h3>
                 <div class="grid">
                     <a href="samsung-touch-issue-guide.html" class="card-wrapper" data-tags="firmware odinflashing samfirm">
                         <div class="card">
-                            <div class="card-header">
-                                <div class="category">Mobile Servicing</div>
-                                <div class="badge-group">
-                                    <span class="badge time">⏱️ 6 Min</span>
-                                    <span class="badge medium">🟡 Intermediate</span>
-                                </div>
-                            </div>
+                            <div class="card-header"><div class="category">Mobile Servicing</div><div class="badge medium">🟡 Intermediate</div></div>
                             <h3>Fixing Samsung M34 5G Touch Dead After Update: Firmware Downgrade Methods</h3>
-                            <p>Deconstructing Touch IC firmware mismatches in One UI, executing clean SamFirm/Odin rollbacks, and avoiding dangerous charging jack interface failures.</p>
+                            <p>Deconstructing Touch IC firmware mismatches in One UI and executing clean Odin rollbacks.</p>
                         </div>
                     </a>
                     <a href="edl-mode-guide.html" class="card-wrapper" data-tags="firmware edl_mode unlocktool qualcomm">
                         <div class="card">
-                            <div class="card-header">
-                                <div class="category">Firmware & Tools</div>
-                                <div class="badge-group">
-                                    <span class="badge time">⏱️ 4 Min</span>
-                                    <span class="badge easy">🟢 Beginner</span>
-                                </div>
-                            </div>
+                            <div class="card-header"><div class="category">Firmware & Tools</div><div class="badge easy">🟢 Beginner</div></div>
                             <h3>Demystifying EDL Mode: Recovering Hard-Bricked Devices via Unlocktool</h3>
-                            <p>An in-depth look at how Qualcomm Boot ROM handles Emergency Download states when primary partition targets fail.</p>
+                            <p>How Qualcomm Boot ROM handles Emergency Download states when primary partitions fail.</p>
                         </div>
                     </a>
                 </div>
             </div>
 
+            <!-- SECTION: CHIP-LEVEL -->
             <div class="category-section">
                 <h3 class="category-title">🔬 Chip-Level & Hardware Engineering</h3>
                 <div class="grid">
                     <a href="dimensity-frp-hardware-guide.html" class="card-wrapper" data-tags="ufs_isp mediatek chip_level">
                         <div class="card">
-                            <div class="card-header">
-                                <div class="category">Hardware Engineering</div>
-                                <div class="badge-group">
-                                    <span class="badge time">⏱️ 10 Min</span>
-                                    <span class="badge hard">🔴 Advanced</span>
-                                </div>
-                            </div>
+                            <div class="card-header"><div class="category">Hardware Engineering</div><div class="badge hard">🔴 Advanced</div></div>
                             <h3>Beyond Software Exploits: Why Modern MediaTek Dimensity FRP Requires Motherboard Drilling</h3>
-                            <p>Breaking down why cryptographic protection protocols and eFuses render software suites useless, forcing direct UFS chip-level micro-drilling.</p>
+                            <p>Why eFuses render software suites useless, forcing direct UFS chip-level micro-drilling.</p>
                         </div>
                     </a>
                 </div>
             </div>
 
+            <!-- SECTION: SOFTWARE DESIGN -->
             <div class="category-section">
                 <h3 class="category-title">🧠 Software Design & Architecture</h3>
                 <div class="grid">
                     <a href="optimistic-ui-psychology-guide.html" class="card-wrapper" data-tags="ui_design frontend architecture psychology">
                         <div class="card">
-                            <div class="card-header">
-                                <div class="category">Frontend Design</div>
-                                <div class="badge-group">
-                                    <span class="badge time">⏱️ 7 Min</span>
-                                    <span class="badge medium">🟡 Intermediate</span>
-                                </div>
-                            </div>
+                            <div class="card-header"><div class="category">Frontend Design</div><div class="badge medium">🟡 Intermediate</div></div>
                             <h3>The Psychology of Optimistic UI: Designing Apps That Feel Instant</h3>
-                            <p>Deconstructing modern frontend paradigms where interfaces anticipate successful server mutations to reduce perceived user latency.</p>
+                            <p>Deconstructing modern frontend paradigms where interfaces anticipate successful server mutations.</p>
                         </div>
                     </a>
                     <a href="proximity-tracking-ads-guide.html" class="card-wrapper" data-tags="security privacy mobile tracking">
                         <div class="card">
-                            <div class="card-header">
-                                <div class="category">Security & Privacy</div>
-                                <div class="badge-group">
-                                    <span class="badge time">⏱️ 8 Min</span>
-                                    <span class="badge hard">🔴 Advanced</span>
-                                </div>
-                            </div>
+                            <div class="card-header"><div class="category">Security & Privacy</div><div class="badge hard">🔴 Advanced</div></div>
                             <h3>Proximity Tracking & Hyper-Targeted Ads: How Adtech Follows You</h3>
-                            <p>Mapping the architecture behind Bluetooth beacons, geofencing, and cross-device graph mapping used to serve physical real-world location advertisements.</p>
+                            <p>Mapping the architecture behind Bluetooth beacons, geofencing, and cross-device graph mapping.</p>
                         </div>
                     </a>
                 </div>
             </div>
 
+            <!-- SECTION: TOOLCHAIN -->
             <div class="category-section">
                 <h3 class="category-title">🔌 Toolchain Mechanics & Forensic Servicing</h3>
                 <div class="grid">
                     <a href="windows-dse-gsm-tools.html" class="card-wrapper" data-tags="windowskernel unlocktool firmware">
                         <div class="card">
-                            <div class="card-header">
-                                <div class="category">Toolchain Mechanics</div>
-                                <div class="badge-group">
-                                    <span class="badge time">⏱️ 5 Min</span>
-                                    <span class="badge easy">🟢 Beginner</span>
-                                </div>
-                            </div>
-                            <h3>Why Windows Driver Signature Enforcement (DSE) Breaks GSM Tools: Registry Patches for Flashing Drivers</h3>
-                            <p>How third-party servicing tools deploy temporary, unsigned virtual drivers to handle raw USB COM traffic, and the specific BCDEDIT overrides required to prevent execution blocking.</p>
+                            <div class="card-header"><div class="category">Toolchain Mechanics</div><div class="badge easy">🟢 Beginner</div></div>
+                            <h3>Why Windows Driver Signature Enforcement (DSE) Breaks GSM Tools</h3>
+                            <p>How third-party tools deploy unsigned drivers and the specific BCDEDIT overrides required.</p>
                         </div>
                     </a>
                     <a href="wsl2-libusb-udev-rules.html" class="card-wrapper" data-tags="toolchain linux firmware udev">
                         <div class="card">
-                            <div class="card-header">
-                                <div class="category">Toolchain Mechanics</div>
-                                <div class="badge-group">
-                                    <span class="badge time">⏱️ 5 Min</span>
-                                    <span class="badge easy">🟢 Beginner</span>
-                                </div>
-                            </div>
+                            <div class="card-header"><div class="category">Toolchain Mechanics</div><div class="badge easy">🟢 Beginner</div></div>
                             <h3>Why libusb Fails to Intercept Fastboot Devices on Linux/WSL2: Fixing udev Rules</h3>
-                            <p>An engineering breakdown of why the udev daemon locks flashing channels to root privileges, and the specific environment rule sets required to bypass it cleanly.</p>
+                            <p>Engineering breakdown of why the udev daemon locks flashing channels and how to bypass it.</p>
                         </div>
                     </a>
                 </div>
             </div>
 
+            <!-- SECTION: PARTITION FORENSICS -->
             <div class="category-section">
                 <h3 class="category-title">💽 Partition Forensics & Low-Level Architecture</h3>
                 <div class="grid">
                     <a href="linux-dirty-kernel.html" class="card-wrapper" data-tags="linuxkernel firmware privesc android security">
                         <div class="card">
-                            <div class="card-header">
-                                <div class="category">Firmware Architectures</div>
-                                <div class="badge-group">
-                                    <span class="badge time">⏱️ 7 Min</span>
-                                    <span class="badge hard">🔴 Advanced</span>
-                                </div>
-                            </div>
-                            <h3>Demystifying Dirty COW & Dirty Pipe: Linux Kernel Privilege Escalation in Mobile Environments</h3>
-                            <p>An architectural deep dive into Copy-on-Write race conditions and uninitialized pipe buffer merge flags used to force unprivileged root access.</p>
+                            <div class="card-header"><div class="category">Firmware Architectures</div><div class="badge hard">🔴 Advanced</div></div>
+                            <h3>Demystifying Dirty COW & Dirty Pipe: Linux Kernel Privilege Escalation</h3>
+                            <p>Deep dive into Copy-on-Write race conditions and uninitialized pipe buffer flags.</p>
                         </div>
                     </a>
-                    <a href="demystifying-rpmb-partition.html" class="card-wrapper" data-tags="rpmb_crypto chip_level qualcomm mediatek">
+                    <a href="demystifying-rpmb-partition.html" class="card-wrapper" data-tags="rpmb_crypto chip_level qualcomm mediatek security">
                         <div class="card">
-                            <div class="card-header">
-                                <div class="category">Partition Forensics</div>
-                                <div class="badge-group">
-                                    <span class="badge time">⏱️ 8 Min</span>
-                                    <span class="badge hard">🔴 Advanced</span>
-                                </div>
-                            </div>
+                            <div class="card-header"><div class="category">Partition Forensics</div><div class="badge hard">🔴 Advanced</div></div>
                             <h3>Demystifying the RPMB: How Smartphone Hardware Binds Flash Storage to Specific CPUs</h3>
-                            <p>An architectural breakdown of the Replay Protected Memory Block. Explore how JEDEC storage standards use HMAC-SHA-256 keys and monotonic counters to prevent clean hardware parts swapping.</p>
+                            <p>Explore how JEDEC storage standards use HMAC-SHA-256 keys and monotonic counters.</p>
                         </div>
                     </a>
                     <a href="nvram-nvdata-cellular-repair.html" class="card-wrapper" data-tags="firmware mediatek unlocktool">
                         <div class="card">
-                            <div class="card-header">
-                                <div class="category">Low-Level Architecture</div>
-                                <div class="badge-group">
-                                    <span class="badge time">⏱️ 7 Min</span>
-                                    <span class="badge medium">🟡 Intermediate</span>
-                                </div>
-                            </div>
-                            <h3>Recovering Lost Baseband: Managing /nvram, /nvdata, and Security Registers in MediaTek Environments</h3>
-                            <p>Mapping out the non-volatile storage blocks responsible for cellular calibration, serial identifiers, and radio frequency tuning when partitions become corrupted.</p>
+                            <div class="card-header"><div class="category">Low-Level Architecture</div><div class="badge medium">🟡 Intermediate</div></div>
+                            <h3>Recovering Lost Baseband: Managing /nvram, /nvdata, and Security Registers</h3>
+                            <p>Mapping out non-volatile storage responsible for cellular calibration and serial identifiers.</p>
                         </div>
                     </a>
                 </div>
@@ -587,124 +373,107 @@
                     <span class="tag-item" onclick="filterByTag('firmware', this)">#Firmware</span>
                     <span class="tag-item" onclick="filterByTag('qualcomm', this)">#Qualcomm</span>
                     <span class="tag-item" onclick="filterByTag('mediatek', this)">#MediaTek</span>
-                    <span class="tag-item" onclick="filterByTag('ufs_isp', this)">#UFS_ISP</span>
-                    <span class="tag-item" onclick="filterByTag('odinflashing', this)">#OdinFlashing</span>
-                    <span class="tag-item" onclick="filterByTag('windowskernel', this)">#WindowsKernel</span>
-                    <span class="tag-item" onclick="filterByTag('linuxkernel', this)">#LinuxKernel</span>
-                    <span class="tag-item" onclick="filterByTag('privesc', this)">#PrivEsc</span>
+                    <span class="tag-item" onclick="filterByTag('ai_mechanics', this)">#AI_Mechanics</span>
+                    <span class="tag-item" onclick="filterByTag('networking', this)">#Networking</span>
                     <span class="tag-item" onclick="filterByTag('rpmb_crypto', this)">#RPMB_Crypto</span>
                     <span class="tag-item" onclick="filterByTag('unlocktool', this)">#Unlocktool</span>
-                    <span class="tag-item" onclick="filterByTag('edl_mode', this)">#EDL_Mode</span>
-                    <span class="tag-item" onclick="filterByTag('chip_level', this)">#Chip_Level</span>
                     <span class="tag-item" onclick="filterByTag('optimization', this)">#Optimization</span>
-                    <span class="tag-item" onclick="filterByTag('networking', this)">#Networking</span>
-                    <span class="tag-item" onclick="filterByTag('privacy', this)">#Privacy</span>
-                    <span class="tag-item" onclick="filterByTag('ui_design', this)">#UI_Design</span>
                 </div>
             </div>
-            
             <div class="sidebar-widget">
                 <h3>📢 Workbench Status</h3>
-                <p style="font-size: 0.9rem; color: #8b949e; margin: 0;">Monitoring and documenting real-world firmware panics and board-level security revisions as they show up on the test bench.</p>
+                <p style="font-size: 0.9rem; color: #8b949e;">Monitoring and documenting real-world firmware panics and board-level security revisions live.</p>
             </div>
         </aside>
-
     </div>
 
-    <footer>
-        &copy; 2026 bitandboot. Built on GitHub Pages. Completely Open Source.
-    </footer>
+    <footer>&copy; 2026 bitandboot. Built on GitHub Pages. Laboratory Open Source.</footer>
 
     <script>
+        // --- 1. SEARCH & FILTERING ---
         function executeSearch() {
             const query = document.getElementById('searchInput').value.toLowerCase();
-            
             document.querySelectorAll('.tag-item').forEach(t => t.classList.remove('active'));
             document.getElementById('filterStatus').style.display = 'none';
             
-            if (query.trim() === "") {
-                clearFilter();
-                return;
-            }
+            if (query.trim() === "") { clearFilter(); return; }
 
             document.getElementById('feedHeading').innerText = 'Search Results';
-            let totalVisibleCards = 0;
-
             document.querySelectorAll('.category-section').forEach(section => {
-                let visibleCardsInSection = 0;
-                const cards = section.querySelectorAll('.card-wrapper');
-
-                cards.forEach(card => {
-                    const titleText = card.querySelector('h3').innerText.toLowerCase();
-                    const bodyText = card.querySelector('p').innerText.toLowerCase();
-                    const tagAttribute = card.getAttribute('data-tags').toLowerCase();
-
-                    if (titleText.includes(query) || bodyText.includes(query) || tagAttribute.includes(query)) {
-                        card.style.display = 'block';
-                        visibleCardsInSection++;
-                        totalVisibleCards++;
-                    } else {
-                        card.style.display = 'none';
-                    }
+                let visibleCards = 0;
+                section.querySelectorAll('.card-wrapper').forEach(card => {
+                    const content = card.innerText.toLowerCase() + card.getAttribute('data-tags').toLowerCase();
+                    if (content.includes(query)) { card.style.display = 'block'; visibleCards++; }
+                    else { card.style.display = 'none'; }
                 });
-
-                if (visibleCardsInSection === 0) {
-                    section.style.display = 'none';
-                } else {
-                    section.style.display = 'block';
-                }
+                section.style.display = visibleCards > 0 ? 'block' : 'none';
             });
-
-            document.getElementById('noResultsBox').style.display = totalVisibleCards === 0 ? 'block' : 'none';
         }
 
         function filterByTag(tag, element) {
-            document.getElementById('searchInput').value = "";
-            document.getElementById('noResultsBox').style.display = 'none';
-
-            document.querySelectorAll('.tag-item').forEach(t => t.classList.remove('active'));
-            element.classList.add('active');
-
             document.getElementById('activeTagName').innerText = '#' + tag;
             document.getElementById('filterStatus').style.display = 'flex';
-            document.getElementById('feedHeading').innerText = 'Filtered Results';
-
             document.querySelectorAll('.category-section').forEach(section => {
-                let visibleCardsInSection = 0;
-                const cards = section.querySelectorAll('.card-wrapper');
-
-                cards.forEach(card => {
-                    const cardTags = card.getAttribute('data-tags').split(' ');
-                    if (cardTags.includes(tag.toLowerCase())) {
-                        card.style.display = 'block';
-                        visibleCardsInSection++;
-                    } else {
-                        card.style.display = 'none';
-                    }
+                let visibleCards = 0;
+                section.querySelectorAll('.card-wrapper').forEach(card => {
+                    if (card.getAttribute('data-tags').includes(tag)) { card.style.display = 'block'; visibleCards++; }
+                    else { card.style.display = 'none'; }
                 });
-
-                if (visibleCardsInSection === 0) {
-                    section.style.display = 'none';
-                } else {
-                    section.style.display = 'block';
-                }
+                section.style.display = visibleCards > 0 ? 'block' : 'none';
             });
         }
 
         function clearFilter() {
-            document.getElementById('searchInput').value = "";
-            document.querySelectorAll('.tag-item').forEach(t => t.classList.remove('active'));
             document.getElementById('filterStatus').style.display = 'none';
-            document.getElementById('noResultsBox').style.display = 'none';
-            document.getElementById('feedHeading').innerText = 'Recent Engineering Guides';
-
-            document.querySelectorAll('.category-section').forEach(section => {
-                section.style.display = 'block';
-                section.querySelectorAll('.card-wrapper').forEach(card => {
-                    card.style.display = 'block';
-                });
+            document.querySelectorAll('.category-section').forEach(s => {
+                s.style.display = 'block';
+                s.querySelectorAll('.card-wrapper').forEach(c => c.style.display = 'block');
             });
         }
+
+        // --- 2. DIAGNOSTIC ENGINE ---
+        const diagData = {
+            start: {
+                text: "Select the hardware category you are troubleshooting:",
+                options: [
+                    { text: "Smartphone / Mobile", next: "mobile" },
+                    { text: "PC / WSL / Drivers", next: "pc" },
+                    { text: "Network / Wi-Fi", next: "network" },
+                    { text: "AI / Logic Models", next: "ai" }
+                ]
+            },
+            mobile: {
+                text: "What is the symptom?",
+                options: [
+                    { text: "Storage / Security Lock", next: "mob_sec" },
+                    { text: "Battery / Drain", next: "mob_pwr" },
+                    { text: "Firmware / Brick", next: "mob_firm" }
+                ]
+            },
+            mob_sec: { text: "Recommended:", options: [{ text: "View RPMB Guide →", link: "demystifying-rpmb-partition.html" }] },
+            mob_pwr: { text: "Recommended:", options: [{ text: "Battery Analysis →", link: "background-refresh-battery.html" }] },
+            mob_firm: { text: "Recommended:", options: [{ text: "EDL Mode Guide →", link: "edl-mode-guide.html" }] },
+            pc: { text: "Recommended:", options: [{ text: "Fixing WSL2 libusb →", link: "wsl2-libusb-udev-rules.html" }] },
+            network: { text: "Recommended:", options: [{ text: "Ghost Router Diagnosis →", link: "wifi-ghost-router-guide.html" }] },
+            ai: { text: "Recommended:", options: [{ text: "Tokenization Counting Mystery →", link: "ai-tokenization-counting-mystery.html" }] }
+        };
+
+        let currentStep = 'start';
+        function renderDiag() {
+            const step = diagData[currentStep];
+            document.getElementById('diag-question').innerText = step.text;
+            const container = document.getElementById('diag-options');
+            container.innerHTML = '';
+            step.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.innerText = opt.text;
+                btn.className = 'diag-btn';
+                btn.onclick = () => { if (opt.link) window.location.href = opt.link; else { currentStep = opt.next; renderDiag(); } };
+                container.appendChild(btn);
+            });
+        }
+        function resetDiagnostic() { currentStep = 'start'; renderDiag(); }
+        renderDiag();
     </script>
 
 </body>
