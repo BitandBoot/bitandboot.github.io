@@ -3,359 +3,382 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Demystifying the RPMB: How Smartphone Hardware Binds Flash Storage to Specific CPUs | bitandboot</title>
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <title>RPMB Forensics | bitandboot Systems Lab</title>
+    <!-- Professional Engineering Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
+    
     <style>
         :root {
-            --bg-color: #0d1117;
+            --bg-color: #05070a;
             --text-color: #c9d1d9;
             --accent-color: #58a6ff;
-            --card-bg: #161b22;
+            --neon-green: #3fb950;
+            --neon-red: #f85149;
+            --card-bg: #0d1117;
             --border-color: #30363d;
-            --meta-color: #8b949e;
-            --badge-easy: #56d364;
-            --badge-hard: #f85149;
-            --badge-medium: #e3b341;
-            --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+            --terminal-bg: #010409;
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-sans: 'Inter', sans-serif;
         }
+
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        
         body {
             background-color: var(--bg-color);
+            background-image: radial-gradient(#161b22 0.5px, transparent 0.5px);
+            background-size: 30px 30px; /* Subtle engineering grid */
             color: var(--text-color);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            font-family: var(--font-sans);
             line-height: 1.6;
-            padding: 2rem 1rem;
+            padding: 0 1.5rem;
         }
+
         .container { max-width: 1100px; margin: 0 auto; }
-        header { margin-bottom: 2.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1.5rem; }
-        .nav-back { color: var(--accent-color); text-decoration: none; font-size: 0.95rem; display: inline-block; margin-bottom: 1rem; }
-        .nav-back:hover { text-decoration: underline; }
-        h1 { color: #fff; font-size: 2.2rem; line-height: 1.25; margin-bottom: 0.75rem; }
-        .meta { color: var(--meta-color); font-size: 0.9rem; display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
-        
-        /* --- WORKBENCH SIMULATION STYLES --- */
-        #workbench-simulation {
-            background-color: #000;
-            border: 1px solid var(--accent-color);
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-bottom: 2.5rem;
+
+        /* --- STAMPED HEADER --- */
+        header { 
+            padding: 4rem 0 2rem 0; 
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 3rem;
+        }
+        .nav-back { 
             font-family: var(--font-mono);
+            color: var(--accent-color);
+            text-decoration: none;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            display: block;
+            margin-bottom: 1rem;
+        }
+        h1 { 
+            font-weight: 800;
+            font-size: 3rem;
+            color: #fff;
+            line-height: 1.1;
+            letter-spacing: -2px;
+            margin-bottom: 1rem;
+        }
+        .meta { 
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--meta-color);
+            display: flex;
+            gap: 1.5rem;
+            text-transform: uppercase;
+        }
+
+        /* --- THE WORKBENCH: UN-IGNORABLE UI --- */
+        #workbench-mainframe {
+            background: var(--terminal-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 4rem;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 20px rgba(88, 166, 255, 0.1);
         }
-        .sim-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid #1f242c; padding-bottom: 0.5rem; }
-        .sim-title { color: var(--accent-color); font-size: 0.85rem; font-weight: bold; text-transform: uppercase; }
-        .sim-display {
-            display: grid;
-            grid-template-columns: 1fr auto 1fr;
-            gap: 1rem;
-            align-items: center;
-            min-height: 150px;
-            margin: 1rem 0;
-        }
-        .sim-node {
-            border: 1px solid var(--border-color);
-            padding: 1rem;
-            text-align: center;
-            background: var(--card-bg);
-            border-radius: 4px;
-        }
-        .sim-data { font-size: 0.75rem; color: #56d364; margin-top: 0.5rem; word-break: break-all; min-height: 2.5em; }
-        .sim-arrow { font-size: 1.5rem; color: var(--meta-color); }
-        .sim-controls { display: flex; gap: 10px; justify-content: center; }
-        .sim-btn {
-            background: rgba(88, 166, 255, 0.1);
-            border: 1px solid var(--accent-color);
-            color: var(--accent-color);
-            padding: 0.5rem 1rem;
-            cursor: pointer;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
-        .sim-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-        .sim-status-msg { text-align: center; margin-top: 1rem; font-size: 0.85rem; color: var(--meta-color); }
-
-        /* --- GLOSSARY POPUP STYLES --- */
-        .glossary-term {
-            border-bottom: 1px dashed var(--accent-color);
-            cursor: help;
-            position: relative;
-            color: #fff;
-        }
-        .glossary-popup {
-            position: absolute;
-            bottom: 125%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #161b22;
-            border: 1px solid var(--accent-color);
-            padding: 0.75rem;
-            border-radius: 6px;
-            width: 250px;
-            font-size: 0.85rem;
-            color: var(--text-color);
-            z-index: 100;
-            display: none;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            font-family: -apple-system, sans-serif;
-            font-weight: normal;
-        }
-        .glossary-term:hover .glossary-popup { display: block; }
         
-        h2 { color: #fff; font-size: 1.5rem; margin: 2rem 0 1rem 0; padding-bottom: 0.3rem; border-bottom: 1px solid var(--border-color); }
-        h3 { color: #fff; font-size: 1.2rem; margin: 1.5rem 0 0.5rem 0; }
-        p { margin-bottom: 1.25rem; }
-        b, strong { color: #fff; font-weight: 600; }
-        ul { margin-bottom: 1.25rem; padding-left: 1.5rem; }
-        li { margin-bottom: 0.5rem; }
-        .alert-box { background-color: rgba(255, 123, 114, 0.1); border-left: 4px solid #ff7b72; padding: 1rem; border-radius: 4px; margin: 1.5rem 0; }
-        footer { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color); color: var(--meta-color); text-align: center; font-size: 0.85rem; }
+        /* CRT Scanline Effect */
+        #workbench-mainframe::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            z-index: 10;
+            background-size: 100% 3px, 3px 100%;
+            pointer-events: none;
+        }
+
+        .lab-header {
+            background: #161b22;
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .lab-title { font-family: var(--font-mono); font-size: 0.7rem; font-weight: bold; color: var(--accent-color); }
+        
+        .lab-content {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            height: 400px;
+        }
+
+        /* Console Sidebar */
+        .console-log {
+            background: #000;
+            border-right: 1px solid var(--border-color);
+            padding: 1rem;
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--neon-green);
+            overflow-y: auto;
+        }
+        .console-line { margin-bottom: 4px; opacity: 0.8; }
+        .console-line::before { content: "> "; color: var(--accent-color); }
+
+        /* Visualization Area */
+        .visualizer {
+            position: relative;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 2rem;
+            background: radial-gradient(circle at center, #0d1117 0%, #010409 100%);
+        }
+
+        .hardware-node {
+            width: 140px;
+            height: 140px;
+            border: 2px solid var(--border-color);
+            background: #0d1117;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            z-index: 5;
+            transition: 0.3s;
+        }
+        .hardware-node.active { border-color: var(--accent-color); box-shadow: 0 0 20px rgba(88, 166, 255, 0.3); }
+        .node-label { font-family: var(--font-mono); font-size: 0.6rem; color: var(--meta-color); margin-bottom: 5px; }
+        .node-status { font-family: var(--font-mono); font-size: 0.8rem; font-weight: bold; }
+
+        /* Floating Data Packet */
+        #data-packet {
+            width: 12px; height: 12px;
+            background: var(--accent-color);
+            box-shadow: 0 0 15px var(--accent-color);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            z-index: 20;
+        }
+
+        .lab-footer {
+            padding: 1.5rem;
+            background: #0d1117;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        /* --- ARTICLE STYLES --- */
+        main { font-size: 1.1rem; line-height: 1.8; color: #adbac7; }
+        h2 { 
+            font-size: 2rem; color: #fff; margin: 4rem 0 1.5rem 0; 
+            font-family: var(--font-mono); letter-spacing: -1px; 
+        }
+        .glossary-term {
+            color: #fff;
+            border-bottom: 1.5px solid var(--accent-color);
+            cursor: help;
+            font-weight: 700;
+        }
+
+        .btn-action {
+            background: var(--accent-color);
+            color: #fff;
+            border: none;
+            padding: 0.8rem 2rem;
+            font-family: var(--font-mono);
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-action:hover { filter: brightness(1.2); transform: translateY(-2px); }
+        .btn-action:disabled { background: #30363d; cursor: not-allowed; }
+
+        @media (max-width: 768px) {
+            .lab-content { grid-template-columns: 1fr; }
+            .console-log { display: none; }
+            h1 { font-size: 2.2rem; }
+        }
     </style>
 </head>
 <body>
+
     <div class="container">
         <header>
-            <a href="index.html" class="nav-back">← Back to Dashboard</a>
-            <h1>Demystifying the RPMB: How Smartphone Hardware Binds Flash Storage to Specific CPUs</h1>
+            <a href="index.html" class="nav-back">// ROOT_ACCESS / RETURN_TO_LOBBY</a>
+            <h1>Demystifying the RPMB: How Hardware Binds Flash Storage to CPUs</h1>
             <div class="meta">
-                <span>📅 July 2026</span> | 
-                <span>🏷️ Category: Partition Forensics</span> |
-                <span style="color: #8b949e; border: 1px solid var(--border-color); padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600;">
-                    📊 <span id="topViewCount">--</span> Views
-                </span>
+                <span>[ STATUS: DECLASSIFIED ]</span>
+                <span>[ VIEWS: <span id="topViewCount">--</span> ]</span>
             </div>
         </header>
 
-        <!-- NEW: WORKBENCH INTERACTIVE SIMULATION -->
-        <div id="workbench-simulation">
-            <div class="sim-header">
-                <span class="sim-title">Logic Analyzer: RPMB Handshake Execution</span>
-                <span id="sim-step-indicator" style="font-size: 0.75rem; color: var(--meta-color);">Step 0/3</span>
-            </div>
-            
-            <div class="sim-display">
-                <div class="sim-node">
-                    <div style="font-size: 0.7rem; opacity: 0.6;">APPLICATION CPU</div>
-                    <div id="cpu-data" class="sim-data">IDLE</div>
-                </div>
-                <div class="sim-arrow" id="data-flow">↔</div>
-                <div class="sim-node">
-                    <div style="font-size: 0.7rem; opacity: 0.6;">UFS STORAGE CHIP</div>
-                    <div id="ufs-data" class="sim-data">IDLE</div>
+        <!-- THE MAIN WORKBENCH -->
+        <div id="workbench-mainframe">
+            <div class="lab-header">
+                <span class="lab-title">SYSTEMS_FORENSICS_LAB v2.04</span>
+                <div style="display:flex; gap:5px;">
+                    <div style="width:8px; height:8px; border-radius:50%; background:var(--neon-green); box-shadow:0 0 5px var(--neon-green);"></div>
+                    <span style="font-family:var(--font-mono); font-size:0.6rem; color:var(--neon-green);">LIVE_LINK_ESTABLISHED</span>
                 </div>
             </div>
 
-            <div class="sim-controls">
-                <button id="sim-prev" class="sim-btn" onclick="simStep(-1)" disabled>Previous Step</button>
-                <button id="sim-next" class="sim-btn" onclick="simStep(1)">Start Handshake</button>
-                <button class="sim-btn" onclick="resetSim()" style="border-color: var(--meta-color); color: var(--meta-color);">Reset</button>
-            </div>
-            <div id="sim-status" class="sim-status-msg">Click "Start Handshake" to observe the cryptographic binding sequence.</div>
-        </div>
-
-        <div style="display: flex; gap: 2rem; align-items: flex-start; flex-wrap: wrap;">
-            
-            <main id="article-body" style="flex: 2.5; min-width: 320px;">
-                
-                <div style="background-color: #1f242c; border: 1px solid var(--border-color); border-left: 4px solid var(--accent-color); padding: 1.25rem; border-radius: 6px; margin-bottom: 2rem;">
-                    <h4 style="color: #fff; margin: 0 0 0.5rem 0; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.5px;">🔬 Workbench Notes</h4>
-                    <p style="margin: 0; font-size: 0.9rem; color: #8b949e; font-style: italic;">
-                        "In early repair days, if a board was dead, you just desoldered the storage chip and threw it onto a working donor board. Modern security chips changed the game entirely. Understanding the RPMB structure stops you from wasting hours performing complex BGA reballing swaps on chips that are physically and cryptographically locked to their original CPUs."
-                    </p>
-                </div>
-                
-                <p>If you take a fully functional flash memory storage chip (eMMC or UFS) from a broken smartphone motherboard and solder it onto an identical, working donor motherboard, the device will fail to boot. Instead, it will immediately trigger a security panic, lock down its partition system, or drop into an inescapable bootloop.</p>
-
-                <p>This systematic block is enforced by a deeply hidden security sector inside the memory hardware standard called the RPMB (Replay Protected Memory Block). This guide breaks down the core cryptography that permanently locks smartphone silicon together, explaining why it protects personal data and why it makes hardware swaps incredibly complex.</p>
-
-                <h2>1. What is the RPMB Partition?</h2>
-                <p>On modern mobile devices, standard storage partitions (like user data or app caches) can be modified by the operating system kernel. However, critical parameters like device serial numbers, fingerprint biometric roots, payment tokens, and anti-rollback counters require hardware-enforced protection.</p>
-                
-                <p>The RPMB is a dedicated physical block inside the storage chip that cannot be read or written to by standard OS requests. It interfaces exclusively with the processor's secure hardware layer—the TEE (Trusted Execution Environment) or Secure World.</p>
-
-                <div class="alert-box">
-                    <strong>The Core Mechanic:</strong> The RPMB doesn't just check if data is correct; it prevents "replay attacks"—a hacking technique where an attacker records older, valid data streams and broadcasts them back to a device to bypass software barriers.
+            <div class="lab-content">
+                <div class="console-log" id="console">
+                    <div class="console-line">Initializing Lab Environment...</div>
+                    <div class="console-line">Ready for instruction.</div>
                 </div>
 
-                <h2>2. The Cryptographic Handshake: How Binding Happens</h2>
-                <p>When a smartphone is assembled at the factory, the main processor (CPU) and the flash storage chip (UFS/eMMC) are entirely blank slates. During the initial factory programming sequence, a critical, permanent bond is established:</p>
-
-                <ul>
-                    <li><strong>Key Generation:</strong> The CPU generates a unique 32-byte Authentication Key using an internal hardware random number generator.</li>
-                    <li><strong>The One-Time Burn:</strong> This key is securely passed to the flash memory controller and permanently written into dedicated hardware fuses inside the RPMB controller layer. This key can never be overwritten, erased, or read back out.</li>
-                    <li><strong>The Monotonic Counter:</strong> Alongside the key, the RPMB initializes a permanent, internal monotonic counter. This counter tracks the total number of write commands executed on the chip and can only increase, never decrease.</li>
-                </ul>
-
-                <h2>3. Understanding a Hardware Write Execution Loop</h2>
-                <p>Whenever the phone needs to write critical data to the RPMB (such as updating an anti-rollback fuse during a software update), the system processes the request using a rigid cryptographic loop:</p>
-                
-                <ul>
-                    <li>The CPU calculates an HMAC-SHA-256 signature using its hardware key, bundling the data payload along with the current value of the internal monotonic counter.</li>
-                    <li>The storage chip receives the packet, calculates its own signature using its stored RPMB fuse key, and verifies that the counter values match perfectly.</li>
-                    <li>If the signature checks out, the write succeeds, and the counter increments by exactly 1. If a technician swaps the motherboard, the new CPU cannot generate the correct matching key signature. The storage chip immediately denies all data access requests.</li>
-                </ul>
-            </main>
-
-            <aside style="flex: 1; min-width: 280px; position: sticky; top: 20px;">
-                <div id="votePanel" style="background-color: var(--card-bg); border: 1px solid var(--border-color); border-top: 4px solid var(--accent-color); padding: 1.5rem; border-radius: 6px; text-align: center;">
-                    <h3 style="color: #fff; margin-top: 0; margin-bottom: 0.5rem; font-size: 1.1rem;">⚡ Bench Verification</h3>
-                    <p style="margin: 0 0 1.25rem 0; color: #8b949e; font-size: 0.9rem;">Did this specific low-level workaround restore your target device hardware?</p>
+                <div class="visualizer">
+                    <div id="packet" style="position:absolute; width:10px; height:10px; background:var(--accent-color); border-radius:50%; box-shadow:0 0 15px var(--accent-color); display:none;"></div>
                     
-                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                        <button onclick="incrementTelemetry('yes')" style="background-color: rgba(86, 211, 100, 0.1); border: 1px solid var(--badge-easy); color: var(--badge-easy); padding: 0.65rem; border-radius: 4px; font-weight: 700; cursor: pointer; transition: transform 0.1s; font-size: 0.88rem;">
-                            YES, WORKED! (<span id="countWorked">--</span>)
-                        </button>
-                        <button onclick="incrementTelemetry('no')" style="background-color: rgba(248, 81, 73, 0.1); border: 1px solid var(--badge-hard); color: var(--badge-hard); padding: 0.65rem; border-radius: 4px; font-weight: 700; cursor: pointer; transition: transform 0.1s; font-size: 0.88rem;">
-                            NO, STILL BRICKED (<span id="countBricked">--</span>)
-                        </button>
+                    <div class="hardware-node" id="node-cpu">
+                        <div class="node-label">SECURE_WORLD (TEE)</div>
+                        <div class="node-status" id="cpu-stat">IDLE</div>
+                    </div>
+
+                    <div style="font-family:var(--font-mono); color:var(--border-color); font-size:2rem; font-weight:bold;">----</div>
+
+                    <div class="hardware-node" id="node-ufs">
+                        <div class="node-label">UFS_STORAGE</div>
+                        <div class="node-status" id="ufs-stat">STANDBY</div>
                     </div>
                 </div>
-            </aside>
+            </div>
+
+            <div class="lab-footer">
+                <button class="btn-action" id="nextBtn" onclick="nextSimStep()">INITIALIZE_HANDSHAKE</button>
+                <button onclick="resetLab()" style="background:transparent; border:1px solid var(--border-color); color:var(--meta-color); font-family:var(--font-mono); font-size:0.7rem; padding:0 1rem; cursor:pointer; border-radius:4px;">SYS_RESET</button>
+            </div>
         </div>
 
-        <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 4rem 0 2rem 0;">
+        <main id="article-body">
+            <p>If you take a fully functional flash memory storage chip from a broken motherboard and solder it onto an identical, working donor, the device will fail to boot.</p>
 
-        <section style="max-width: 100%;">
-            <h3 style="color: #fff; margin-top: 0; margin-bottom: 1.5rem;">💬 Community Bench Notes</h3>
-            
-            <div id="commentsFeed"></div>
+            <h2>01_The_Logic_Gate</h2>
+            <p>The <span class="glossary-term" title="Replay Protected Memory Block - A secure storage partition that uses HMAC signatures to prevent replay attacks.">RPMB</span> is not a software block; it is a permanent hardware-level cryptographic bond established at the moment of assembly.</p>
 
-            <div style="background-color: var(--card-bg); border: 1px solid var(--border-color); padding: 1.25rem; border-radius: 6px; margin-top: 1.5rem;">
-                <h4 style="color: #fff; margin-top: 0; margin-bottom: 1rem; font-size: 0.95rem;">Contribute System Insights</h4>
-                <div style="display: flex; gap: 0.75rem; margin-bottom: 0.75rem; flex-wrap: wrap;">
-                    <input type="text" id="suiteNameInput" placeholder="First name" style="flex: 1; min-width: 150px; background-color: var(--bg-color); border: 1px solid var(--border-color); padding: 0.6rem; color: #fff; border-radius: 4px; font-size: 0.9rem;">
-                    <button onclick="submitGenericComment()" style="background-color: rgba(88, 166, 255, 0.1); border: 1px solid var(--accent-color); color: var(--accent-color); padding: 0.6rem 1.5rem; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">Drop a Quick Tip</button>
-                </div>
-                <input type="text" id="suiteCommentText" placeholder="Add your tool logs, hardware models, or note variations..." style="width: 100%; background-color: var(--bg-color); border: 1px solid var(--border-color); padding: 0.75rem; color: #fff; border-radius: 4px; box-sizing: border-box; font-size: 0.9rem;">
+            <p>Modern CPUs and Storage units use a handshake that relies on a unique 32-byte <span class="glossary-term" title="Hash-based Message Authentication Code - A mechanism for message authentication using a cryptographic hash function and a secret key.">HMAC</span> key, burned into hardware fuses that can never be reset.</p>
+        </main>
+
+        <aside style="margin-top: 5rem;">
+            <div id="votePanel" style="background:var(--card-bg); border:1px solid var(--border-color); padding:2rem; border-radius:8px; text-align:center;">
+                <h3 style="font-family:var(--font-mono); margin-bottom:1rem;">BENCH_TELEMETRY</h3>
+                <button onclick="incrementTelemetry('yes')" class="btn-action" style="background:rgba(63, 185, 80, 0.1); color:var(--neon-green); border:1px solid var(--neon-green); width:100%; margin-bottom:10px;">VALID_WORKAROUND (<span id="countWorked">--</span>)</button>
+                <button onclick="incrementTelemetry('no')" class="btn-action" style="background:rgba(248, 81, 73, 0.1); color:var(--neon-red); border:1px solid var(--neon-red); width:100%;">SYSTEM_BRICKED (<span id="countBricked">--</span>)</button>
             </div>
-        </section>
+        </aside>
 
         <footer>
-            <p>&copy; 2026 bitandboot. All rights reserved.</p>
+            <p style="font-family:var(--font-mono); font-size:0.7rem; color:var(--meta-color); margin-top:5rem;">&copy; 2026 bitandboot_labs // NO_DATA_LOST_DURING_COMPILATION</p>
         </footer>
     </div>
 
+    <!-- SCRIPTS -->
     <script type="module">
-        /* --- 1. FIREBASE & TELEMETRY MODULE --- */
+        /* FIREBASE LOGIC */
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyAZ5kORicxNAp4iCWlGn1C3XkP0vPJ5vQw",
-            authDomain: "bitandboot.firebaseapp.com",
-            projectId: "bitandboot",
-            storageBucket: "bitandboot.firebasestorage.app",
-            messagingSenderId: "687841897835",
-            appId: "1:687841897835:web:16e8a1b9f31e23f069b02e"
-        };
-
+        const firebaseConfig = { apiKey: "AIzaSyAZ5kORicxNAp4iCWlGn1C3XkP0vPJ5vQw", authDomain: "bitandboot.firebaseapp.com", projectId: "bitandboot", storageBucket: "bitandboot.firebasestorage.app", messagingSenderId: "687841897835", appId: "1:687841897835:web:16e8a1b9f31e23f069b02e" };
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const pageId = (window.location.pathname.split("/").pop() || "index").replace(".html", "");
         const articleRef = doc(db, "articles", pageId);
-        const commentsRef = collection(db, "articles", pageId, "comments");
 
-        async function initArticle() {
+        // Init Data
+        async function init() {
             const snap = await getDoc(articleRef);
             if (!snap.exists()) await setDoc(articleRef, { viewCount: 0, workedCount: 0, brickedCount: 0 });
-            if (!sessionStorage.getItem(`viewed_${pageId}`)) {
-                await updateDoc(articleRef, { viewCount: increment(1) });
-                sessionStorage.setItem(`viewed_${pageId}`, "true");
+            onSnapshot(articleRef, (s) => {
+                const d = s.data();
+                document.getElementById("topViewCount").innerText = d.viewCount || 0;
+                document.getElementById("countWorked").innerText = d.workedCount || 0;
+                document.getElementById("countBricked").innerText = d.brickedCount || 0;
+            });
+            if(!sessionStorage.getItem('v')) { await updateDoc(articleRef, {viewCount: increment(1)}); sessionStorage.setItem('v', '1'); }
+        }
+        init();
+
+        window.incrementTelemetry = async (type) => {
+            if(localStorage.getItem('voted')) return alert("Session Lock Active.");
+            await updateDoc(articleRef, { [type === 'yes' ? 'workedCount' : 'brickedCount']: increment(1) });
+            localStorage.setItem('voted', '1');
+            document.getElementById("votePanel").innerHTML = "<h2 style='color:var(--neon-green)'>LOGGED</h2>";
+        };
+
+        /* SIMULATION ENGINE v2.0 */
+        let step = 0;
+        const consoleEl = document.getElementById("console");
+        const cpuStat = document.getElementById("cpu-stat");
+        const ufsStat = document.getElementById("ufs-stat");
+        const packet = document.getElementById("packet");
+        const btn = document.getElementById("nextBtn");
+
+        function log(msg) {
+            const div = document.createElement("div");
+            div.className = "console-line";
+            div.innerText = msg;
+            consoleEl.appendChild(div);
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+        }
+
+        window.nextSimStep = () => {
+            step++;
+            if (step === 1) {
+                log("Executing HMAC-SHA-256 KeyGen...");
+                cpuStat.innerText = "0xBF92...A1";
+                cpuStat.style.color = "var(--accent-color)";
+                document.getElementById("node-cpu").classList.add("active");
+                btn.innerText = "TRANSFER_KEY";
+            } 
+            else if (step === 2) {
+                log("Opening Secure Channel 0x1...");
+                packet.style.display = "block";
+                packet.style.left = "40%";
+                packet.animate([
+                    { left: '40%', opacity: 1 },
+                    { left: '60%', opacity: 1 }
+                ], { duration: 800, fill: 'forwards' });
+                
+                setTimeout(() => {
+                    log("UFS Hardware Fuses Blown.");
+                    ufsStat.innerText = "FUSE_LOCKED";
+                    ufsStat.style.color = "var(--neon-red)";
+                    document.getElementById("node-ufs").classList.add("active");
+                    packet.style.display = "none";
+                }, 800);
+                btn.innerText = "VERIFY_BOND";
             }
-            onSnapshot(articleRef, (docSnap) => {
-                const data = docSnap.data();
-                if (!data) return;
-                document.getElementById("topViewCount").innerText = (data.viewCount || 0).toLocaleString();
-                document.getElementById("countWorked").innerText = data.workedCount || 0;
-                document.getElementById("countBricked").innerText = data.brickedCount || 0;
-            });
-        }
-        initArticle();
-
-        window.incrementTelemetry = async function (decision) {
-            if (localStorage.getItem(`voted_${pageId}`)) { alert("Telemetry already updated."); return; }
-            try {
-                if (decision === "yes") {
-                    await updateDoc(articleRef, { workedCount: increment(1) });
-                    document.getElementById("votePanel").innerHTML = `<h3 style="color: var(--badge-easy);">🎉 Success Logged!</h3>`;
-                } else {
-                    await updateDoc(articleRef, { brickedCount: increment(1) });
-                    document.getElementById("votePanel").innerHTML = `<h3 style="color: var(--badge-hard);">💀 Failure Logged</h3>`;
-                }
-                localStorage.setItem(`voted_${pageId}`, "true");
-            } catch (e) { }
+            else if (step === 3) {
+                log("Validating Monotonic Counter...");
+                setTimeout(() => {
+                    log("BOND_SUCCESS: Hardware Pair Locked.");
+                    cpuStat.innerText = "AUTH_SYNC";
+                    cpuStat.style.color = "var(--neon-green)";
+                    ufsStat.innerText = "SECURE_READ";
+                    ufsStat.style.color = "var(--neon-green)";
+                    btn.innerText = "SIMULATION_COMPLETE";
+                    btn.disabled = true;
+                }, 500);
+            }
         };
 
-        onSnapshot(query(commentsRef, orderBy("timestamp", "desc")), (snapshot) => {
-            const feed = document.getElementById("commentsFeed");
-            feed.innerHTML = "";
-            snapshot.forEach((docSnap) => {
-                const c = docSnap.data();
-                const div = document.createElement("div");
-                div.style = "border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem;";
-                div.innerHTML = `<div style="display:flex;justify-content:space-between;font-size:0.85rem;"><strong style="color:#fff;">${c.name}</strong></div><p style="margin:0;color:#c9d1d9;">${c.text}</p>`;
-                feed.appendChild(div);
-            });
-        });
-
-        window.submitGenericComment = async function () {
-            const nameField = document.getElementById("suiteNameInput").value.trim();
-            const textField = document.getElementById("suiteCommentText").value.trim();
-            if (!nameField || !textField) return;
-            try {
-                await addDoc(commentsRef, { name: `@${nameField}King`, text: textField, timestamp: serverTimestamp() });
-                document.getElementById("suiteCommentText").value = "";
-            } catch (e) { }
+        window.resetLab = () => {
+            step = 0;
+            consoleEl.innerHTML = '<div class="console-line">Ready for instruction.</div>';
+            cpuStat.innerText = "IDLE"; ufsStat.innerText = "STANDBY";
+            cpuStat.style.color = ufsStat.style.color = "inherit";
+            document.querySelectorAll(".hardware-node").forEach(n => n.classList.remove("active"));
+            btn.innerText = "INITIALIZE_HANDSHAKE";
+            btn.disabled = false;
+            packet.style.display = "none";
         };
-
-        /* --- 2. WORKBENCH SIMULATION ENGINE --- */
-        let currentSimStep = 0;
-        const steps = [
-            { cpu: "IDLE", ufs: "IDLE", status: "Click 'Next' to start Key Generation loop." },
-            { cpu: "0x4F...7A", ufs: "IDLE", status: "CPU generated 256-bit unique HMAC key. Sending to UFS Secure Fuses..." },
-            { cpu: "0x4F...7A", ufs: "FUSE_LOCKED", status: "UFS Chip received key and burned hardware fuses. Counter set to 0." },
-            { cpu: "SUCCESS", ufs: "AUTH_BONDED", status: "Handshake Complete. This storage chip is now cryptographically bound to this CPU." }
-        ];
-
-        window.simStep = function(dir) {
-            currentSimStep += dir;
-            document.getElementById("cpu-data").innerText = steps[currentSimStep].cpu;
-            document.getElementById("ufs-data").innerText = steps[currentSimStep].ufs;
-            document.getElementById("sim-status").innerText = steps[currentSimStep].status;
-            document.getElementById("sim-step-indicator").innerText = `Step ${currentSimStep}/3`;
-            document.getElementById("sim-prev").disabled = currentSimStep === 0;
-            document.getElementById("sim-next").disabled = currentSimStep === steps.length - 1;
-            document.getElementById("data-flow").style.color = dir > 0 ? "var(--accent-color)" : "var(--meta-color)";
-        };
-
-        window.resetSim = function() {
-            currentSimStep = 0;
-            simStep(0);
-        };
-
-        /* --- 3. GLOSSARY WIKI MODULE --- */
-        const glossary = {
-            "RPMB": "Replay Protected Memory Block - A secure storage partition used to prevent data replaying.",
-            "TEE": "Trusted Execution Environment - A secure area of a main processor that runs sensitive code.",
-            "HMAC": "Hash-based Message Authentication Code - A cryptographic hash used to verify data integrity and authenticity.",
-            "UFS": "Universal Flash Storage - A high-performance flash storage specification for mobile devices.",
-            "eMMC": "Embedded MultiMediaCard - Standard flash storage for mobile and embedded systems.",
-            "Monotonic Counter": "A hardware counter that can only increase, ensuring every write command is unique."
-        };
-
-        function initGlossary() {
-            const main = document.getElementById("article-body");
-            let html = main.innerHTML;
-            Object.keys(glossary).forEach(term => {
-                const regex = new RegExp(`\\b${term}\\b`, 'g');
-                html = html.replace(regex, `<span class="glossary-term">${term}<span class="glossary-popup">${glossary[term]}</span></span>`);
-            });
-            main.innerHTML = html;
-        }
-        window.addEventListener("DOMContentLoaded", initGlossary);
-
     </script>
 </body>
 </html>
