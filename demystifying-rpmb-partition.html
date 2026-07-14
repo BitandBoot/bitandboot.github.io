@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RPMB Forensics | bitandboot Systems Lab</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <!-- Professional Engineering Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,8 +20,11 @@
             --card-bg: #0d1117;
             --border-color: #30363d;
             --terminal-bg: #010409;
+            --meta-color: #8b949e;
             --font-mono: 'JetBrains Mono', monospace;
             --font-sans: 'Inter', sans-serif;
+            --badge-easy: #56d364;
+            --badge-hard: #f85149;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -28,7 +32,7 @@
         body {
             background-color: var(--bg-color);
             background-image: radial-gradient(#161b22 0.5px, transparent 0.5px);
-            background-size: 30px 30px; /* Subtle engineering grid */
+            background-size: 30px 30px;
             color: var(--text-color);
             font-family: var(--font-sans);
             line-height: 1.6;
@@ -37,7 +41,6 @@
 
         .container { max-width: 1100px; margin: 0 auto; }
 
-        /* --- STAMPED HEADER --- */
         header { 
             padding: 4rem 0 2rem 0; 
             border-bottom: 1px solid var(--border-color);
@@ -59,7 +62,7 @@
             color: #fff;
             line-height: 1.1;
             letter-spacing: -2px;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
         }
         .meta { 
             font-family: var(--font-mono);
@@ -68,9 +71,10 @@
             display: flex;
             gap: 1.5rem;
             text-transform: uppercase;
+            flex-wrap: wrap;
         }
 
-        /* --- THE WORKBENCH: UN-IGNORABLE UI --- */
+        /* --- THE WORKBENCH MAINFRAME --- */
         #workbench-mainframe {
             background: var(--terminal-bg);
             border: 2px solid var(--border-color);
@@ -78,10 +82,9 @@
             margin-bottom: 4rem;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 20px rgba(88, 166, 255, 0.1);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
         
-        /* CRT Scanline Effect */
         #workbench-mainframe::before {
             content: " ";
             display: block;
@@ -106,10 +109,9 @@
         .lab-content {
             display: grid;
             grid-template-columns: 300px 1fr;
-            height: 400px;
+            height: 350px;
         }
 
-        /* Console Sidebar */
         .console-log {
             background: #000;
             border-right: 1px solid var(--border-color);
@@ -122,7 +124,6 @@
         .console-line { margin-bottom: 4px; opacity: 0.8; }
         .console-line::before { content: "> "; color: var(--accent-color); }
 
-        /* Visualization Area */
         .visualizer {
             position: relative;
             display: flex;
@@ -133,8 +134,8 @@
         }
 
         .hardware-node {
-            width: 140px;
-            height: 140px;
+            width: 130px;
+            height: 130px;
             border: 2px solid var(--border-color);
             background: #0d1117;
             border-radius: 8px;
@@ -142,7 +143,6 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            position: relative;
             z-index: 5;
             transition: 0.3s;
         }
@@ -150,21 +150,8 @@
         .node-label { font-family: var(--font-mono); font-size: 0.6rem; color: var(--meta-color); margin-bottom: 5px; }
         .node-status { font-family: var(--font-mono); font-size: 0.8rem; font-weight: bold; }
 
-        /* Floating Data Packet */
-        #data-packet {
-            width: 12px; height: 12px;
-            background: var(--accent-color);
-            box-shadow: 0 0 15px var(--accent-color);
-            border-radius: 50%;
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            display: none;
-            z-index: 20;
-        }
-
         .lab-footer {
-            padding: 1.5rem;
+            padding: 1.25rem;
             background: #0d1117;
             border-top: 1px solid var(--border-color);
             display: flex;
@@ -172,35 +159,63 @@
             gap: 1rem;
         }
 
-        /* --- ARTICLE STYLES --- */
-        main { font-size: 1.1rem; line-height: 1.8; color: #adbac7; }
-        h2 { 
-            font-size: 2rem; color: #fff; margin: 4rem 0 1.5rem 0; 
-            font-family: var(--font-mono); letter-spacing: -1px; 
+        /* --- ARTICLE CONTENT --- */
+        .article-layout { display: flex; gap: 2.5rem; align-items: flex-start; flex-wrap: wrap; }
+        main { flex: 2.5; min-width: 320px; font-size: 1.1rem; line-height: 1.8; color: #adbac7; }
+        
+        .workbench-note {
+            background-color: #0d1117;
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--accent-color);
+            padding: 1.5rem;
+            border-radius: 6px;
+            margin-bottom: 2.5rem;
         }
-        .glossary-term {
-            color: #fff;
-            border-bottom: 1.5px solid var(--accent-color);
-            cursor: help;
-            font-weight: 700;
+
+        h2 { color: #fff; font-size: 1.8rem; margin: 3rem 0 1.25rem 0; font-family: var(--font-mono); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
+        h3 { color: #fff; font-size: 1.3rem; margin: 2rem 0 1rem 0; }
+        p { margin-bottom: 1.5rem; }
+        ul { margin-bottom: 1.5rem; padding-left: 1.5rem; }
+        li { margin-bottom: 0.75rem; }
+        b, strong { color: #fff; }
+
+        .alert-box { background-color: rgba(248, 81, 73, 0.1); border-left: 4px solid var(--neon-red); padding: 1.25rem; border-radius: 4px; margin: 2rem 0; }
+
+        /* --- SIDEBAR & VOTE --- */
+        aside { flex: 1; min-width: 280px; position: sticky; top: 20px; }
+        #votePanel {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-top: 4px solid var(--accent-color);
+            padding: 2rem;
+            border-radius: 8px;
+            text-align: center;
         }
 
         .btn-action {
             background: var(--accent-color);
             color: #fff;
             border: none;
-            padding: 0.8rem 2rem;
+            padding: 0.8rem 1.5rem;
             font-family: var(--font-mono);
             font-weight: bold;
             border-radius: 4px;
             cursor: pointer;
             transition: 0.2s;
+            width: 100%;
         }
-        .btn-action:hover { filter: brightness(1.2); transform: translateY(-2px); }
-        .btn-action:disabled { background: #30363d; cursor: not-allowed; }
+        .btn-action:hover { filter: brightness(1.2); }
+        .btn-secondary { background: transparent; border: 1px solid var(--border-color); color: var(--meta-color); font-size: 0.7rem; width: auto; padding: 0.5rem 1rem; }
+
+        /* --- COMMENTS --- */
+        .comment-section { margin-top: 5rem; border-top: 1px solid var(--border-color); padding-top: 3rem; }
+        .comment-item { border-bottom: 1px solid var(--border-color); padding-bottom: 1.5rem; margin-bottom: 1.5rem; }
+        .comment-header { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.5rem; font-family: var(--font-mono); }
+
+        footer { text-align: center; padding: 5rem 0 2rem 0; color: var(--meta-color); font-size: 0.8rem; font-family: var(--font-mono); }
 
         @media (max-width: 768px) {
-            .lab-content { grid-template-columns: 1fr; }
+            .lab-content { grid-template-columns: 1fr; height: auto; }
             .console-log { display: none; }
             h1 { font-size: 2.2rem; }
         }
@@ -213,36 +228,37 @@
             <a href="index.html" class="nav-back">// ROOT_ACCESS / RETURN_TO_LOBBY</a>
             <h1>Demystifying the RPMB: How Hardware Binds Flash Storage to CPUs</h1>
             <div class="meta">
-                <span>[ STATUS: DECLASSIFIED ]</span>
-                <span>[ VIEWS: <span id="topViewCount">--</span> ]</span>
+                <span>[ DATE: JULY_2026 ]</span> | 
+                <span>[ CATEGORY: PARTITION_FORENSICS ]</span> |
+                <span style="color: var(--accent-color);">[ VIEWS: <span id="topViewCount">--</span> ]</span>
             </div>
         </header>
 
-        <!-- THE MAIN WORKBENCH -->
+        <!-- INTERACTIVE WORKBENCH -->
         <div id="workbench-mainframe">
             <div class="lab-header">
                 <span class="lab-title">SYSTEMS_FORENSICS_LAB v2.04</span>
-                <div style="display:flex; gap:5px;">
-                    <div style="width:8px; height:8px; border-radius:50%; background:var(--neon-green); box-shadow:0 0 5px var(--neon-green);"></div>
-                    <span style="font-family:var(--font-mono); font-size:0.6rem; color:var(--neon-green);">LIVE_LINK_ESTABLISHED</span>
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <div style="width:8px; height:8px; border-radius:50%; background:var(--neon-green); box-shadow:0 0 8px var(--neon-green);"></div>
+                    <span style="font-family:var(--font-mono); font-size:0.6rem; color:var(--neon-green);">LIVE_LINK_ACTIVE</span>
                 </div>
             </div>
 
             <div class="lab-content">
                 <div class="console-log" id="console">
-                    <div class="console-line">Initializing Lab Environment...</div>
                     <div class="console-line">Ready for instruction.</div>
+                    <div class="console-line">Waiting for INITIALIZE_HANDSHAKE signal...</div>
                 </div>
 
                 <div class="visualizer">
-                    <div id="packet" style="position:absolute; width:10px; height:10px; background:var(--accent-color); border-radius:50%; box-shadow:0 0 15px var(--accent-color); display:none;"></div>
+                    <div id="packet" style="position:absolute; width:12px; height:12px; background:var(--accent-color); border-radius:50%; box-shadow:0 0 15px var(--accent-color); display:none; z-index:20;"></div>
                     
                     <div class="hardware-node" id="node-cpu">
                         <div class="node-label">SECURE_WORLD (TEE)</div>
                         <div class="node-status" id="cpu-stat">IDLE</div>
                     </div>
 
-                    <div style="font-family:var(--font-mono); color:var(--border-color); font-size:2rem; font-weight:bold;">----</div>
+                    <div style="font-family:var(--font-mono); color:var(--border-color); font-size:1.5rem;">[ BUS_01 ]</div>
 
                     <div class="hardware-node" id="node-ufs">
                         <div class="node-label">UFS_STORAGE</div>
@@ -252,73 +268,175 @@
             </div>
 
             <div class="lab-footer">
-                <button class="btn-action" id="nextBtn" onclick="nextSimStep()">INITIALIZE_HANDSHAKE</button>
-                <button onclick="resetLab()" style="background:transparent; border:1px solid var(--border-color); color:var(--meta-color); font-family:var(--font-mono); font-size:0.7rem; padding:0 1rem; cursor:pointer; border-radius:4px;">SYS_RESET</button>
+                <button class="btn-action" id="nextBtn" onclick="nextSimStep()" style="width: auto;">INITIALIZE_HANDSHAKE</button>
+                <button class="btn-action btn-secondary" onclick="resetLab()">SYS_RESET</button>
             </div>
         </div>
 
-        <main id="article-body">
-            <p>If you take a fully functional flash memory storage chip from a broken motherboard and solder it onto an identical, working donor, the device will fail to boot.</p>
+        <div class="article-layout">
+            <main id="article-body">
+                <div class="workbench-note">
+                    <h4 style="color: #fff; margin: 0 0 0.5rem 0; font-size: 0.8rem; text-transform: uppercase; font-family: var(--font-mono);">🔬 Workbench Notes</h4>
+                    <p style="margin: 0; font-size: 0.95rem; color: var(--meta-color); font-style: italic;">
+                        "In early repair days, if a board was dead, you just desoldered the storage chip and threw it onto a working donor board. Modern security chips changed the game entirely. Understanding the RPMB structure stops you from wasting hours performing complex BGA reballing swaps on chips that are physically and cryptographically locked."
+                    </p>
+                </div>
+                
+                <p>If you take a fully functional flash memory storage chip (eMMC or UFS) from a broken smartphone motherboard and solder it onto an identical, working donor motherboard, the device will fail to boot. Instead, it will immediately trigger a security panic, lock down its partition system, or drop into an inescapable bootloop.</p>
 
-            <h2>01_The_Logic_Gate</h2>
-            <p>The <span class="glossary-term" title="Replay Protected Memory Block - A secure storage partition that uses HMAC signatures to prevent replay attacks.">RPMB</span> is not a software block; it is a permanent hardware-level cryptographic bond established at the moment of assembly.</p>
+                <p>This systematic block is enforced by a deeply hidden security sector inside the memory hardware standard called the <strong>RPMB (Replay Protected Memory Block)</strong>. This guide breaks down the core cryptography that permanently locks smartphone silicon together.</p>
 
-            <p>Modern CPUs and Storage units use a handshake that relies on a unique 32-byte <span class="glossary-term" title="Hash-based Message Authentication Code - A mechanism for message authentication using a cryptographic hash function and a secret key.">HMAC</span> key, burned into hardware fuses that can never be reset.</p>
-        </main>
+                <h2>1. What is the RPMB Partition?</h2>
+                <p>Standard storage partitions (like user data) can be modified by the OS kernel. However, critical parameters like device serial numbers, biometric roots, and anti-rollback counters require hardware-enforced protection.</p>
+                
+                <p>The <strong>RPMB</strong> is a dedicated physical block that interfaces exclusively with the processor's secure hardware layer—the <strong>TEE (Trusted Execution Environment)</strong>.</p>
 
-        <aside style="margin-top: 5rem;">
-            <div id="votePanel" style="background:var(--card-bg); border:1px solid var(--border-color); padding:2rem; border-radius:8px; text-align:center;">
-                <h3 style="font-family:var(--font-mono); margin-bottom:1rem;">BENCH_TELEMETRY</h3>
-                <button onclick="incrementTelemetry('yes')" class="btn-action" style="background:rgba(63, 185, 80, 0.1); color:var(--neon-green); border:1px solid var(--neon-green); width:100%; margin-bottom:10px;">VALID_WORKAROUND (<span id="countWorked">--</span>)</button>
-                <button onclick="incrementTelemetry('no')" class="btn-action" style="background:rgba(248, 81, 73, 0.1); color:var(--neon-red); border:1px solid var(--neon-red); width:100%;">SYSTEM_BRICKED (<span id="countBricked">--</span>)</button>
+                <div class="alert-box">
+                    <strong>The Core Mechanic:</strong> The RPMB doesn't just check if data is correct; it prevents "replay attacks"—a technique where an attacker broadcasts older, valid data streams back to a device to bypass software barriers.
+                </div>
+
+                <h2>2. The Cryptographic Handshake</h2>
+                <p>When a smartphone is assembled at the factory, a permanent bond is established:</p>
+
+                <ul>
+                    <li><strong>Key Generation:</strong> The CPU generates a unique 32-byte Authentication Key.</li>
+                    <li><strong>The One-Time Burn:</strong> This key is permanently written into hardware fuses inside the RPMB controller layer. <strong>It can never be overwritten or read back out.</strong></li>
+                    <li><strong>The Monotonic Counter:</strong> Tracks the total number of write commands. It can only increase, never decrease.</li>
+                </ul>
+
+                <h2>3. Understanding the Write Execution Loop</h2>
+                <ul>
+                    <li>The CPU calculates an <strong>HMAC-SHA-256 signature</strong> using its hardware key and the current counter value.</li>
+                    <li>The storage chip receives the packet, calculates its own signature, and verifies that the counter values match perfectly.</li>
+                    <li>If it checks out, the counter increments by 1. If you swap the motherboard, the new CPU cannot generate the matching key, and access is denied.</li>
+                </ul>
+
+                <h2>4. Why This Matters</h2>
+                <p>For users, the RPMB ensures unbreakable physical security. If someone removes your memory chip, they cannot read it because they lack the cryptographic handshake from your specific CPU.</p>
+            </main>
+
+            <aside>
+                <div id="votePanel">
+                    <h3 style="font-family: var(--font-mono); color:#fff; margin-bottom: 1rem; font-size: 1rem;">⚡ BENCH_VERIFICATION</h3>
+                    <p style="margin: 0 0 1.5rem 0; color: var(--meta-color); font-size: 0.85rem;">Did this specific low-level logic path restore your hardware?</p>
+                    
+                    <button onclick="incrementTelemetry('yes')" class="btn-action" style="background: rgba(63, 185, 80, 0.1); color: var(--neon-green); border: 1px solid var(--neon-green); margin-bottom: 0.75rem;">
+                        YES, WORKED! (<span id="countWorked">--</span>)
+                    </button>
+                    <button onclick="incrementTelemetry('no')" class="btn-action" style="background: rgba(248, 81, 73, 0.1); color: var(--neon-red); border: 1px solid var(--neon-red);">
+                        NO, BRICKED (<span id="countBricked">--</span>)
+                    </button>
+                </div>
+            </aside>
+        </div>
+
+        <!-- COMMENT SECTION -->
+        <section class="comment-section">
+            <h3 style="color: #fff; margin-bottom: 2rem; font-family: var(--font-mono);">💬 COMMUNITY_BENCH_NOTES</h3>
+            
+            <div id="commentsFeed">
+                <!-- Data from Firebase -->
             </div>
-        </aside>
+
+            <div style="background-color: var(--card-bg); border: 1px solid var(--border-color); padding: 2rem; border-radius: 8px; margin-top: 2rem;">
+                <h4 style="color: #fff; margin-bottom: 1.5rem; font-size: 1rem; font-family: var(--font-mono);">[ DROP_A_SYSTEM_INSIGHT ]</h4>
+                <div style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                    <input type="text" id="suiteNameInput" placeholder="Technician Name" style="flex: 1; min-width: 200px; background: #000; border: 1px solid var(--border-color); padding: 0.8rem; color: #fff; border-radius: 4px; font-family: var(--font-mono);">
+                    <button onclick="submitGenericComment()" class="btn-action" style="width: auto; padding: 0 2rem;">SUBMIT_NOTE</button>
+                </div>
+                <textarea id="suiteCommentText" placeholder="Log details, hardware variations, or tool results..." style="width: 100%; min-height: 100px; background: #000; border: 1px solid var(--border-color); padding: 1rem; color: #fff; border-radius: 4px; font-family: var(--font-sans);"></textarea>
+            </div>
+        </section>
 
         <footer>
-            <p style="font-family:var(--font-mono); font-size:0.7rem; color:var(--meta-color); margin-top:5rem;">&copy; 2026 bitandboot_labs // NO_DATA_LOST_DURING_COMPILATION</p>
+            <p>&copy; 2026 bitandboot // SYSTEMS_LAB // NO_DATA_LOST_DURING_COMPILATION</p>
         </footer>
     </div>
 
-    <!-- SCRIPTS -->
+    <!-- MAIN LOGIC MODULE -->
     <script type="module">
-        /* FIREBASE LOGIC */
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        const firebaseConfig = { apiKey: "AIzaSyAZ5kORicxNAp4iCWlGn1C3XkP0vPJ5vQw", authDomain: "bitandboot.firebaseapp.com", projectId: "bitandboot", storageBucket: "bitandboot.firebasestorage.app", messagingSenderId: "687841897835", appId: "1:687841897835:web:16e8a1b9f31e23f069b02e" };
+        const firebaseConfig = {
+            apiKey: "AIzaSyAZ5kORicxNAp4iCWlGn1C3XkP0vPJ5vQw",
+            authDomain: "bitandboot.firebaseapp.com",
+            projectId: "bitandboot",
+            storageBucket: "bitandboot.firebasestorage.app",
+            messagingSenderId: "687841897835",
+            appId: "1:687841897835:web:16e8a1b9f31e23f069b02e"
+        };
+
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const pageId = (window.location.pathname.split("/").pop() || "index").replace(".html", "");
         const articleRef = doc(db, "articles", pageId);
+        const commentsRef = collection(db, "articles", pageId, "comments");
 
-        // Init Data
-        async function init() {
+        /* 1. DATA INITIALIZATION */
+        async function initData() {
             const snap = await getDoc(articleRef);
             if (!snap.exists()) await setDoc(articleRef, { viewCount: 0, workedCount: 0, brickedCount: 0 });
+            if (!sessionStorage.getItem(`v_${pageId}`)) {
+                await updateDoc(articleRef, { viewCount: increment(1) });
+                sessionStorage.setItem(`v_${pageId}`, "1");
+            }
             onSnapshot(articleRef, (s) => {
                 const d = s.data();
-                document.getElementById("topViewCount").innerText = d.viewCount || 0;
-                document.getElementById("countWorked").innerText = d.workedCount || 0;
-                document.getElementById("countBricked").innerText = d.brickedCount || 0;
+                if (document.getElementById("topViewCount")) document.getElementById("topViewCount").innerText = (d.viewCount || 0).toLocaleString();
+                if (document.getElementById("countWorked")) document.getElementById("countWorked").innerText = d.workedCount || 0;
+                if (document.getElementById("countBricked")) document.getElementById("countBricked").innerText = d.brickedCount || 0;
             });
-            if(!sessionStorage.getItem('v')) { await updateDoc(articleRef, {viewCount: increment(1)}); sessionStorage.setItem('v', '1'); }
         }
-        init();
+        initData();
 
-        window.incrementTelemetry = async (type) => {
-            if(localStorage.getItem('voted')) return alert("Session Lock Active.");
-            await updateDoc(articleRef, { [type === 'yes' ? 'workedCount' : 'brickedCount']: increment(1) });
-            localStorage.setItem('voted', '1');
-            document.getElementById("votePanel").innerHTML = "<h2 style='color:var(--neon-green)'>LOGGED</h2>";
+        /* 2. TELEMETRY LOGIC */
+        window.incrementTelemetry = async (decision) => {
+            if (localStorage.getItem(`voted_${pageId}`)) return alert("Telemetry already logged for this session.");
+            try {
+                const field = decision === 'yes' ? 'workedCount' : 'brickedCount';
+                await updateDoc(articleRef, { [field]: increment(1) });
+                localStorage.setItem(`voted_${pageId}`, "1");
+                document.getElementById("votePanel").innerHTML = `<h3 style="color:var(--neon-green); font-family:var(--font-mono);">DATA_LOGGED_SUCCESSFULLY</h3>`;
+            } catch (e) { console.error(e); }
         };
 
-        /* SIMULATION ENGINE v2.0 */
+        /* 3. COMMENT SYSTEM */
+        onSnapshot(query(commentsRef, orderBy("timestamp", "desc")), (snapshot) => {
+            const feed = document.getElementById("commentsFeed");
+            feed.innerHTML = "";
+            snapshot.forEach((docSnap) => {
+                const c = docSnap.data();
+                const div = document.createElement("div");
+                div.className = "comment-item";
+                div.innerHTML = `
+                    <div class="comment-header">
+                        <strong style="color: var(--accent-color);">@${c.name}</strong>
+                        <span style="opacity:0.4;">Verified Bench Entry</span>
+                    </div>
+                    <p style="margin:0; font-size:1rem; color:#c9d1d9;">${c.text}</p>
+                `;
+                feed.appendChild(div);
+            });
+        });
+
+        window.submitGenericComment = async () => {
+            const name = document.getElementById("suiteNameInput").value.trim();
+            const text = document.getElementById("suiteCommentText").value.trim();
+            if (!name || !text) return;
+            try {
+                await addDoc(commentsRef, { name: name.replace(/\s/g, ''), text: text, timestamp: serverTimestamp() });
+                document.getElementById("suiteCommentText").value = "";
+            } catch (e) { console.error(e); }
+        };
+
+        /* 4. WORKBENCH SIMULATION ENGINE */
         let step = 0;
         const consoleEl = document.getElementById("console");
         const cpuStat = document.getElementById("cpu-stat");
         const ufsStat = document.getElementById("ufs-stat");
         const packet = document.getElementById("packet");
-        const btn = document.getElementById("nextBtn");
+        const nextBtn = document.getElementById("nextBtn");
 
         function log(msg) {
             const div = document.createElement("div");
@@ -331,14 +449,13 @@
         window.nextSimStep = () => {
             step++;
             if (step === 1) {
-                log("Executing HMAC-SHA-256 KeyGen...");
-                cpuStat.innerText = "0xBF92...A1";
+                log("CPU: Generating HMAC-SHA-256 unique key...");
+                cpuStat.innerText = "0x8A...EF";
                 cpuStat.style.color = "var(--accent-color)";
                 document.getElementById("node-cpu").classList.add("active");
-                btn.innerText = "TRANSFER_KEY";
-            } 
-            else if (step === 2) {
-                log("Opening Secure Channel 0x1...");
+                nextBtn.innerText = "TRANSFER_KEY";
+            } else if (step === 2) {
+                log("Transferring key to physical UFS layer...");
                 packet.style.display = "block";
                 packet.style.left = "40%";
                 packet.animate([
@@ -347,25 +464,24 @@
                 ], { duration: 800, fill: 'forwards' });
                 
                 setTimeout(() => {
-                    log("UFS Hardware Fuses Blown.");
+                    log("UFS: Fuses Blown. Key burned permanently.");
                     ufsStat.innerText = "FUSE_LOCKED";
                     ufsStat.style.color = "var(--neon-red)";
                     document.getElementById("node-ufs").classList.add("active");
                     packet.style.display = "none";
+                    nextBtn.innerText = "VERIFY_BOND";
                 }, 800);
-                btn.innerText = "VERIFY_BOND";
-            }
-            else if (step === 3) {
-                log("Validating Monotonic Counter...");
+            } else if (step === 3) {
+                log("Executing Cryptographic Handshake...");
                 setTimeout(() => {
-                    log("BOND_SUCCESS: Hardware Pair Locked.");
-                    cpuStat.innerText = "AUTH_SYNC";
+                    log("BOND_ESTABLISHED: Pair Validated.");
+                    cpuStat.innerText = "AUTH_OK";
                     cpuStat.style.color = "var(--neon-green)";
                     ufsStat.innerText = "SECURE_READ";
                     ufsStat.style.color = "var(--neon-green)";
-                    btn.innerText = "SIMULATION_COMPLETE";
-                    btn.disabled = true;
-                }, 500);
+                    nextBtn.innerText = "COMPLETED";
+                    nextBtn.disabled = true;
+                }, 600);
             }
         };
 
@@ -375,8 +491,8 @@
             cpuStat.innerText = "IDLE"; ufsStat.innerText = "STANDBY";
             cpuStat.style.color = ufsStat.style.color = "inherit";
             document.querySelectorAll(".hardware-node").forEach(n => n.classList.remove("active"));
-            btn.innerText = "INITIALIZE_HANDSHAKE";
-            btn.disabled = false;
+            nextBtn.innerText = "INITIALIZE_HANDSHAKE";
+            nextBtn.disabled = false;
             packet.style.display = "none";
         };
     </script>
