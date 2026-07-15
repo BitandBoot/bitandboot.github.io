@@ -4,12 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BitandBoot // Systems Engineering Hub</title>
-    <meta name="description" content="Low-level code compilation, firmware architectures, and device systems execution.">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <!-- Professional Engineering Fonts -->
+    <!-- Google Fonts: Inter for readability, JetBrains for tech labels -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
@@ -21,8 +20,8 @@
             --border-color: #30363d;
             --terminal-bg: #010409;
             --meta-color: #8b949e;
-            --font-mono: 'JetBrains Mono', monospace;
-            --font-sans: 'Inter', sans-serif;
+            --font-sans: 'Inter', sans-serif; /* Clean reading font */
+            --font-mono: 'JetBrains Mono', monospace; /* Tech ID font */
             --badge-easy: #56d364;
             --badge-medium: #e3b341;
             --badge-hard: #f85149;
@@ -43,7 +42,6 @@
         .container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 2rem; }
         @media (min-width: 992px) { .container { grid-template-columns: 3fr 1fr; } }
 
-        /* --- LAB HEADER --- */
         header.main-header {
             grid-column: 1 / -1;
             padding: 4rem 0 2rem 0;
@@ -51,14 +49,13 @@
             border-bottom: 1px solid var(--border-color);
         }
         header h1 { 
-            font-family: var(--font-mono); 
             font-size: 3.5rem; 
             color: #fff; 
-            letter-spacing: -3px; 
+            letter-spacing: -2px; 
             font-weight: 800;
         }
         header h1 span { color: var(--accent-color); }
-        header p { font-family: var(--font-mono); font-size: 0.85rem; color: var(--meta-color); text-transform: uppercase; letter-spacing: 2px; margin-top: 0.5rem; }
+        header p { font-family: var(--font-mono); font-size: 0.8rem; color: var(--meta-color); text-transform: uppercase; letter-spacing: 2px; margin-top: 0.5rem; }
 
         .glossary-cta {
             display: inline-block; margin-top: 1.5rem; color: var(--accent-color);
@@ -68,25 +65,19 @@
         }
         .glossary-cta:hover { border-color: var(--accent-color); background: rgba(88, 166, 255, 0.05); }
 
-        /* --- SYSTEM DIAGNOSTIC ROUTER --- */
+        /* --- DIAGNOSTIC HUB --- */
         #diagnostic-mainframe {
             grid-column: 1 / -1;
             background: var(--terminal-bg);
             border: 2px solid var(--border-color);
             border-radius: 12px;
-            position: relative;
+            margin-bottom: 1rem;
             overflow: hidden;
             box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            margin-bottom: 1rem;
-        }
-        #diagnostic-mainframe::before {
-            content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
-            z-index: 10; background-size: 100% 3px, 3px 100%; pointer-events: none;
         }
         .diag-header { background: #161b22; padding: 0.75rem 1.5rem; border-bottom: 1px solid var(--border-color); font-family: var(--font-mono); font-size: 0.7rem; color: var(--neon-green); display: flex; justify-content: space-between; }
-        .diag-body { padding: 2rem; min-height: 200px; text-align: center; position: relative; z-index: 20; }
-        .diag-question { font-family: var(--font-mono); color: #fff; font-size: 1.2rem; margin-bottom: 1.5rem; }
+        .diag-body { padding: 2.5rem; text-align: center; }
+        .diag-question { font-weight: 600; color: #fff; font-size: 1.3rem; margin-bottom: 1.5rem; }
         .diag-btn {
             background: transparent; border: 1px solid var(--border-color);
             color: var(--accent-color); padding: 0.8rem 1.5rem; font-family: var(--font-mono);
@@ -99,16 +90,14 @@
         .search-bar {
             width: 100%; padding: 1.25rem 1.5rem 1.25rem 3.5rem;
             background: var(--card-bg); border: 1px solid var(--border-color);
-            border-radius: 8px; color: #fff; font-family: var(--font-mono); font-size: 1rem; outline: none;
+            border-radius: 8px; color: #fff; font-size: 1rem; outline: none;
         }
-        .search-bar:focus { border-color: var(--accent-color); }
         .search-icon { position: absolute; left: 1.25rem; top: 50%; transform: translateY(-50%); color: var(--meta-color); }
 
         /* --- ARTICLE GRID --- */
         .category-title { 
-            font-family: var(--font-mono); color: var(--accent-color); 
-            font-size: 1.1rem; margin: 3rem 0 1.5rem 0; text-transform: uppercase;
-            border-left: 4px solid var(--accent-color); padding-left: 15px;
+            color: var(--accent-color); font-size: 1.1rem; margin: 3rem 0 1.5rem 0; 
+            text-transform: uppercase; font-weight: 700; border-left: 4px solid var(--accent-color); padding-left: 15px;
         }
         .grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
         @media (min-width: 992px) { .grid { grid-template-columns: repeat(2, 1fr); } }
@@ -117,19 +106,19 @@
         .card {
             background: var(--card-bg); border: 1px solid var(--border-color);
             border-radius: 8px; padding: 1.75rem; height: 100%; display: flex;
-            flex-direction: column; transition: 0.3s; position: relative;
+            flex-direction: column; transition: 0.3s;
         }
-        .card:hover { transform: translateY(-5px); border-color: var(--accent-color); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .card:hover { transform: translateY(-5px); border-color: var(--accent-color); }
         .card-meta { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 0.65rem; margin-bottom: 1rem; color: var(--meta-color); }
-        .card h3 { color: #fff; font-size: 1.25rem; margin-bottom: 1rem; font-weight: 700; line-height: 1.3; }
+        .card h3 { color: #fff; font-size: 1.3rem; margin-bottom: 0.75rem; font-weight: 700; line-height: 1.4; }
         .card p { color: #adbac7; font-size: 0.95rem; line-height: 1.6; }
         
-        .badge { font-size: 0.65rem; padding: 2px 8px; border-radius: 4px; font-weight: bold; border: 1px solid transparent; }
+        .badge { font-family: var(--font-mono); font-size: 0.65rem; padding: 2px 8px; border-radius: 4px; font-weight: bold; border: 1px solid transparent; }
         .badge.easy { color: var(--badge-easy); border-color: rgba(63, 185, 80, 0.3); }
         .badge.medium { color: var(--badge-medium); border-color: rgba(227, 179, 65, 0.3); }
         .badge.hard { color: var(--badge-hard); border-color: rgba(248, 81, 73, 0.3); }
 
-        footer { grid-column: 1 / -1; text-align: center; padding: 5rem 0; border-top: 1px solid var(--border-color); font-family: var(--font-mono); color: #444; font-size: 0.7rem; }
+        footer { grid-column: 1 / -1; text-align: center; padding: 5rem 0; color: #444; font-family: var(--font-mono); font-size: 0.7rem; }
     </style>
 </head>
 <body>
@@ -141,217 +130,204 @@
             <a href="glossary.html" class="glossary-cta">// BROWSE_SYSTEMS_ENCYCLOPEDIA</a>
         </header>
 
-        <!-- DIAGNOSTIC SCANNER -->
         <div id="diagnostic-mainframe">
-            <div class="diag-header">
-                <span>[ STATUS: SCANNER_READY ]</span>
-                <span id="diag-code">LOG_ROUTING_ACTIVE</span>
-            </div>
+            <div class="diag-header"><span>[ STATUS: SCANNER_READY ]</span></div>
             <div class="diag-body">
-                <p id="diag-question" class="diag-question">Troubleshooting a hardware failure? Select primary category:</p>
+                <p id="diag-question" class="diag-question">Troubleshooting hardware? Select category:</p>
                 <div id="diag-options"></div>
                 <div style="margin-top: 2rem;"><button onclick="resetDiagnostic()" style="background:transparent; border:none; color:var(--meta-color); cursor:pointer; font-size:0.6rem; font-family:var(--font-mono); text-decoration:underline;">RESTART_DIAGNOSTIC</button></div>
             </div>
         </div>
 
         <div class="search-container">
-            <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-            <input type="text" id="searchInput" class="search-bar" placeholder="SEARCH_SYSTEM_LOGS (Keywords: Qualcomm, Kernel, FRP)..." onkeyup="executeSearch()">
+            <input type="text" id="searchInput" class="search-bar" placeholder="Analyze system logs (Qualcomm, Kernel, FRP)..." onkeyup="executeSearch()">
         </div>
 
         <main id="main-feed">
-
-            <!-- AI BLOCK -->
             <div class="category-section">
                 <h3 class="category-title">01_Machine_Intelligence</h3>
                 <div class="grid">
-                    <a href="ai-tokenization-counting-mystery.html" class="card-wrapper" data-tags="ai_mechanics tokens llm_forensics">
+                    <a href="ai-tokenization-counting-mystery.html" class="card-wrapper" data-tags="ai tokens">
                         <div class="card">
                             <div class="card-meta"><span>[ ID: AI_LOG_01 ]</span><span class="badge medium">INTERMEDIATE</span></div>
-                            <h3>Why AI Sometimes Can't Count the Letters in a Word</h3>
-                            <p>Deconstructing the Tokenization process and character-level blindspots in LLMs.</p>
+                            <h3>Why AI Sometimes Can't Count Letters in a Word</h3>
+                            <p>Deconstructing Byte Pair Encoding (BPE) and character-level blindspots in LLMs.</p>
                         </div>
                     </a>
                 </div>
             </div>
 
-            <!-- EVERYDAY TECH -->
             <div class="category-section">
                 <h3 class="category-title">02_Network_&_Storage_Optimization</h3>
                 <div class="grid">
-                    <a href="phantom-space-storage-guide.html" class="card-wrapper" data-tags="firmware troubleshooting optimization storage">
+                    <a href="phantom-space-storage-guide.html" class="card-wrapper" data-tags="storage troubleshooting">
                         <div class="card">
                             <div class="card-meta"><span>[ ID: SYS_LOG_01 ]</span><span class="badge easy">BEGINNER</span></div>
                             <h3>The Phantom Space: Why Your Device Says 'Storage Full'</h3>
-                            <p>Demystifying ghost data, hidden app caches, and system storage snapshots that trap memory.</p>
+                            <p>Demystifying ghost data and hidden app caches that trap system memory.</p>
                         </div>
                     </a>
-                    <a href="wifi-ghost-router-guide.html" class="card-wrapper" data-tags="networking security troubleshooting wifi hardware">
+                    <a href="wifi-ghost-router-guide.html" class="card-wrapper" data-tags="networking wifi">
                         <div class="card">
                             <div class="card-meta"><span>[ ID: NET_LOG_01 ]</span><span class="badge hard">ADVANCED</span></div>
-                            <h3>The Ghost Router Phenomenon: Diagnosing Zombie SSID Broadcasts</h3>
+                            <h3>The Ghost Router Phenomenon: Zombie SSID Broadcasts</h3>
                             <p>Analyzing non-responsive network beacons and phantom wireless infrastructure.</p>
                         </div>
                     </a>
-                    <a href="incognito-mode-myths.html" class="card-wrapper" data-tags="security privacy networking web-browsing">
+                    <a href="incognito-mode-myths.html" class="card-wrapper" data-tags="privacy security">
                         <div class="card">
                             <div class="card-meta"><span>[ ID: PRI_LOG_01 ]</span><span class="badge easy">BEGINNER</span></div>
-                            <h3>Deconstructing Incognito Mode: The Reality of Browser Isolation</h3>
-                            <p>Trace how DNS queries and upstream gateways render private tabs highly visible.</p>
+                            <h3>Deconstructing Incognito Mode: The Reality of Isolation</h3>
+                            <p>Trace how DNS queries render private tabs visible to network gateways.</p>
                         </div>
                     </a>
-                    <a href="background-refresh-battery.html" class="card-wrapper" data-tags="optimization hardware software troubleshooting mobile">
+                    <a href="background-refresh-battery.html" class="card-wrapper" data-tags="battery optimization">
                         <div class="card">
                             <div class="card-meta"><span>[ ID: PWR_LOG_01 ]</span><span class="badge medium">INTERMEDIATE</span></div>
                             <h3>Background App Refresh vs. Battery Lifespan</h3>
-                            <p>Isolating asynchronous processes and wake locks to reclaim standby efficiency.</p>
+                            <p>Isolating asynchronous processes to reclaim device standby efficiency.</p>
                         </div>
                     </a>
-                    <a href="fast-charging-battery-truth.html" class="card-wrapper" data-tags="hardware engineering physics battery safety">
+                    <a href="fast-charging-battery-truth.html" class="card-wrapper" data-tags="hardware battery">
                         <div class="card">
                             <div class="card-meta"><span>[ ID: HW_LOG_02 ]</span><span class="badge hard">ADVANCED</span></div>
-                            <h3>The Physics of Fast Charging: Lithium Mechanics & Thermal Throttling</h3>
-                            <p>Deconstructing the impacts of high-wattage power delivery on anode-cathode integrity.</p>
+                            <h3>The Physics of Fast Charging: Lithium Mechanics</h3>
+                            <p>Impacts of high-wattage power delivery on anode-cathode integrity.</p>
                         </div>
                     </a>
-                    <a href="phone-screen-fragility.html" class="card-wrapper" data-tags="hardware engineering materials chemistry safety">
+                    <a href="phone-screen-fragility.html" class="card-wrapper" data-tags="hardware materials">
                         <div class="card">
                             <div class="card-meta"><span>[ ID: MAT_LOG_01 ]</span><span class="badge medium">INTERMEDIATE</span></div>
-                            <h3>Why Screens Still Shatter: The Brittle Trade-Off of Scratch Resistance</h3>
+                            <h3>Why Screens Still Shatter: Scratch vs. Impact</h3>
                             <p>Investigating the molecular limits of chemically strengthened glass structures.</p>
                         </div>
                     </a>
-                    <a href="device-battery-lifespan-guide.html" class="card-wrapper" data-tags="optimization hardware troubleshooting battery">
+                    <a href="device-battery-lifespan-guide.html" class="card-wrapper" data-tags="battery optimization">
                         <div class="card">
                             <div class="card-meta"><span>[ ID: PWR_LOG_02 ]</span><span class="badge easy">BEGINNER</span></div>
-                            <h3>Maximizing Device Battery Lifespan: The Science Behind Degradation</h3>
-                            <p>An engineering look at lithium-ion charge cycles and voltage thresholds.</p>
+                            <h3>Maximizing Device Battery Lifespan: Science of Degradation</h3>
+                            <p>Charge cycles and voltage thresholds that dictate cell longevity.</p>
                         </div>
                     </a>
-                    <a href="native-laptop-maintenance-guide.html" class="card-wrapper" data-tags="optimization hardware troubleshooting laptop">
+                    <a href="native-laptop-maintenance-guide.html" class="card-wrapper" data-tags="laptop hardware">
                         <div class="card">
                             <div class="card-meta"><span>[ ID: HW_LOG_03 ]</span><span class="badge easy">BEGINNER</span></div>
-                            <h3>Native Laptop Maintenance: Keeping Hardware Cool and Efficient</h3>
-                            <p>A hands-on breakdown of thermal paste degradation and dust clearing strategies.</p>
+                            <h3>Native Laptop Maintenance: Cooling and Efficiency</h3>
+                            <p>Breakdown of thermal paste degradation and dust clearing strategies.</p>
                         </div>
                     </a>
-                    <a href="dns-speed-privacy-guide.html" class="card-wrapper" data-tags="networking privacy security optimization">
+                    <a href="dns-speed-privacy-guide.html" class="card-wrapper" data-tags="networking dns">
                         <div class="card">
                             <div class="card-meta"><span>[ ID: NET_LOG_02 ]</span><span class="badge easy">BEGINNER</span></div>
                             <h3>DNS Configuration: Optimizing for Speed and Privacy</h3>
-                            <p>Understanding how Domain Name System lookups impact latency and unfiltered access.</p>
+                            <p>How Domain Name System lookups impact latency and privacy.</p>
                         </div>
                     </a>
-                    <a href="wifi-channels-optimization-guide.html" class="card-wrapper" data-tags="networking troubleshooting optimization wifi">
+                    <a href="wifi-channels-optimization-guide.html" class="card-wrapper" data-tags="wifi networking">
                         <div class="card">
                             <div class="card-meta"><span>[ ID: NET_LOG_03 ]</span><span class="badge medium">INTERMEDIATE</span></div>
                             <h3>Wi-Fi Channels: Shifting Frequencies to Eliminate Congestion</h3>
-                            <p>Isolating signal attenuation and overlapping channel interference on 2.4GHz and 5GHz bands.</p>
+                            <p>Isolating signal attenuation and overlapping channel interference.</p>
                         </div>
                     </a>
                 </div>
             </div>
 
-            <!-- MOBILE SERVICING -->
             <div class="category-section">
                 <h3 class="category-title">03_Firmware_Servicing</h3>
                 <div class="grid">
-                    <a href="samsung-touch-issue-guide.html" class="card-wrapper" data-tags="firmware odinflashing samfirm">
+                    <a href="samsung-touch-issue-guide.html" class="card-wrapper" data-tags="samsung firmware">
                         <div class="card">
                             <div class="card-meta"><span>[ ID: GSM_LOG_01 ]</span><span class="badge medium">INTERMEDIATE</span></div>
-                            <h3>Samsung M34 5G Touch Dead: Firmware Downgrade Methods</h3>
-                            <p>Deconstructing Touch IC firmware mismatches and executing clean Odin rollbacks.</p>
+                            <h3>Samsung Touch Dead: Firmware Downgrade Methods</h3>
+                            <p>Deconstructing Touch IC mismatches and executing Odin rollbacks.</p>
                         </div>
                     </a>
-                    <a href="edl-mode-guide.html" class="card-wrapper" data-tags="firmware edl_mode unlocktool qualcomm">
+                    <a href="edl-mode-guide.html" class="card-wrapper" data-tags="qualcomm edl">
                         <div class="card">
                             <div class="card-meta"><span>[ ID: GSM_LOG_02 ]</span><span class="badge easy">BEGINNER</span></div>
                             <h3>Demystifying EDL Mode: Recovering Hard-Bricked Devices</h3>
-                            <p>How Qualcomm Boot ROM handles Emergency Download states when primary partitions fail.</p>
+                            <p>How Qualcomm Boot ROM handles Emergency Download states.</p>
                         </div>
                     </a>
                 </div>
             </div>
 
-            <!-- CHIP LEVEL -->
             <div class="category-section">
                 <h3 class="category-title">04_Chip_Level_Forensics</h3>
                 <div class="grid">
-                    <a href="dimensity-frp-hardware-guide.html" class="card-wrapper" data-tags="ufs_isp mediatek chip_level">
+                    <a href="dimensity-frp-hardware-guide.html" class="card-wrapper" data-tags="mediatek chip_level">
                         <div class="card">
                             <div class="card-meta"><span>[ ID: HW_LOG_04 ]</span><span class="badge hard">ADVANCED</span></div>
                             <h3>MediaTek Dimensity FRP: Why Hardware Drilling is Required</h3>
-                            <p>Why eFuses render software useless, forcing direct UFS chip-level micro-drilling.</p>
+                            <p>Why eFuses force direct UFS chip-level micro-drilling.</p>
                         </div>
                     </a>
                 </div>
             </div>
 
-            <!-- SOFTWARE DESIGN -->
             <div class="category-section">
                 <h3 class="category-title">05_System_Architecture</h3>
                 <div class="grid">
-                    <a href="optimistic-ui-psychology-guide.html" class="card-wrapper" data-tags="ui_design frontend architecture psychology">
+                    <a href="optimistic-ui-psychology-guide.html" class="card-wrapper" data-tags="ui architecture">
                         <div class="card">
                             <div class="card-meta"><span>[ ID: UI_LOG_01 ]</span><span class="badge medium">INTERMEDIATE</span></div>
-                            <h3>The Psychology of Optimistic UI: Instant App Perception</h3>
-                            <p>Deconstructing modern frontend paradigms where interfaces anticipate successful mutations.</p>
+                            <h3>Psychology of Optimistic UI: Instant Perception</h3>
+                            <p>Frontend paradigms where interfaces anticipate successful mutations.</p>
                         </div>
                     </a>
-                    <a href="proximity-tracking-ads-guide.html" class="card-wrapper" data-tags="security privacy mobile tracking">
+                    <a href="proximity-tracking-ads-guide.html" class="card-wrapper" data-tags="privacy tracking">
                         <div class="card">
                             <div class="card-meta"><span>[ ID: PRI_LOG_02 ]</span><span class="badge hard">ADVANCED</span></div>
-                            <h3>Proximity Tracking & Hyper-Targeted Ads: Adtech Exposed</h3>
-                            <p>Mapping the architecture behind Bluetooth beacons and geofencing used in tracking.</p>
+                            <h3>Proximity Tracking & Hyper-Targeted Ads</h3>
+                            <p>Architecture behind Bluetooth beacons and geofencing adtech.</p>
                         </div>
                     </a>
                 </div>
             </div>
 
-            <!-- TOOLCHAIN -->
             <div class="category-section">
                 <h3 class="category-title">06_Toolchain_Mechanics</h3>
                 <div class="grid">
-                    <a href="windows-dse-gsm-tools.html" class="card-wrapper" data-tags="windowskernel unlocktool firmware">
+                    <a href="windows-dse-gsm-tools.html" class="card-wrapper" data-tags="windows driver">
                         <div class="card">
                             <div class="card-meta"><span>[ ID: TOOL_LOG_01 ]</span><span class="badge easy">BEGINNER</span></div>
                             <h3>Why Windows DSE Breaks GSM Tools: Registry Patches</h3>
-                            <p>How third-party tools deploy unsigned drivers and the specific BCDEDIT overrides required.</p>
+                            <p>How unsigned drivers and BCDEDIT overrides interact.</p>
                         </div>
                     </a>
-                    <a href="wsl2-libusb-udev-rules.html" class="card-wrapper" data-tags="toolchain linux firmware udev">
+                    <a href="wsl2-libusb-udev-rules.html" class="card-wrapper" data-tags="linux wsl2">
                         <div class="card">
                             <div class="card-meta"><span>[ ID: TOOL_LOG_02 ]</span><span class="badge easy">BEGINNER</span></div>
                             <h3>WSL2 libusb & Fastboot: Fixing udev Rules</h3>
-                            <p>Engineering breakdown of why the udev daemon locks flashing channels in WSL2.</p>
+                            <p>Why the udev daemon locks flashing channels in virtualized Linux.</p>
                         </div>
                     </a>
                 </div>
             </div>
 
-            <!-- PARTITION FORENSICS -->
             <div class="category-section">
                 <h3 class="category-title">07_Low_Level_Forensics</h3>
                 <div class="grid">
-                    <a href="linux-dirty-kernel.html" class="card-wrapper" data-tags="linuxkernel firmware privesc android security">
+                    <a href="linux-dirty-kernel.html" class="card-wrapper" data-tags="kernel security">
                         <div class="card">
                             <div class="card-meta"><span>[ ID: SEC_LOG_01 ]</span><span class="badge hard">ADVANCED</span></div>
-                            <h3>Demystifying Dirty COW & Dirty Pipe: Kernel Escalation</h3>
-                            <p>Deep dive into Copy-on-Write race conditions in mobile Linux kernels.</p>
+                            <h3>Dirty COW & Dirty Pipe: Kernel Privilege Escalation</h3>
+                            <p>Copy-on-Write race conditions in mobile Linux kernels.</p>
                         </div>
                     </a>
-                    <a href="demystifying-rpmb-partition.html" class="card-wrapper" data-tags="rpmb_crypto chip_level qualcomm mediatek security">
+                    <a href="demystifying-rpmb-partition.html" class="card-wrapper" data-tags="rpmb security">
                         <div class="card">
                             <div class="card-meta"><span>[ ID: SEC_LOG_02 ]</span><span class="badge hard">ADVANCED</span></div>
                             <h3>Demystifying the RPMB: Hardware Binding Secrets</h3>
-                            <p>Explore how JEDEC storage standards use HMAC-SHA-256 keys to lock hardware.</p>
+                            <p>How HMAC-SHA-256 keys lock storage to specific silicon.</p>
                         </div>
                     </a>
-                    <a href="nvram-nvdata-cellular-repair.html" class="card-wrapper" data-tags="firmware mediatek unlocktool">
+                    <a href="nvram-nvdata-cellular-repair.html" class="card-wrapper" data-tags="mediatek baseband">
                         <div class="card">
                             <div class="card-meta"><span>[ ID: SEC_LOG_03 ]</span><span class="badge medium">INTERMEDIATE</span></div>
                             <h3>Recovering Baseband: Managing /nvram and /nvdata</h3>
-                            <p>Mapping out non-volatile storage responsible for cellular calibration and serials.</p>
+                            <p>Mapping non-volatile storage responsible for cellular calibration.</p>
                         </div>
                     </a>
                 </div>
@@ -360,66 +336,40 @@
 
         <aside class="sidebar">
             <div class="sidebar-widget">
-                <h3>📌 FILTER_BY_TARGET</h3>
-                <div class="tag-cloud">
-                    <span class="tag-item" onclick="filterByTag('firmware', this)">#Firmware</span>
-                    <span class="tag-item" onclick="filterByTag('qualcomm', this)">#Qualcomm</span>
-                    <span class="tag-item" onclick="filterByTag('mediatek', this)">#MediaTek</span>
-                    <span class="tag-item" onclick="filterByTag('linuxkernel', this)">#Kernel</span>
-                    <span class="tag-item" onclick="filterByTag('networking', this)">#Networking</span>
-                    <span class="tag-item" onclick="filterByTag('security', this)">#Security</span>
-                </div>
+                <h3>📢 LAB_STATUS</h3>
+                <p style="font-size: 0.8rem; color: #8b949e; font-family: var(--font-mono);">MONITORING_REAL_WORLD_PANICS // ACTIVE</p>
             </div>
         </aside>
     </div>
 
-    <footer>&copy; 2026 bitandboot // SYSTEMS_LAB // OPEN_SOURCE</footer>
+    <footer>&copy; 2026 bitandboot // SYSTEMS_LAB</footer>
 
     <script>
         function executeSearch() {
             const query = document.getElementById('searchInput').value.toLowerCase();
-            if (query.trim() === "") { clearFilter(); return; }
             document.querySelectorAll('.category-section').forEach(section => {
                 let visible = 0;
                 section.querySelectorAll('.card-wrapper').forEach(card => {
-                    const text = card.innerText.toLowerCase() + card.getAttribute('data-tags').toLowerCase();
-                    if (text.includes(query)) { card.style.display = 'block'; visible++; }
+                    if (card.innerText.toLowerCase().includes(query)) { card.style.display = 'block'; visible++; }
                     else { card.style.display = 'none'; }
                 });
                 section.style.display = visible > 0 ? 'block' : 'none';
             });
-        }
-
-        function filterByTag(tag, el) {
-            document.querySelectorAll('.tag-item').forEach(t => t.classList.remove('active'));
-            el.classList.add('active');
-            document.querySelectorAll('.category-section').forEach(section => {
-                let visible = 0;
-                section.querySelectorAll('.card-wrapper').forEach(card => {
-                    if (card.getAttribute('data-tags').includes(tag)) { card.style.display = 'block'; visible++; }
-                    else { card.style.display = 'none'; }
-                });
-                section.style.display = visible > 0 ? 'block' : 'none';
-            });
-        }
-
-        function clearFilter() {
-            document.querySelectorAll('.category-section').forEach(s => { s.style.display = 'block'; s.querySelectorAll('.card-wrapper').forEach(c => c.style.display = 'block'); });
         }
 
         const diagData = {
-            start: { text: "Troubleshooting hardware? Select category:", options: [
+            start: { text: "Select hardware category:", options: [
                 { text: "Mobile Devices", next: "mobile" }, { text: "PC / WSL / Tools", next: "pc" }, { text: "Network / Wi-Fi", next: "network" }, { text: "AI / Logic", next: "ai" }
             ]},
-            mobile: { text: "What is the symptom?", options: [
+            mobile: { text: "Symptom?", options: [
                 { text: "Security Locks", next: "mob_sec" }, { text: "Battery Drain", next: "mob_pwr" }, { text: "Bricked / Dead", next: "mob_firm" }
             ]},
-            mob_sec: { text: "Diagnosis Complete:", options: [{ text: "View RPMB Guide →", link: "demystifying-rpmb-partition.html" }] },
-            mob_pwr: { text: "Diagnosis Complete:", options: [{ text: "Battery Refresh Guide →", link: "background-refresh-battery.html" }] },
-            mob_firm: { text: "Diagnosis Complete:", options: [{ text: "EDL Recovery Guide →", link: "edl-mode-guide.html" }] },
-            pc: { text: "Diagnosis Complete:", options: [{ text: "Fix WSL2 libusb →", link: "wsl2-libusb-udev-rules.html" }] },
-            network: { text: "Diagnosis Complete:", options: [{ text: "Ghost Router Fix →", link: "wifi-ghost-router-guide.html" }] },
-            ai: { text: "Diagnosis Complete:", options: [{ text: "Token Mystery Guide →", link: "ai-tokenization-counting-mystery.html" }] }
+            mob_sec: { text: "Result:", options: [{ text: "View RPMB Guide →", link: "demystifying-rpmb-partition.html" }] },
+            mob_pwr: { text: "Result:", options: [{ text: "Battery Refresh Guide →", link: "background-refresh-battery.html" }] },
+            mob_firm: { text: "Result:", options: [{ text: "EDL Recovery Guide →", link: "edl-mode-guide.html" }] },
+            pc: { text: "Result:", options: [{ text: "Fix WSL2 libusb →", link: "wsl2-libusb-udev-rules.html" }] },
+            network: { text: "Result:", options: [{ text: "Ghost Router Fix →", link: "wifi-ghost-router-guide.html" }] },
+            ai: { text: "Result:", options: [{ text: "Token Mystery Guide →", link: "ai-tokenization-counting-mystery.html" }] }
         };
 
         let currentStep = 'start';
@@ -437,6 +387,221 @@
         }
         function resetDiagnostic() { currentStep = 'start'; renderDiag(); }
         renderDiag();
+    </script>
+</body>
+</html>
+```
+
+### 2. Updated Master Article (`demystifying-rpmb-partition.html`)
+Switched to **Inter** for comfortable reading while keeping the simulation "techy."
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RPMB Forensics | bitandboot Systems Lab</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #05070a;
+            --text-color: #c9d1d9;
+            --accent-color: #58a6ff;
+            --neon-green: #3fb950;
+            --neon-red: #f85149;
+            --card-bg: #0d1117;
+            --border-color: #30363d;
+            --terminal-bg: #010409;
+            --meta-color: #8b949e;
+            --font-sans: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: var(--bg-color);
+            background-image: radial-gradient(#161b22 0.5px, transparent 0.5px);
+            background-size: 30px 30px;
+            color: var(--text-color);
+            font-family: var(--font-sans);
+            line-height: 1.6;
+            padding: 0 1.5rem;
+        }
+        .container { max-width: 1100px; margin: 0 auto; }
+
+        header { padding: 4rem 0 2rem 0; border-bottom: 1px solid var(--border-color); margin-bottom: 3rem; }
+        .nav-back { font-family: var(--font-mono); color: var(--accent-color); text-decoration: none; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; display: block; margin-bottom: 1rem; }
+        h1 { font-weight: 800; font-size: 3rem; color: #fff; line-height: 1.1; letter-spacing: -2px; margin-bottom: 1.5rem; }
+        .meta { font-family: var(--font-mono); font-size: 0.75rem; color: var(--meta-color); display: flex; gap: 1.5rem; text-transform: uppercase; }
+
+        /* --- BUBBLE --- */
+        .glossary-link { color: #fff; border-bottom: 1px dashed var(--accent-color); cursor: help; font-weight: 700; text-decoration: none; }
+        #glossary-bubble {
+            position: absolute; z-index: 1000; width: 280px; background: #161b22; border: 1px solid var(--accent-color);
+            border-radius: 8px; padding: 1rem; font-size: 0.85rem; display: none; pointer-events: none;
+        }
+        #glossary-bubble b { font-family: var(--font-mono); color: var(--accent-color); display: block; margin-bottom: 5px; }
+
+        /* --- WORKBENCH --- */
+        #workbench-mainframe { background: var(--terminal-bg); border: 2px solid var(--border-color); border-radius: 12px; margin-bottom: 4rem; position: relative; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .lab-header { background: #161b22; padding: 0.75rem 1.5rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        .lab-title { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent-color); }
+        .lab-content { display: grid; grid-template-columns: 300px 1fr; height: 350px; }
+        .console-log { background: #000; border-right: 1px solid var(--border-color); padding: 1rem; font-family: var(--font-mono); font-size: 0.7rem; color: var(--neon-green); overflow-y: auto; }
+        .console-line { margin-bottom: 4px; opacity: 0.8; }
+        .console-line::before { content: "> "; color: var(--accent-color); }
+        .visualizer { position: relative; display: flex; justify-content: space-around; align-items: center; padding: 2rem; background: radial-gradient(circle at center, #0d1117 0%, #010409 100%); }
+        .hardware-node { width: 130px; height: 130px; border: 2px solid var(--border-color); background: #0d1117; border-radius: 8px; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 5; }
+        .hardware-node.active { border-color: var(--accent-color); box-shadow: 0 0 20px rgba(88, 166, 255, 0.3); }
+        .node-label { font-family: var(--font-mono); font-size: 0.6rem; color: var(--meta-color); margin-bottom: 5px; }
+        .node-status { font-family: var(--font-mono); font-size: 0.8rem; font-weight: bold; }
+
+        /* --- CONTENT --- */
+        .article-layout { display: flex; gap: 2.5rem; align-items: flex-start; flex-wrap: wrap; }
+        main { flex: 2.5; min-width: 320px; font-size: 1.1rem; line-height: 1.8; color: #adbac7; }
+        h2 { color: #fff; font-size: 1.8rem; margin: 3rem 0 1.25rem 0; font-family: var(--font-mono); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
+        .alert-box { background-color: rgba(248, 81, 73, 0.1); border-left: 4px solid var(--neon-red); padding: 1.25rem; border-radius: 4px; margin: 2rem 0; }
+        aside { flex: 1; min-width: 280px; position: sticky; top: 20px; }
+        #votePanel { background-color: var(--card-bg); border: 1px solid var(--border-color); border-top: 4px solid var(--accent-color); padding: 2rem; border-radius: 8px; text-align: center; }
+        .btn-action { background: var(--accent-color); color: #fff; border: none; padding: 0.8rem 1.5rem; font-family: var(--font-mono); font-weight: bold; border-radius: 4px; cursor: pointer; width: 100%; }
+
+        footer { text-align: center; padding: 5rem 0 2rem 0; color: #444; font-family: var(--font-mono); font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+
+    <div id="glossary-bubble"><b id="bubble-title">TERM</b><p id="bubble-def">Loading...</p></div>
+
+    <div class="container">
+        <header>
+            <a href="index.html" class="nav-back">// RETURN_TO_LOBBY</a>
+            <h1>Demystifying the RPMB: How Hardware Binds Flash Storage to CPUs</h1>
+            <div class="meta">
+                <span>[ DATE: JULY_2026 ]</span> | 
+                <span style="color: var(--accent-color);">[ VIEWS: <span id="topViewCount">--</span> ]</span>
+            </div>
+        </header>
+
+        <div id="workbench-mainframe">
+            <div class="lab-header">
+                <span class="lab-title">SYSTEMS_FORENSICS_LAB v2.04</span>
+                <div style="width:8px; height:8px; border-radius:50%; background:var(--neon-green);"></div>
+            </div>
+            <div class="lab-content">
+                <div class="console-log" id="console"><div class="console-line">Waiting for instruction...</div></div>
+                <div class="visualizer">
+                    <div id="packet" style="position:absolute; width:12px; height:12px; background:var(--accent-color); border-radius:50%; display:none; z-index:20;"></div>
+                    <div class="hardware-node" id="node-cpu"><div class="node-label">SECURE_WORLD (TEE)</div><div class="node-status" id="cpu-stat">IDLE</div></div>
+                    <div style="font-family:var(--font-mono); color:var(--border-color);">[ BUS_01 ]</div>
+                    <div class="hardware-node" id="node-ufs"><div class="node-label">UFS_STORAGE</div><div class="node-status" id="ufs-stat">STANDBY</div></div>
+                </div>
+            </div>
+            <div class="lab-footer">
+                <button class="btn-action" id="nextBtn" onclick="nextSimStep()" style="width:auto;">INITIALIZE_HANDSHAKE</button>
+            </div>
+        </div>
+
+        <div class="article-layout">
+            <main id="article-body">
+                <p>If you take a fully functional flash memory storage chip from a broken motherboard and solder it onto an identical, working donor, the device will fail to boot.</p>
+
+                <h2>01_The_Logic_Gate</h2>
+                <p>The RPMB is not a software block; it is a permanent hardware-level cryptographic bond established at the moment of assembly.</p>
+                <p>Modern CPUs and Storage units use a handshake that relies on a unique 32-byte HMAC key, burned into hardware fuses like eFuses that can never be reset.</p>
+                <p>The TEE (Trusted Execution Environment) handles the verification between the CPU and the UFS storage during every boot sequence.</p>
+            </main>
+
+            <aside>
+                <div id="votePanel">
+                    <h3 style="font-family: var(--font-mono); color:#fff; margin-bottom: 1rem; font-size: 1rem;">⚡ BENCH_VERIFICATION</h3>
+                    <button onclick="incrementTelemetry('yes')" class="btn-action" style="background: rgba(63, 185, 80, 0.1); color:var(--neon-green); border: 1px solid var(--neon-green); margin-bottom: 0.75rem;">YES, WORKED! (<span id="countWorked">--</span>)</button>
+                    <button onclick="incrementTelemetry('no')" class="btn-action" style="background: rgba(248, 81, 73, 0.1); color:var(--neon-red); border: 1px solid var(--neon-red);">NO, BRICKED (<span id="countBricked">--</span>)</button>
+                </div>
+            </aside>
+        </div>
+
+        <footer>&copy; 2026 bitandboot // SYSTEMS_LAB</footer>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        const firebaseConfig = { apiKey: "AIzaSyAZ5kORicxNAp4iCWlGn1C3XkP0vPJ5vQw", authDomain: "bitandboot.firebaseapp.com", projectId: "bitandboot", storageBucket: "bitandboot.firebasestorage.app", messagingSenderId: "687841897835", appId: "1:687841897835:web:16e8a1b9f31e23f069b02e" };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const pageId = (window.location.pathname.split("/").pop() || "index").replace(".html", "");
+        const articleRef = doc(db, "articles", pageId);
+
+        /* SYNC BUBBLES */
+        async function syncGlossary() {
+            try {
+                const response = await fetch('glossary.html');
+                const text = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(text, 'text/html');
+                const terms = {};
+                doc.querySelectorAll('.term-card').forEach(card => {
+                    const title = card.querySelector('.term-title').innerText.trim();
+                    terms[title] = card.querySelector('.term-def').innerText.trim();
+                });
+                const main = document.getElementById('article-body');
+                let html = main.innerHTML;
+                Object.keys(terms).forEach(term => {
+                    const regex = new RegExp(`\\b(${term})\\b(?![^<]*>)`, 'g');
+                    html = html.replace(regex, `<a href="glossary.html#${term.toLowerCase().replace(/\s+/g, '-')}" class="glossary-link" data-def="${terms[term]}">$1</a>`);
+                });
+                main.innerHTML = html;
+                setupBubbles();
+            } catch (e) { }
+        }
+
+        function setupBubbles() {
+            const bubble = document.getElementById('glossary-bubble');
+            const title = document.getElementById('bubble-title');
+            const def = document.getElementById('bubble-def');
+            document.querySelectorAll('.glossary-link').forEach(link => {
+                link.addEventListener('mouseenter', (e) => {
+                    title.innerText = e.target.innerText;
+                    def.innerText = e.target.getAttribute('data-def');
+                    bubble.style.display = 'block';
+                    const rect = e.target.getBoundingClientRect();
+                    bubble.style.top = `${rect.top + window.scrollY - bubble.offsetHeight - 10}px`;
+                    bubble.style.left = `${rect.left + (rect.width/2) - (bubble.offsetWidth/2)}px`;
+                });
+                link.addEventListener('mouseleave', () => { bubble.style.display = 'none'; });
+            });
+        }
+
+        /* DATA INIT */
+        async function init() {
+            const snap = await getDoc(articleRef);
+            if (!snap.exists()) await setDoc(articleRef, { viewCount: 0, workedCount: 0, brickedCount: 0 });
+            onSnapshot(articleRef, (s) => {
+                const d = s.data();
+                if(d) {
+                    document.getElementById("topViewCount").innerText = (d.viewCount || 0).toLocaleString();
+                    document.getElementById("countWorked").innerText = d.workedCount || 0;
+                    document.getElementById("countBricked").innerText = d.brickedCount || 0;
+                }
+            });
+            if(!sessionStorage.getItem('v')) { await updateDoc(articleRef, {viewCount: increment(1)}); sessionStorage.setItem('v', '1'); }
+            syncGlossary();
+        }
+
+        window.nextSimStep = () => {
+            const log = (m) => { const d=document.createElement("div"); d.className="console-line"; d.innerText=m; document.getElementById("console").appendChild(d); };
+            log("Handshake initiated...");
+            document.getElementById("cpu-stat").innerText = "AUTH_OK";
+            document.getElementById("ufs-stat").innerText = "SECURE_RW";
+        };
+
+        window.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
