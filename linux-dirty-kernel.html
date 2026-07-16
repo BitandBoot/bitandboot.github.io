@@ -87,14 +87,8 @@
             display: flex; gap: 1.5rem; text-transform: uppercase; flex-wrap: wrap;
         }
 
-        /* --- GLOSSARY BUBBLE UI --- */
-        .glossary-link {
-            color: #fff;
-            border-bottom: 1px dashed var(--accent-color);
-            cursor: help;
-            font-weight: 700;
-            text-decoration: none;
-        }
+        /* --- GLOSSARY BUBBLE --- */
+        .glossary-link { color: #fff; border-bottom: 1px dashed var(--accent-color); cursor: help; font-weight: 700; text-decoration: none; }
         #glossary-bubble {
             position: absolute; z-index: 1000; width: 280px; background: #161b22; border: 1px solid var(--accent-color);
             border-radius: 8px; padding: 1rem; font-size: 0.85rem; display: none; pointer-events: none;
@@ -144,12 +138,12 @@
         }
 
         .hardware-node {
-            width: 130px; height: 130px; border: 2px solid var(--border-color);
+            width: 120px; height: 120px; border: 2px solid var(--border-color);
             background: #0d1117; border-radius: 8px; display: flex;
             flex-direction: column; justify-content: center; align-items: center;
             z-index: 5; transition: 0.3s;
         }
-        .hardware-node.active { border-color: var(--accent-color); box-shadow: 0 0 20px rgba(88, 166, 255, 0.3); }
+        .hardware-node.active { border-color: var(--neon-red); box-shadow: 0 0 20px rgba(248, 81, 73, 0.3); }
         .node-label { font-family: var(--font-mono); font-size: 0.6rem; color: var(--meta-color); margin-bottom: 5px; text-align: center; }
         .node-status { font-family: var(--font-mono); font-size: 0.8rem; font-weight: bold; text-align: center; }
 
@@ -168,25 +162,23 @@
             border-radius: 6px; margin-bottom: 2.5rem;
         }
 
-        h2 { font-family: var(--font-display); color: #fff; font-size: 1.8rem; margin: 3rem 0 1.25rem 0; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
-        h3 { font-family: var(--font-display); color: #fff; font-size: 1.35rem; margin: 2.5rem 0 1rem 0; }
+        h2 { font-family: var(--font-display); color: #fff; font-size: 1.8rem; margin: 3.5rem 0 1.25rem 0; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
+        h3 { font-family: var(--font-display); color: #fff; font-size: 1.4rem; margin: 2.5rem 0 1rem 0; }
         p { margin-bottom: 1.5rem; }
         ul, ol { margin-bottom: 1.5rem; padding-left: 1.5rem; }
         li { margin-bottom: 0.75rem; }
         b, strong { color: #fff; }
+
+        code { font-family: var(--font-mono); font-size: 0.9rem; color: #ff7b72; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; }
+
+        .info-box { background-color: rgba(88, 166, 255, 0.05); border-left: 4px solid var(--accent-color); padding: 1.5rem; border-radius: 6px; margin: 2.5rem 0; }
 
         table {
             width: 100%; border-collapse: collapse; margin: 2rem 0;
             background-color: var(--card-bg); font-size: 0.85rem;
         }
         th, td { border: 1px solid var(--border-color); padding: 14px; text-align: left; }
-        th { background-color: rgba(88, 166, 255, 0.05); color: var(--accent-color); font-family: var(--font-mono); font-size: 0.75rem; }
-
-        code { font-family: var(--font-mono); font-size: 0.9rem; color: #ff7b72; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; }
-        pre { background-color: #000; border: 1px solid var(--border-color); padding: 1.5rem; border-radius: 6px; overflow-x: auto; margin: 1.5rem 0; }
-        pre code { color: #adbac7; background: none; padding: 0; }
-
-        .info-box { background-color: rgba(88, 166, 255, 0.05); border-left: 4px solid var(--accent-color); padding: 1.25rem; border-radius: 4px; margin: 2rem 0; }
+        th { background-color: rgba(88, 166, 255, 0.05); color: var(--accent-color); font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; }
 
         /* --- SIDEBAR & VOTE --- */
         aside { flex: 1; min-width: 280px; position: sticky; top: 20px; }
@@ -218,9 +210,9 @@
 
     <div class="container">
         <header>
-            <div class="boot-line">SYSTEMS_FORENSICS_LAB // KERNEL_EXPLOIT_MONITOR_ON</div>
+            <div class="boot-line">SYSTEMS_FORENSICS_LAB // KERNEL_MONITOR_ACTIVE</div>
             <a href="index.html" class="nav-back">← RETURN_TO_LOBBY</a>
-            <h1>Dirty COW & Dirty Pipe: Kernel Privilege Escalation in Mobile Devices</h1>
+            <h1>Dirty COW & Dirty Pipe: Linux Kernel Privilege Escalation in Mobile Devices</h1>
             <div class="meta">
                 <span>[ DATE: JULY_2026 ]</span> | 
                 <span>[ CATEGORY: FIRMWARE_ARCHITECTURES ]</span> |
@@ -240,7 +232,7 @@
 
             <div class="lab-content">
                 <div class="console-log" id="console">
-                    <div class="console-line">Ready for instruction.</div>
+                    <div class="console-line">Awaiting kernel instruction...</div>
                     <div class="console-line">Sandboxed user environment detected.</div>
                 </div>
 
@@ -272,77 +264,85 @@
                 <div class="workbench-note">
                     <h4 style="color: #fff; margin: 0 0 0.5rem 0; font-size: 0.8rem; text-transform: uppercase; font-family: var(--font-mono);">🛠️ Engineering Context</h4>
                     <p style="margin: 0; font-size: 0.95rem; color: var(--meta-color); font-style: italic;">
-                        "When Android security updates patch standard bootloader vectors, legendary flaws like Dirty COW and Dirty Pipe demonstrate how low-level memory handling anomalies can subvert an entire operating system's integrity."
+                        "In the mobile servicing and security landscape, understanding how the underlying kernel operates is the line between standard tool clicking and true system recovery. When Android security updates patch standard bootloader vectors, legendary flaws like Dirty COW and Dirty Pipe demonstrate how low-level memory handling anomalies can subvert an entire operating system's integrity."
                     </p>
                 </div>
 
-                <p>Because the Android operating system architecture runs directly on top of a modified <strong>Linux kernel</strong>, any systemic vulnerability within the kernel base poses a massive threat to the device's sandbox boundaries.</p>
+                <p>Because the Android operating system architecture runs directly on top of a modified <strong>Linux kernel</strong>, any systemic vulnerability within the kernel base poses a massive threat to the device's sandbox boundaries. In mobile servicing and security operations, two legendary Privilege Escalation (LPE) vulnerabilities stand out for their raw ability to force unprivileged root access: <strong>Dirty COW</strong> and <strong>Dirty Pipe</strong>.</p>
 
-                <h2>1. Dirty COW (CVE-2016-5195)</h2>
-                <p>Dirty COW is an architectural flaw in the Linux kernel's memory management subsystem. Specifically, it exploits a race condition inside the mechanism handling <strong>Copy-on-Write (COW)</strong> breakages.</p>
+                <h2>1. Dirty COW (CVE-2016-5195): The Race Condition Exploit</h2>
+                <p>Discovered in 2016, Dirty COW is an architectural flaw found in the Linux kernel's memory management subsystem. Specifically, it exploits a race condition inside the mechanism handling <strong>Copy-on-Write (COW)</strong> breakages.</p>
 
                 <h3>The Underlying Mechanics</h3>
-                <p>When a process attempts to write to shared read-only data, the kernel triggers a COW operation:</p>
+                <p>When an unprivileged application requests access to a read-only executable file or memory map (like a system binary or database block), the kernel avoids wasting physical RAM by pointing that application directly to the shared resource memory space. If the process attempts to write to or modify that data, the kernel triggers a Copy-on-Write operation:</p>
+                
                 <ul>
-                    <li>The kernel generates a private copy for the calling process.</li>
-                    <li>The process updates the copy without altering the master resource on disk.</li>
+                    <li>The kernel generates a private, local copy of the target memory block specifically for that calling process.</li>
+                    <li>The process updates its private memory block without altering the master file system resource on disk.</li>
                 </ul>
-                <p>Dirty COW forces a race condition using <code>madvise(MADV_DONTNEED)</code>. By hammering threads simultaneously, an attacker forces the kernel to write directly into the read-only system file mapping before the COW separation routine clears.</p>
 
-                <h2>2. Dirty Pipe (CVE-2022-0847)</h2>
-                <p>Discovered in 2022, Dirty Pipe is a faster and more stable vulnerability affecting Linux kernel versions from 5.8 up to 5.16.11.</p>
+                <p>Dirty COW forces a race condition between two system calls: <code>madvise(MADV_DONTNEED)</code> (which tells the kernel to discard specified memory caches) and a standard write execution path. By hammering these calls simultaneously across multiple CPU threads, an attacker forces the kernel to write directly into the master, read-only system file mapping before the COW separation routine clears. This allowed technicians and security tools to overwrite protected root system files (such as <code>/system/bin/applypatch</code>) to force root extraction on locked devices.</p>
+
+                <h2>2. Dirty Pipe (CVE-2022-0847): Zero-Permission Page Cache Injection</h2>
+                <p>Discovered in 2022, Dirty Pipe is a far cleaner, faster, and more dangerous vulnerability affecting Linux kernel versions from 5.8 up to 5.16.11 (including many modern Android 12/13 builds powering newer chips).</p>
 
                 <h3>The Pipeline Buffer Flaw</h3>
-                <p>Dirty Pipe takes advantage of uninitialized pipeline flags:</p>
+                <p>In Unix systems, a "pipe" transfers data between separate execution routines. A pipe buffer is managed through structure arrays called <code>pipe_buffer</code>, which point to physical memory sectors called <strong>Page Caches</strong> managed by the kernel.</p>
+
+                <p>Dirty Pipe operates by taking advantage of uninitialized pipeline flags:</p>
                 <ol>
-                    <li>Attacker opens a read-only file using the kernel's page cache.</li>
-                    <li>Attacker pushes data into a local pipe, setting <code>PIPE_BUF_FLAG_CAN_MERGE</code>.</li>
-                    <li>Using <code>splice()</code>, the attacker directs the pipe straight into the read-only file's page cache.</li>
+                    <li>An attacker opens a read-only file (like the system password array or an authenticated initialization script) using the kernel's page cache engine.</li>
+                    <li>The attacker pushes data into a local pipe structure, setting a flag parameter known as <code>PIPE_BUF_FLAG_CAN_MERGE</code>, instructing the kernel that new data can be safely appended into this memory space.</li>
+                    <li>Using the <code>splice()</code> system call, the attacker directs the pipe to point straight into the targeted page cache memory space belonging to the read-only file.</li>
                 </ol>
 
+                <p>Because the <code>PIPE_BUF_FLAG_CAN_MERGE</code> flag remains active, any new data written to the pipe by the attacker bypasses standard access checks completely and overwrites the active kernel page cache directly. The attacker can temporarily change configuration keys, swap permission hashes, or rewrite running root binaries on the fly without changing physical file structures on disk.</p>
+
                 <div class="info-box">
-                    <strong>Mobile Servicing Relevance:</strong> Dirty Pipe allowed instant temp-root access on contemporary smartphones to extract deep partitions before official OEM patches were rolled out.
+                    <strong style="color:var(--accent-color)">Mobile Servicing Relevance:</strong> Dirty Pipe became a standard vector for modern exploit Toolchains, allowing instant, temp-root access on contemporary smartphones to extract deep partitions, dump radio modules, or bypass cryptographic protections before an official OEM patch roll-out.
                 </div>
 
                 <h2>Technical Comparison Matrix</h2>
                 <table>
                     <thead>
                         <tr>
-                            <th>Metric</th>
-                            <th>Dirty COW</th>
-                            <th>Dirty Pipe</th>
+                            <th>Specification Metric</th>
+                            <th>Dirty COW (CVE-2016-5195)</th>
+                            <th>Dirty Pipe (CVE-2022-0847)</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td><strong>Primary Mechanism</strong></td>
-                            <td>Race condition via COW</td>
-                            <td>Flag manipulation (CAN_MERGE)</td>
+                            <td>Race condition via Copy-on-Write breaking</td>
+                            <td>Uninitialized CAN_MERGE flag manipulation</td>
                         </tr>
                         <tr>
                             <td><strong>Execution Speed</strong></td>
-                            <td>Slow (Racing loops)</td>
-                            <td>Instantaneous</td>
+                            <td>Slow (Requires high thread racing loops)</td>
+                            <td>Instantaneous (Single procedural execution)</td>
                         </tr>
                         <tr>
                             <td><strong>File Footprint</strong></td>
-                            <td>Physical Disk modification</td>
-                            <td>Direct Page Cache injection</td>
+                            <td>Modifies physical storage structures on disk</td>
+                            <td>Injects directly into memory Page Cache arrays</td>
                         </tr>
                         <tr>
-                            <td><strong>Stability</strong></td>
-                            <td>Unstable (Panics likely)</td>
-                            <td>Highly Stable</td>
+                            <td><strong>Exploit Stability</strong></td>
+                            <td>Unstable (Can cause kernel panic / lockups)</td>
+                            <td>Highly stable and predictable</td>
                         </tr>
                     </tbody>
                 </table>
+
+                <h2>Conclusion</h2>
+                <p>Both Dirty COW and Dirty Pipe highlight that software permissions are only as strong as the kernel enforcing them. In mobile servicing, tracking these structural kernel exploits provides crucial insight into how advanced toolkits execute low-level tasks, and underscores why keeping hardware firmware updated with official OEM security patches is mandatory.</p>
             </main>
 
             <aside>
                 <div id="votePanel">
                     <h3 style="font-family: var(--font-mono); color:#fff; margin-bottom: 1rem; font-size: 1rem;">⚡ BENCH_VERIFICATION</h3>
                     <p style="margin: 0 0 1.5rem 0; color: var(--meta-color); font-size: 0.85rem;">Have you ever used a temporary root script based on these exploits?</p>
-                    
                     <button onclick="incrementTelemetry('yes')" class="btn-action" style="background: rgba(63, 185, 80, 0.1); color: var(--neon-green); border: 1px solid var(--neon-green); margin-bottom: 0.75rem; width: 100%;">
                         YES, EXPLOIT SUCCESS! (<span id="countWorked">--</span>)
                     </button>
@@ -356,14 +356,6 @@
         <section class="comment-section">
             <h3 style="color: #fff; margin-bottom: 2rem; font-family: var(--font-mono);">💬 COMMUNITY_BENCH_NOTES</h3>
             <div id="commentsFeed"></div>
-            <div style="background-color: var(--card-bg); border: 1px solid var(--border-color); padding: 2rem; border-radius: 8px; margin-top: 2rem;">
-                <h4 style="color: #fff; margin-bottom: 1.5rem; font-size: 1rem; font-family: var(--font-mono);">[ DROP_A_SYSTEM_INSIGHT ]</h4>
-                <div style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
-                    <input type="text" id="suiteNameInput" placeholder="Technician Name" style="flex: 1; background: #000; border: 1px solid var(--border-color); padding: 0.8rem; color: #fff; border-radius: 4px; font-family: var(--font-mono);">
-                    <button onclick="submitGenericComment()" class="btn-action" style="width: auto; padding: 0 2rem;">SUBMIT</button>
-                </div>
-                <textarea id="suiteCommentText" placeholder="Log details or hardware notes..." style="width: 100%; min-height: 100px; background: #000; border: 1px solid var(--border-color); padding: 1rem; color: #fff; border-radius: 4px;"></textarea>
-            </div>
         </section>
 
         <footer>
@@ -371,7 +363,6 @@
         </footer>
     </div>
 
-    <!-- MAIN ENGINE MODULE -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -383,7 +374,6 @@
         const articleRef = doc(db, "articles", pageId);
         const commentsRef = collection(db, "articles", pageId, "comments");
 
-        /* 1. GLOSSARY SYNC */
         async function syncGlossary() {
             try {
                 const response = await fetch('glossary.html');
@@ -423,7 +413,6 @@
             });
         }
 
-        /* 2. FIREBASE INIT */
         async function init() {
             const snap = await getDoc(articleRef);
             if (!snap.exists()) await setDoc(articleRef, { viewCount: 0, workedCount: 0, brickedCount: 0 });
@@ -436,7 +425,6 @@
                 }
             });
             if(!sessionStorage.getItem('v')) { await updateDoc(articleRef, {viewCount: increment(1)}); sessionStorage.setItem('v', '1'); }
-            
             onSnapshot(query(commentsRef, orderBy("timestamp", "desc")), (snapshot) => {
                 const feed = document.getElementById("commentsFeed");
                 feed.innerHTML = "";
@@ -448,15 +436,8 @@
                     feed.appendChild(div);
                 });
             });
+            syncGlossary();
         }
-
-        window.submitGenericComment = async () => {
-            const name = document.getElementById("suiteNameInput").value.trim();
-            const text = document.getElementById("suiteCommentText").value.trim();
-            if (!name || !text) return;
-            await addDoc(commentsRef, { name: name.replace(/\s/g, ''), text: text, timestamp: serverTimestamp() });
-            document.getElementById("suiteCommentText").value = "";
-        };
 
         window.incrementTelemetry = async (type) => {
             if(localStorage.getItem('voted_'+pageId)) return alert("Session Lock Active.");
@@ -465,58 +446,23 @@
             document.getElementById("votePanel").innerHTML = "<h2 style='color:var(--neon-green)'>LOGGED</h2>";
         };
 
-        /* 3. SIMULATION LOGIC */
         let step = 0;
-        const consoleEl = document.getElementById("console");
-        const procStat = document.getElementById("proc-stat");
-        const rootStat = document.getElementById("root-stat");
-        const packet = document.getElementById("packet");
-        const nextBtn = document.getElementById("nextBtn");
-
         window.nextSimStep = () => {
             step++;
-            const log = (m) => { const d=document.createElement("div"); d.className="console-line"; d.innerText=m; consoleEl.appendChild(d); consoleEl.scrollTop = consoleEl.scrollHeight; };
-            
-            if (step === 1) { 
-                log("Mmap read-only system binary...");
-                log("Triggering madvise(MADV_DONTNEED) loop...");
-                procStat.innerText = "RACING_CPU_0";
-                procStat.style.color = "var(--accent-color)";
-                nextBtn.innerText = "FORCE_MEMORY_WRITE";
-            } 
+            const log = (m) => { const d=document.createElement("div"); d.className="console-line"; d.innerText=m; document.getElementById("console").appendChild(d); document.getElementById("console").scrollTop = document.getElementById("console").scrollHeight; };
+            if (step === 1) { log("Triggering madvise(MADV_DONTNEED) thread..."); document.getElementById("proc-stat").innerText = "RACING_CPU_0"; document.getElementById("nextBtn").innerText = "FORCE_MEMORY_WRITE"; }
             else if (step === 2) { 
-                log("Executing concurrent write() thread...");
-                packet.style.display = "block";
-                packet.animate([{ left: '40%' }, { left: '60%' }], { duration: 100, iterations: 5 });
-                setTimeout(() => {
-                    log("Race Won: COW separation bypassed.");
-                    rootStat.innerText = "VULNERABLE";
-                    rootStat.style.color = "var(--neon-red)";
-                    nextBtn.innerText = "EXECUTE_PRIV_ESC";
-                }, 600);
+                log("Executing concurrent write() thread..."); 
+                const p = document.getElementById("packet"); p.style.display="block";
+                p.animate([{ left: '40%' }, { left: '60%' }], { duration: 100, iterations: 5 });
+                setTimeout(() => { log("Race Won: COW separation bypassed."); document.getElementById("root-stat").innerText = "VULNERABLE"; document.getElementById("root-stat").style.color = "var(--neon-red)"; document.getElementById("nextBtn").innerText = "EXECUTE_PRIV_ESC"; }, 600);
             }
-            else if (step === 3) {
-                log("Injecting root-payload into page cache...");
-                setTimeout(() => {
-                    log("SUCCESS: /system/bin/applypatch overwritten.");
-                    log("Privilege Escalation Complete. UID: 0");
-                    procStat.innerText = "ROOT_ACCESS";
-                    procStat.style.color = "var(--neon-green)";
-                    nextBtn.innerText = "SYSTEM_EXPLOITED";
-                    nextBtn.disabled = true;
-                }, 800);
-            }
+            else if (step === 3) { log("Injecting root-payload..."); log("SUCCESS: /system/bin/applypatch overwritten."); document.getElementById("proc-stat").innerText = "ROOT_ACCESS"; document.getElementById("proc-stat").style.color = "var(--neon-green)"; document.getElementById("nextBtn").disabled = true; }
         };
 
-        window.resetLab = () => {
-            step = 0; procStat.innerText = "SANDBOXED"; rootStat.innerText = "READ_ONLY";
-            procStat.style.color = rootStat.style.color = "inherit";
-            nextBtn.disabled = false; nextBtn.innerText = "INITIATE_COW_RACE";
-            consoleEl.innerHTML = '<div class="console-line">Ready for instruction.</div>';
-            packet.style.display = "none";
-        };
+        window.resetLab = () => { step=0; document.getElementById("proc-stat").innerText="SANDBOXED"; document.getElementById("root-stat").innerText="READ_ONLY"; document.getElementById("root-stat").style.color="inherit"; document.getElementById("nextBtn").disabled=false; document.getElementById("nextBtn").innerText="INITIATE_COW_RACE"; document.getElementById("console").innerHTML='<div class="console-line">Ready for instruction.</div>'; };
 
-        window.addEventListener('DOMContentLoaded', () => { syncGlossary(); init(); });
+        window.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
