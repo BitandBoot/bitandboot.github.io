@@ -356,6 +356,15 @@
         <section class="comment-section">
             <h3 style="color: #fff; margin-bottom: 2rem; font-family: var(--font-mono);">💬 COMMUNITY_BENCH_NOTES</h3>
             <div id="commentsFeed"></div>
+        
+            <div style="background-color: var(--card-bg); border: 1px solid var(--border-color); padding: 2rem; border-radius: 8px; margin-top: 2rem;">
+                <h4 style="color: #fff; margin-bottom: 1.5rem; font-size: 1rem; font-family: var(--font-mono);">[ DROP_A_SYSTEM_INSIGHT ]</h4>
+                <div style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                    <input type="text" id="suiteNameInput" placeholder="Technician Name" style="flex: 1; background: #000; border: 1px solid var(--border-color); padding: 0.8rem; color: #fff; border-radius: 4px; font-family: var(--font-mono);">
+                    <button onclick="submitGenericComment()" class="btn-action" style="width: auto; padding: 0 2rem;">SUBMIT</button>
+                </div>
+                <textarea id="suiteCommentText" placeholder="Log details, hardware variations, or note variations..." style="width: 100%; min-height: 100px; background: #000; border: 1px solid var(--border-color); padding: 1rem; color: #fff; border-radius: 4px; font-family: var(--font-sans);"></textarea>
+            </div>
         </section>
 
         <footer>
@@ -444,6 +453,22 @@
             await updateDoc(articleRef, { [type === 'yes' ? 'workedCount' : 'brickedCount']: increment(1) });
             localStorage.setItem('voted_'+pageId, '1');
             document.getElementById("votePanel").innerHTML = "<h2 style='color:var(--neon-green)'>LOGGED</h2>";
+        };
+
+        window.submitGenericComment = async () => {
+            const name = document.getElementById("suiteNameInput").value.trim();
+            const text = document.getElementById("suiteCommentText").value.trim();
+            if (!name || !text) return;
+            try {
+                // Sanitizes name to one word (Technician Handle style)
+                await addDoc(commentsRef, { 
+                    name: name.replace(/\s/g, ''), 
+                    text: text, 
+                    timestamp: serverTimestamp() 
+                });
+                document.getElementById("suiteCommentText").value = "";
+                document.getElementById("suiteNameInput").value = "";
+            } catch (e) { console.error("Comment failed:", e); }
         };
 
         let step = 0;
