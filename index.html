@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,147 +6,329 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BitandBoot // Systems Engineering Hub</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <!-- Google Fonts: Inter for readability, JetBrains for tech labels -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+
     <style>
         :root {
             --bg-color: #05070a;
             --text-color: #c9d1d9;
             --accent-color: #58a6ff;
+            --accent-dim: rgba(88, 166, 255, 0.12);
             --neon-green: #3fb950;
             --card-bg: #0d1117;
+            --card-bg-hover: #10161f;
             --border-color: #30363d;
+            --border-soft: #21262d;
             --terminal-bg: #010409;
             --meta-color: #8b949e;
-            --font-sans: 'Inter', sans-serif; /* Clean reading font */
-            --font-mono: 'JetBrains Mono', monospace; /* Tech ID font */
+            --font-sans: 'Inter', sans-serif;
+            --font-mono: 'Space Mono', monospace;
+            --font-display: 'Space Grotesk', sans-serif;
             --badge-easy: #56d364;
             --badge-medium: #e3b341;
             --badge-hard: #f85149;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        
+
+        html { scroll-behavior: smooth; }
+
         body {
             background-color: var(--bg-color);
             background-image: radial-gradient(#161b22 0.5px, transparent 0.5px);
-            background-size: 30px 30px;
+            background-size: 28px 28px;
             color: var(--text-color);
             font-family: var(--font-sans);
             line-height: 1.6;
             padding: 0 1.5rem;
         }
 
-        .container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 2rem; }
+        .container {
+            max-width: 1240px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem 2.5rem;
+        }
         @media (min-width: 992px) { .container { grid-template-columns: 3fr 1fr; } }
 
+        /* ---------- HERO ---------- */
         header.main-header {
             grid-column: 1 / -1;
-            padding: 4rem 0 2rem 0;
-            text-align: center;
+            padding: 4.5rem 0 2.5rem 0;
             border-bottom: 1px solid var(--border-color);
+            position: relative;
         }
-        header h1 { 
-            font-size: 3.5rem; 
-            color: #fff; 
-            letter-spacing: -2px; 
+        .boot-line {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--neon-green);
+            letter-spacing: 1px;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .boot-line::before {
+            content: "";
+            width: 6px; height: 6px; border-radius: 50%;
+            background: var(--neon-green);
+            box-shadow: 0 0 8px var(--neon-green);
+            flex-shrink: 0;
+        }
+        .boot-cursor {
+            display: inline-block; width: 7px; height: 1em;
+            background: var(--neon-green);
+            margin-left: 2px; vertical-align: text-bottom;
+            animation: blink 1s step-end infinite;
+        }
+        @media (prefers-reduced-motion: reduce) { .boot-cursor { animation: none; } }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        header h1 {
+            font-size: clamp(2.6rem, 6vw, 4.2rem);
+            color: #fff;
+            letter-spacing: -2.5px;
             font-weight: 800;
+            line-height: 1;
         }
         header h1 span { color: var(--accent-color); }
-        header p { font-family: var(--font-mono); font-size: 0.8rem; color: var(--meta-color); text-transform: uppercase; letter-spacing: 2px; margin-top: 0.5rem; }
+        header .subhead {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--meta-color);
+            margin-top: 0.85rem;
+            max-width: 46ch;
+        }
 
+        .hero-actions { display: flex; gap: 0.85rem; margin-top: 1.75rem; flex-wrap: wrap; }
         .glossary-cta {
-            display: inline-block; margin-top: 1.5rem; color: var(--accent-color);
-            text-decoration: none; font-size: 0.75rem; font-family: var(--font-mono);
-            border: 1px solid var(--border-color); padding: 8px 20px; border-radius: 4px;
+            display: inline-flex; align-items: center; gap: 8px;
+            color: var(--accent-color); text-decoration: none;
+            font-size: 0.75rem; font-family: var(--font-mono);
+            border: 1px solid var(--border-color); padding: 10px 18px; border-radius: 6px;
             transition: 0.2s;
         }
-        .glossary-cta:hover { border-color: var(--accent-color); background: rgba(88, 166, 255, 0.05); }
+        .glossary-cta:hover { border-color: var(--accent-color); background: var(--accent-dim); }
+        .hero-stat {
+            font-family: var(--font-mono); font-size: 0.7rem; color: var(--meta-color);
+            border: 1px solid var(--border-soft); padding: 10px 18px; border-radius: 6px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .hero-stat b { color: #fff; font-size: 0.85rem; }
 
-        /* --- DIAGNOSTIC HUB --- */
+        /* ---------- DIAGNOSTIC ---------- */
         #diagnostic-mainframe {
             grid-column: 1 / -1;
             background: var(--terminal-bg);
             border: 2px solid var(--border-color);
             border-radius: 12px;
-            margin-bottom: 1rem;
+            margin-top: 1.5rem;
             overflow: hidden;
             box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
-        .diag-header { background: #161b22; padding: 0.75rem 1.5rem; border-bottom: 1px solid var(--border-color); font-family: var(--font-mono); font-size: 0.7rem; color: var(--neon-green); display: flex; justify-content: space-between; }
-        .diag-body { padding: 2.5rem; text-align: center; }
-        .diag-question { font-weight: 600; color: #fff; font-size: 1.3rem; margin-bottom: 1.5rem; }
+        .diag-header {
+            background: #161b22; padding: 0.75rem 1.5rem; border-bottom: 1px solid var(--border-color);
+            font-family: var(--font-mono); font-size: 0.7rem; color: var(--neon-green);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .diag-header .dots { display: flex; gap: 6px; }
+        .diag-header .dots span { width: 8px; height: 8px; border-radius: 50%; background: var(--border-color); }
+
+        /* Breadcrumb trail */
+        .diag-trail {
+            display: flex; align-items: center; flex-wrap: wrap; gap: 0.4rem;
+            padding: 1rem 2rem; background: #0a0d12; border-bottom: 1px solid var(--border-soft);
+            font-family: var(--font-mono); font-size: 0.7rem;
+        }
+        .diag-crumb {
+            background: none; border: none; color: var(--meta-color); cursor: pointer;
+            font-family: var(--font-mono); font-size: 0.7rem; padding: 3px 7px; border-radius: 4px;
+            display: flex; align-items: center; gap: 5px; transition: 0.15s;
+        }
+        .diag-crumb:hover { color: var(--accent-color); background: var(--accent-dim); }
+        .diag-crumb.current { color: var(--accent-color); font-weight: 700; cursor: default; }
+        .diag-crumb.current:hover { background: none; }
+        .diag-sep { color: var(--border-color); font-size: 0.7rem; }
+
+        .diag-body { padding: 2.75rem 2rem; text-align: center; }
+        .diag-step { animation: diagIn 0.28s ease; }
+        @keyframes diagIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        @media (prefers-reduced-motion: reduce) { .diag-step { animation: none; } }
+
+        .diag-question {
+            font-weight: 700; color: #fff; font-size: 1.3rem; margin-bottom: 1.9rem;
+            font-family: var(--font-display);
+        }
+        .diag-options { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.7rem; }
         .diag-btn {
-            background: transparent; border: 1px solid var(--border-color);
-            color: var(--accent-color); padding: 0.8rem 1.5rem; font-family: var(--font-mono);
-            border-radius: 4px; cursor: pointer; transition: 0.2s; margin: 5px; font-size: 0.85rem;
-        }
-        .diag-btn:hover { border-color: var(--accent-color); background: rgba(88, 166, 255, 0.05); }
-
-        /* --- SEARCH --- */
-        .search-container { position: relative; margin-bottom: 2rem; grid-column: 1 / -1; }
-        .search-bar {
-            width: 100%; padding: 1.25rem 1.5rem 1.25rem 3.5rem;
             background: var(--card-bg); border: 1px solid var(--border-color);
-            border-radius: 8px; color: #fff; font-size: 1rem; outline: none;
+            color: var(--text-color); padding: 1rem 1.1rem; font-family: var(--font-sans);
+            border-radius: 8px; cursor: pointer; transition: 0.2s; font-size: 0.85rem;
+            display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+            width: 148px;
         }
-        .search-icon { position: absolute; left: 1.25rem; top: 50%; transform: translateY(-50%); color: var(--meta-color); }
+        .diag-btn .diag-icon { font-size: 1.6rem; line-height: 1; }
+        .diag-btn:hover { border-color: var(--accent-color); background: var(--accent-dim); transform: translateY(-3px); color: #fff; }
 
-        /* --- ARTICLE GRID --- */
-        .category-title { 
-            color: var(--accent-color); font-size: 1.1rem; margin: 3rem 0 1.5rem 0; 
-            text-transform: uppercase; font-weight: 700; border-left: 4px solid var(--accent-color); padding-left: 15px;
+        .diag-nav { margin-top: 2.25rem; display: flex; justify-content: center; gap: 1.5rem; }
+        .diag-back, .diag-reset {
+            background: transparent; border: none; color: var(--meta-color);
+            cursor: pointer; font-size: 0.68rem; font-family: var(--font-mono);
+            letter-spacing: 0.5px; display: flex; align-items: center; gap: 5px; transition: 0.15s;
         }
-        .grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
+        .diag-back:hover, .diag-reset:hover { color: var(--accent-color); }
+
+        /* Result card */
+        .diag-result-card {
+            max-width: 480px; margin: 0 auto; text-align: left;
+            background: var(--card-bg); border: 1px solid var(--border-color);
+            border-left: 3px solid var(--accent-color); border-radius: 8px; padding: 1.75rem;
+        }
+        .diag-result-meta { display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 0.65rem; margin-bottom: 1rem; color: var(--meta-color); }
+        .diag-result-card h4 { color: #fff; font-size: 1.25rem; margin-bottom: 0.6rem; font-family: var(--font-display); }
+        .diag-result-card p { color: #9aa7b3; font-size: 0.9rem; line-height: 1.6; margin-bottom: 1.5rem; }
+        .diag-result-link {
+            display: inline-flex; align-items: center; gap: 8px; background: var(--accent-color);
+            color: #051019; text-decoration: none; font-weight: 700; font-family: var(--font-mono);
+            font-size: 0.8rem; padding: 0.75rem 1.25rem; border-radius: 6px; transition: 0.2s;
+        }
+        .diag-result-link:hover { filter: brightness(1.1); transform: translateY(-2px); }
+
+        /* ---------- SEARCH ---------- */
+        .search-container { position: relative; margin-top: 2.5rem; grid-column: 1 / -1; }
+        .search-bar {
+            width: 100%; padding: 1.1rem 1.25rem 1.1rem 3.25rem;
+            background: var(--card-bg); border: 1px solid var(--border-color);
+            border-radius: 8px; color: #fff; font-size: 0.95rem; outline: none;
+            font-family: var(--font-sans); transition: 0.2s;
+        }
+        .search-bar:focus { border-color: var(--accent-color); background: var(--card-bg-hover); }
+        .search-bar::placeholder { color: var(--meta-color); }
+        .search-icon {
+            position: absolute; left: 1.15rem; top: 50%; transform: translateY(-50%);
+            color: var(--meta-color); pointer-events: none;
+        }
+
+        /* ---------- ARTICLE GRID ---------- */
+        .category-title {
+            color: var(--accent-color); font-size: 1.35rem; margin: 3rem 0 1.5rem 0;
+            text-transform: none; font-weight: 700; font-family: var(--font-display);
+            border-left: 4px solid var(--accent-color); padding-left: 15px;
+            letter-spacing: -0.3px;
+        }
+        .category-title .cat-index {
+            font-family: var(--font-mono); font-size: 0.7rem; color: var(--meta-color);
+            font-weight: 500; letter-spacing: 1px; display: block; margin-bottom: 3px;
+        }
+        main#main-feed > .category-section:first-child .category-title { margin-top: 2.5rem; }
+
+        .grid { display: grid; grid-template-columns: 1fr; gap: 1.25rem; }
         @media (min-width: 992px) { .grid { grid-template-columns: repeat(2, 1fr); } }
 
-        .card-wrapper { text-decoration: none; color: inherit; }
+        .card-wrapper { text-decoration: none; color: inherit; display: block; }
         .card {
             background: var(--card-bg); border: 1px solid var(--border-color);
-            border-radius: 8px; padding: 1.75rem; height: 100%; display: flex;
-            flex-direction: column; transition: 0.3s;
+            border-left: 3px solid var(--border-color);
+            border-radius: 8px; padding: 1.6rem; height: 100%; display: flex;
+            flex-direction: column; transition: 0.2s ease;
         }
-        .card:hover { transform: translateY(-5px); border-color: var(--accent-color); }
-        .card-meta { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 0.65rem; margin-bottom: 1rem; color: var(--meta-color); }
-        .card h3 { color: #fff; font-size: 1.3rem; margin-bottom: 0.75rem; font-weight: 700; line-height: 1.4; }
-        .card p { color: #adbac7; font-size: 0.95rem; line-height: 1.6; }
-        
-        .badge { font-family: var(--font-mono); font-size: 0.65rem; padding: 2px 8px; border-radius: 4px; font-weight: bold; border: 1px solid transparent; }
-        .badge.easy { color: var(--badge-easy); border-color: rgba(63, 185, 80, 0.3); }
-        .badge.medium { color: var(--badge-medium); border-color: rgba(227, 179, 65, 0.3); }
-        .badge.hard { color: var(--badge-hard); border-color: rgba(248, 81, 73, 0.3); }
+        .card-wrapper:hover .card {
+            transform: translateY(-3px);
+            border-color: var(--accent-color);
+            border-left-color: var(--accent-color);
+            background: var(--card-bg-hover);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+        }
+        .card-meta {
+            display: flex; justify-content: space-between; align-items: center;
+            font-family: var(--font-mono); font-size: 0.65rem; margin-bottom: 1rem; color: var(--meta-color);
+        }
+        .card h3 { color: #fff; font-size: 1.2rem; margin-bottom: 0.65rem; font-weight: 700; line-height: 1.35; }
+        .card p { color: #9aa7b3; font-size: 0.9rem; line-height: 1.6; }
 
-        footer { grid-column: 1 / -1; text-align: center; padding: 5rem 0; color: #444; font-family: var(--font-mono); font-size: 0.7rem; }
+        .badge { font-family: var(--font-mono); font-size: 0.62rem; padding: 3px 9px; border-radius: 4px; font-weight: bold; border: 1px solid transparent; letter-spacing: 0.5px; }
+        .badge.easy { color: var(--badge-easy); border-color: rgba(63, 185, 80, 0.3); background: rgba(63, 185, 80, 0.06); }
+        .badge.medium { color: var(--badge-medium); border-color: rgba(227, 179, 65, 0.3); background: rgba(227, 179, 65, 0.06); }
+        .badge.hard { color: var(--badge-hard); border-color: rgba(248, 81, 73, 0.3); background: rgba(248, 81, 73, 0.06); }
+
+        /* ---------- SIDEBAR ---------- */
+        aside.sidebar { display: flex; flex-direction: column; gap: 1.25rem; }
+        .sidebar-widget {
+            background: var(--card-bg); border: 1px solid var(--border-color);
+            border-radius: 8px; padding: 1.5rem;
+        }
+        .sidebar-widget h3 {
+            font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent-color);
+            text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1rem;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .stat-row {
+            display: flex; justify-content: space-between; align-items: baseline;
+            font-family: var(--font-mono); font-size: 0.75rem; color: var(--meta-color);
+            padding: 0.6rem 0; border-bottom: 1px solid var(--border-soft);
+        }
+        .stat-row:last-child { border-bottom: none; padding-bottom: 0; }
+        .stat-row b { color: #fff; font-size: 1rem; }
+        .sidebar-pulse {
+            font-family: var(--font-mono); font-size: 0.7rem; color: var(--neon-green);
+            display: flex; align-items: center; gap: 8px;
+        }
+        .sidebar-pulse::before {
+            content: ""; width: 6px; height: 6px; border-radius: 50%;
+            background: var(--neon-green); box-shadow: 0 0 8px var(--neon-green);
+        }
+        .sidebar-widget .track-list { list-style: none; font-family: var(--font-mono); font-size: 0.72rem; }
+        .sidebar-widget .track-list li { padding: 0.5rem 0; border-bottom: 1px solid var(--border-soft); color: var(--meta-color); }
+        .sidebar-widget .track-list li:last-child { border-bottom: none; }
+        .sidebar-widget .track-list a { color: var(--text-color); text-decoration: none; }
+        .sidebar-widget .track-list a:hover { color: var(--accent-color); }
+
+        footer { grid-column: 1 / -1; text-align: center; padding: 5rem 0 3rem; color: #444; font-family: var(--font-mono); font-size: 0.7rem; }
     </style>
 </head>
 <body>
 
     <div class="container">
         <header class="main-header">
+            <div class="boot-line">SYSTEMS_FORENSICS_LAB // BOOT_OK<span class="boot-cursor"></span></div>
             <h1>BIT<span>AND</span>BOOT</h1>
-            <p>Systems Forensics & Firmware Architecture Lab</p>
-            <a href="glossary.html" class="glossary-cta">// BROWSE_SYSTEMS_ENCYCLOPEDIA</a>
+            <p class="subhead">Firmware, hardware, and low-level device forensics — from everyday phone quirks to RPMB key handshakes.</p>
+            <div class="hero-actions">
+                <a href="glossary.html" class="glossary-cta">📖 BROWSE_SYSTEMS_ENCYCLOPEDIA</a>
+                <span class="hero-stat"><b id="heroArticleCount">21</b>&nbsp;articles indexed</span>
+                <span class="hero-stat"><b id="heroCategoryCount">7</b>&nbsp;categories</span>
+            </div>
         </header>
 
         <div id="diagnostic-mainframe">
-            <div class="diag-header"><span>[ STATUS: SCANNER_READY ]</span></div>
+            <div class="diag-header">
+                <span>[ STATUS: SCANNER_READY ]</span>
+                <div class="dots"><span></span><span></span><span></span></div>
+            </div>
+            <div id="diag-trail" class="diag-trail"></div>
             <div class="diag-body">
-                <p id="diag-question" class="diag-question">Troubleshooting hardware? Select category:</p>
-                <div id="diag-options"></div>
-                <div style="margin-top: 2rem;"><button onclick="resetDiagnostic()" style="background:transparent; border:none; color:var(--meta-color); cursor:pointer; font-size:0.6rem; font-family:var(--font-mono); text-decoration:underline;">RESTART_DIAGNOSTIC</button></div>
+                <div id="diag-step" class="diag-step"></div>
+                <div class="diag-nav">
+                    <button id="diag-back-btn" onclick="diagBack()" class="diag-back">← BACK</button>
+                    <button onclick="resetDiagnostic()" class="diag-reset">↺ RESTART_DIAGNOSTIC</button>
+                </div>
             </div>
         </div>
 
         <div class="search-container">
+            <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
             <input type="text" id="searchInput" class="search-bar" placeholder="Analyze system logs (Qualcomm, Kernel, FRP)..." onkeyup="executeSearch()">
         </div>
 
         <main id="main-feed">
             <div class="category-section">
-                <h3 class="category-title">01_Machine_Intelligence</h3>
+                <h3 class="category-title"><span class="cat-index">01</span>Machine Intelligence</h3>
                 <div class="grid">
                     <a href="ai-tokenization-counting-mystery.html" class="card-wrapper" data-tags="ai tokens">
                         <div class="card">
@@ -158,7 +341,7 @@
             </div>
 
             <div class="category-section">
-                <h3 class="category-title">02_Network_&_Storage_Optimization</h3>
+                <h3 class="category-title"><span class="cat-index">02</span>Network & Storage Optimization</h3>
                 <div class="grid">
                     <a href="phantom-space-storage-guide.html" class="card-wrapper" data-tags="storage troubleshooting">
                         <div class="card">
@@ -234,7 +417,7 @@
             </div>
 
             <div class="category-section">
-                <h3 class="category-title">03_Firmware_Servicing</h3>
+                <h3 class="category-title"><span class="cat-index">03</span>Firmware Servicing</h3>
                 <div class="grid">
                     <a href="samsung-touch-issue-guide.html" class="card-wrapper" data-tags="samsung firmware">
                         <div class="card">
@@ -254,7 +437,7 @@
             </div>
 
             <div class="category-section">
-                <h3 class="category-title">04_Chip_Level_Forensics</h3>
+                <h3 class="category-title"><span class="cat-index">04</span>Chip-Level Forensics</h3>
                 <div class="grid">
                     <a href="dimensity-frp-hardware-guide.html" class="card-wrapper" data-tags="mediatek chip_level">
                         <div class="card">
@@ -267,7 +450,7 @@
             </div>
 
             <div class="category-section">
-                <h3 class="category-title">05_System_Architecture</h3>
+                <h3 class="category-title"><span class="cat-index">05</span>System Architecture</h3>
                 <div class="grid">
                     <a href="optimistic-ui-psychology-guide.html" class="card-wrapper" data-tags="ui architecture">
                         <div class="card">
@@ -287,7 +470,7 @@
             </div>
 
             <div class="category-section">
-                <h3 class="category-title">06_Toolchain_Mechanics</h3>
+                <h3 class="category-title"><span class="cat-index">06</span>Toolchain Mechanics</h3>
                 <div class="grid">
                     <a href="windows-dse-gsm-tools.html" class="card-wrapper" data-tags="windows driver">
                         <div class="card">
@@ -307,7 +490,7 @@
             </div>
 
             <div class="category-section">
-                <h3 class="category-title">07_Low_Level_Forensics</h3>
+                <h3 class="category-title"><span class="cat-index">07</span>Low-Level Forensics</h3>
                 <div class="grid">
                     <a href="linux-dirty-kernel.html" class="card-wrapper" data-tags="kernel security">
                         <div class="card">
@@ -336,8 +519,26 @@
 
         <aside class="sidebar">
             <div class="sidebar-widget">
-                <h3>📢 LAB_STATUS</h3>
-                <p style="font-size: 0.8rem; color: #8b949e; font-family: var(--font-mono);">MONITORING_REAL_WORLD_PANICS // ACTIVE</p>
+                <h3>📡 Lab Status</h3>
+                <div class="sidebar-pulse">MONITORING_REAL_WORLD_PANICS</div>
+                <div class="stat-row"><span>Articles live</span><b id="statArticles">--</b></div>
+                <div class="stat-row"><span>Categories</span><b id="statCategories">--</b></div>
+                <div class="stat-row"><span>Advanced-tier logs</span><b id="statAdvanced">--</b></div>
+            </div>
+
+            <div class="sidebar-widget">
+                <h3>🧭 Start Here</h3>
+                <ul class="track-list">
+                    <li><a href="phantom-space-storage-guide.html">Storage Full? Start with Phantom Space</a></li>
+                    <li><a href="edl-mode-guide.html">Bricked device? Read EDL Mode first</a></li>
+                    <li><a href="demystifying-rpmb-partition.html">Deep dive: RPMB hardware binding</a></li>
+                </ul>
+            </div>
+
+            <div class="sidebar-widget">
+                <h3>📖 Reference</h3>
+                <p style="font-size:0.8rem; color:var(--meta-color); margin-bottom:0.75rem;">Unfamiliar term? Every glossary entry is searchable and cross-linked from articles.</p>
+                <a href="glossary.html" class="glossary-cta" style="width:100%; justify-content:center;">OPEN_GLOSSARY</a>
             </div>
         </aside>
     </div>
@@ -357,251 +558,173 @@
             });
         }
 
-        const diagData = {
-            start: { text: "Select hardware category:", options: [
-                { text: "Mobile Devices", next: "mobile" }, { text: "PC / WSL / Tools", next: "pc" }, { text: "Network / Wi-Fi", next: "network" }, { text: "AI / Logic", next: "ai" }
-            ]},
-            mobile: { text: "Symptom?", options: [
-                { text: "Security Locks", next: "mob_sec" }, { text: "Battery Drain", next: "mob_pwr" }, { text: "Bricked / Dead", next: "mob_firm" }
-            ]},
-            mob_sec: { text: "Result:", options: [{ text: "View RPMB Guide →", link: "demystifying-rpmb-partition.html" }] },
-            mob_pwr: { text: "Result:", options: [{ text: "Battery Refresh Guide →", link: "background-refresh-battery.html" }] },
-            mob_firm: { text: "Result:", options: [{ text: "EDL Recovery Guide →", link: "edl-mode-guide.html" }] },
-            pc: { text: "Result:", options: [{ text: "Fix WSL2 libusb →", link: "wsl2-libusb-udev-rules.html" }] },
-            network: { text: "Result:", options: [{ text: "Ghost Router Fix →", link: "wifi-ghost-router-guide.html" }] },
-            ai: { text: "Result:", options: [{ text: "Token Mystery Guide →", link: "ai-tokenization-counting-mystery.html" }] }
+        // Sidebar stats derived live from the actual article grid, so it never drifts from reality.
+        (function computeStats() {
+            const cards = document.querySelectorAll('.card-wrapper');
+            const categories = document.querySelectorAll('.category-section');
+            const advanced = document.querySelectorAll('.badge.hard');
+            document.getElementById('statArticles').innerText = cards.length;
+            document.getElementById('statCategories').innerText = categories.length;
+            document.getElementById('statAdvanced').innerText = advanced.length;
+            document.getElementById('heroArticleCount').innerText = cards.length;
+            document.getElementById('heroCategoryCount').innerText = categories.length;
+        })();
+
+        const articleData = {
+            'phantom-space-storage-guide.html': { id:'SYS_LOG_01', badge:'easy', badgeLabel:'BEGINNER', title:"The Phantom Space: Why Your Device Says 'Storage Full'", desc:"Demystifying ghost data and hidden app caches that trap system memory." },
+            'wifi-ghost-router-guide.html': { id:'NET_LOG_01', badge:'hard', badgeLabel:'ADVANCED', title:"The Ghost Router Phenomenon: Zombie SSID Broadcasts", desc:"Analyzing non-responsive network beacons and phantom wireless infrastructure." },
+            'incognito-mode-myths.html': { id:'PRI_LOG_01', badge:'easy', badgeLabel:'BEGINNER', title:"Deconstructing Incognito Mode: The Reality of Isolation", desc:"Trace how DNS queries render private tabs visible to network gateways." },
+            'background-refresh-battery.html': { id:'PWR_LOG_01', badge:'medium', badgeLabel:'INTERMEDIATE', title:"Background App Refresh vs. Battery Lifespan", desc:"Isolating asynchronous processes to reclaim device standby efficiency." },
+            'fast-charging-battery-truth.html': { id:'HW_LOG_02', badge:'hard', badgeLabel:'ADVANCED', title:"The Physics of Fast Charging: Lithium Mechanics", desc:"Impacts of high-wattage power delivery on anode-cathode integrity." },
+            'phone-screen-fragility.html': { id:'MAT_LOG_01', badge:'medium', badgeLabel:'INTERMEDIATE', title:"Why Screens Still Shatter: Scratch vs. Impact", desc:"Investigating the molecular limits of chemically strengthened glass structures." },
+            'device-battery-lifespan-guide.html': { id:'PWR_LOG_02', badge:'easy', badgeLabel:'BEGINNER', title:"Maximizing Device Battery Lifespan: Science of Degradation", desc:"Charge cycles and voltage thresholds that dictate cell longevity." },
+            'native-laptop-maintenance-guide.html': { id:'HW_LOG_03', badge:'easy', badgeLabel:'BEGINNER', title:"Native Laptop Maintenance: Cooling and Efficiency", desc:"Breakdown of thermal paste degradation and dust clearing strategies." },
+            'dns-speed-privacy-guide.html': { id:'NET_LOG_02', badge:'easy', badgeLabel:'BEGINNER', title:"DNS Configuration: Optimizing for Speed and Privacy", desc:"How Domain Name System lookups impact latency and privacy." },
+            'wifi-channels-optimization-guide.html': { id:'NET_LOG_03', badge:'medium', badgeLabel:'INTERMEDIATE', title:"Wi-Fi Channels: Shifting Frequencies to Eliminate Congestion", desc:"Isolating signal attenuation and overlapping channel interference." },
+            'samsung-touch-issue-guide.html': { id:'GSM_LOG_01', badge:'medium', badgeLabel:'INTERMEDIATE', title:"Samsung Touch Dead: Firmware Downgrade Methods", desc:"Deconstructing Touch IC mismatches and executing Odin rollbacks." },
+            'edl-mode-guide.html': { id:'GSM_LOG_02', badge:'easy', badgeLabel:'BEGINNER', title:"Demystifying EDL Mode: Recovering Hard-Bricked Devices", desc:"How Qualcomm Boot ROM handles Emergency Download states." },
+            'dimensity-frp-hardware-guide.html': { id:'HW_LOG_04', badge:'hard', badgeLabel:'ADVANCED', title:"MediaTek Dimensity FRP: Why Hardware Drilling is Required", desc:"Why eFuses force direct UFS chip-level micro-drilling." },
+            'optimistic-ui-psychology-guide.html': { id:'UI_LOG_01', badge:'medium', badgeLabel:'INTERMEDIATE', title:"Psychology of Optimistic UI: Instant Perception", desc:"Frontend paradigms where interfaces anticipate successful mutations." },
+            'proximity-tracking-ads-guide.html': { id:'PRI_LOG_02', badge:'hard', badgeLabel:'ADVANCED', title:"Proximity Tracking & Hyper-Targeted Ads", desc:"Architecture behind Bluetooth beacons and geofencing adtech." },
+            'windows-dse-gsm-tools.html': { id:'TOOL_LOG_01', badge:'easy', badgeLabel:'BEGINNER', title:"Why Windows DSE Breaks GSM Tools: Registry Patches", desc:"How unsigned drivers and BCDEDIT overrides interact." },
+            'wsl2-libusb-udev-rules.html': { id:'TOOL_LOG_02', badge:'easy', badgeLabel:'BEGINNER', title:"WSL2 libusb & Fastboot: Fixing udev Rules", desc:"Why the udev daemon locks flashing channels in virtualized Linux." },
+            'linux-dirty-kernel.html': { id:'SEC_LOG_01', badge:'hard', badgeLabel:'ADVANCED', title:"Dirty COW & Dirty Pipe: Kernel Privilege Escalation", desc:"Copy-on-Write race conditions in mobile Linux kernels." },
+            'demystifying-rpmb-partition.html': { id:'SEC_LOG_02', badge:'hard', badgeLabel:'ADVANCED', title:"Demystifying the RPMB: Hardware Binding Secrets", desc:"How HMAC-SHA-256 keys lock storage to specific silicon." },
+            'nvram-nvdata-cellular-repair.html': { id:'SEC_LOG_03', badge:'medium', badgeLabel:'INTERMEDIATE', title:"Recovering Baseband: Managing /nvram and /nvdata", desc:"Mapping non-volatile storage responsible for cellular calibration." },
+            'ai-tokenization-counting-mystery.html': { id:'AI_LOG_01', badge:'medium', badgeLabel:'INTERMEDIATE', title:"Why AI Sometimes Can't Count Letters in a Word", desc:"Deconstructing Byte Pair Encoding (BPE) and character-level blindspots in LLMs." }
         };
 
-        let currentStep = 'start';
-        function renderDiag() {
-            const step = diagData[currentStep];
-            document.getElementById('diag-question').innerText = `> ${step.text}`;
-            const container = document.getElementById('diag-options');
-            container.innerHTML = '';
-            step.options.forEach(opt => {
+        const diagTree = {
+            start: { icon:'🔍', label:'Start', question:"What's acting up?", options:[
+                { icon:'📱', label:'Mobile Device', next:'mobile' },
+                { icon:'💻', label:'PC / Laptop', next:'pc' },
+                { icon:'📶', label:'Network / Wi-Fi', next:'network' },
+                { icon:'🕵️', label:'Privacy / Tracking', next:'privacy' },
+                { icon:'🤖', label:'AI / Software', next:'software' }
+            ]},
+            mobile: { question:"What's the symptom?", options:[
+                { icon:'🔋', label:'Battery issues', next:'mobile_battery' },
+                { icon:'📦', label:'Storage says full', link:'phantom-space-storage-guide.html' },
+                { icon:'🔨', label:'Screen cracked', link:'phone-screen-fragility.html' },
+                { icon:'👆', label:'Touch dead (Samsung)', link:'samsung-touch-issue-guide.html' },
+                { icon:'💀', label:'Bricked / won\'t boot', next:'mobile_bricked' },
+                { icon:'🔐', label:'Security / RPMB lock', link:'demystifying-rpmb-partition.html' },
+                { icon:'📵', label:'No signal after repair', link:'nvram-nvdata-cellular-repair.html' },
+                { icon:'⚠️', label:'Compromised / rooted', link:'linux-dirty-kernel.html' }
+            ]},
+            mobile_battery: { question:"More specifically?", options:[
+                { icon:'🌀', label:'Background apps draining it', link:'background-refresh-battery.html' },
+                { icon:'⚡', label:'Fast charging concerns', link:'fast-charging-battery-truth.html' },
+                { icon:'📉', label:'General degradation', link:'device-battery-lifespan-guide.html' }
+            ]},
+            mobile_bricked: { question:"Which chipset?", options:[
+                { icon:'Ⓠ', label:'Qualcomm (EDL)', link:'edl-mode-guide.html' },
+                { icon:'Ⓜ️', label:'MediaTek (FRP)', link:'dimensity-frp-hardware-guide.html' }
+            ]},
+            pc: { question:"What's the issue?", options:[
+                { icon:'🌡️', label:'Laptop overheating', link:'native-laptop-maintenance-guide.html' },
+                { icon:'🛠️', label:'GSM tool blocked on Windows', link:'windows-dse-gsm-tools.html' },
+                { icon:'🐧', label:'Fastboot not detected in WSL2', link:'wsl2-libusb-udev-rules.html' }
+            ]},
+            network: { question:"What's happening?", options:[
+                { icon:'👻', label:'Router visible but won\'t connect', link:'wifi-ghost-router-guide.html' },
+                { icon:'📡', label:'Wi-Fi slow / congested', link:'wifi-channels-optimization-guide.html' },
+                { icon:'🐢', label:'Browsing feels slow', link:'dns-speed-privacy-guide.html' }
+            ]},
+            privacy: { question:"What's the concern?", options:[
+                { icon:'🙈', label:'Incognito feels fake', link:'incognito-mode-myths.html' },
+                { icon:'🎯', label:'Ads following you everywhere', link:'proximity-tracking-ads-guide.html' }
+            ]},
+            software: { question:"What are you noticing?", options:[
+                { icon:'🔤', label:'AI can\'t count letters right', link:'ai-tokenization-counting-mystery.html' },
+                { icon:'⏳', label:'App feels instant, unsure if it worked', link:'optimistic-ui-psychology-guide.html' }
+            ]}
+        };
+
+        // nodeStack tracks node keys visited; crumbStack tracks {icon,label} shown in breadcrumb (mirrors nodeStack minus the synthetic result entries, plus one extra for a chosen result)
+        let nodeStack = ['start'];
+        let crumbStack = [{ icon:'🔍', label:'Start' }];
+        let resultStack = [null]; // parallel: link key if this stack position is a result screen, else null
+
+        function renderTrail() {
+            const trail = document.getElementById('diag-trail');
+            trail.innerHTML = '';
+            crumbStack.forEach((crumb, i) => {
+                if (i > 0) {
+                    const sep = document.createElement('span');
+                    sep.className = 'diag-sep'; sep.innerText = '›';
+                    trail.appendChild(sep);
+                }
                 const btn = document.createElement('button');
-                btn.innerText = opt.text; btn.className = 'diag-btn';
-                btn.onclick = () => { if (opt.link) window.location.href = opt.link; else { currentStep = opt.next; renderDiag(); } };
+                const isCurrent = i === crumbStack.length - 1;
+                btn.className = 'diag-crumb' + (isCurrent ? ' current' : '');
+                btn.innerHTML = `<span>${crumb.icon}</span><span>${crumb.label}</span>`;
+                if (!isCurrent) {
+                    btn.onclick = () => jumpTo(i);
+                }
+                trail.appendChild(btn);
+            });
+        }
+
+        function jumpTo(index) {
+            nodeStack = nodeStack.slice(0, index + 1);
+            crumbStack = crumbStack.slice(0, index + 1);
+            resultStack = resultStack.slice(0, index + 1);
+            render();
+        }
+
+        function diagBack() {
+            if (nodeStack.length > 1) jumpTo(nodeStack.length - 2);
+        }
+
+        function render() {
+            renderTrail();
+            const stepEl = document.getElementById('diag-step');
+            stepEl.classList.remove('diag-step');
+            void stepEl.offsetWidth; // restart animation
+            stepEl.classList.add('diag-step');
+
+            const currentResult = resultStack[resultStack.length - 1];
+            document.getElementById('diag-back-btn').style.visibility = nodeStack.length > 1 ? 'visible' : 'hidden';
+
+            if (currentResult) {
+                const a = articleData[currentResult];
+                stepEl.innerHTML = `
+                    <p class="diag-question">&gt; Best match found:</p>
+                    <div class="diag-result-card">
+                        <div class="diag-result-meta"><span>[ ID: ${a.id} ]</span><span class="badge ${a.badge}">${a.badgeLabel}</span></div>
+                        <h4>${a.title}</h4>
+                        <p>${a.desc}</p>
+                        <a href="${currentResult}" class="diag-result-link">READ_FULL_ARTICLE →</a>
+                    </div>`;
+                return;
+            }
+
+            const node = diagTree[nodeStack[nodeStack.length - 1]];
+            stepEl.innerHTML = `<p class="diag-question">&gt; ${node.question}</p><div id="diag-options" class="diag-options"></div>`;
+            const container = document.getElementById('diag-options');
+            node.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'diag-btn';
+                btn.innerHTML = `<span class="diag-icon">${opt.icon}</span><span>${opt.label}</span>`;
+                btn.onclick = () => {
+                    nodeStack.push(opt.link ? ('RESULT:' + opt.link) : opt.next);
+                    crumbStack.push({ icon: opt.icon, label: opt.label });
+                    resultStack.push(opt.link || null);
+                    render();
+                };
                 container.appendChild(btn);
             });
         }
-        function resetDiagnostic() { currentStep = 'start'; renderDiag(); }
-        renderDiag();
-    </script>
-</body>
-</html>
-```
 
-### 2. Updated Master Article (`demystifying-rpmb-partition.html`)
-Switched to **Inter** for comfortable reading while keeping the simulation "techy."
-
-```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RPMB Forensics | bitandboot Systems Lab</title>
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    
-    <style>
-        :root {
-            --bg-color: #05070a;
-            --text-color: #c9d1d9;
-            --accent-color: #58a6ff;
-            --neon-green: #3fb950;
-            --neon-red: #f85149;
-            --card-bg: #0d1117;
-            --border-color: #30363d;
-            --terminal-bg: #010409;
-            --meta-color: #8b949e;
-            --font-sans: 'Inter', sans-serif;
-            --font-mono: 'JetBrains Mono', monospace;
+        function resetDiagnostic() {
+            nodeStack = ['start'];
+            crumbStack = [{ icon:'🔍', label:'Start' }];
+            resultStack = [null];
+            render();
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            background-color: var(--bg-color);
-            background-image: radial-gradient(#161b22 0.5px, transparent 0.5px);
-            background-size: 30px 30px;
-            color: var(--text-color);
-            font-family: var(--font-sans);
-            line-height: 1.6;
-            padding: 0 1.5rem;
-        }
-        .container { max-width: 1100px; margin: 0 auto; }
-
-        header { padding: 4rem 0 2rem 0; border-bottom: 1px solid var(--border-color); margin-bottom: 3rem; }
-        .nav-back { font-family: var(--font-mono); color: var(--accent-color); text-decoration: none; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; display: block; margin-bottom: 1rem; }
-        h1 { font-weight: 800; font-size: 3rem; color: #fff; line-height: 1.1; letter-spacing: -2px; margin-bottom: 1.5rem; }
-        .meta { font-family: var(--font-mono); font-size: 0.75rem; color: var(--meta-color); display: flex; gap: 1.5rem; text-transform: uppercase; }
-
-        /* --- BUBBLE --- */
-        .glossary-link { color: #fff; border-bottom: 1px dashed var(--accent-color); cursor: help; font-weight: 700; text-decoration: none; }
-        #glossary-bubble {
-            position: absolute; z-index: 1000; width: 280px; background: #161b22; border: 1px solid var(--accent-color);
-            border-radius: 8px; padding: 1rem; font-size: 0.85rem; display: none; pointer-events: none;
-        }
-        #glossary-bubble b { font-family: var(--font-mono); color: var(--accent-color); display: block; margin-bottom: 5px; }
-
-        /* --- WORKBENCH --- */
-        #workbench-mainframe { background: var(--terminal-bg); border: 2px solid var(--border-color); border-radius: 12px; margin-bottom: 4rem; position: relative; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
-        .lab-header { background: #161b22; padding: 0.75rem 1.5rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
-        .lab-title { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent-color); }
-        .lab-content { display: grid; grid-template-columns: 300px 1fr; height: 350px; }
-        .console-log { background: #000; border-right: 1px solid var(--border-color); padding: 1rem; font-family: var(--font-mono); font-size: 0.7rem; color: var(--neon-green); overflow-y: auto; }
-        .console-line { margin-bottom: 4px; opacity: 0.8; }
-        .console-line::before { content: "> "; color: var(--accent-color); }
-        .visualizer { position: relative; display: flex; justify-content: space-around; align-items: center; padding: 2rem; background: radial-gradient(circle at center, #0d1117 0%, #010409 100%); }
-        .hardware-node { width: 130px; height: 130px; border: 2px solid var(--border-color); background: #0d1117; border-radius: 8px; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 5; }
-        .hardware-node.active { border-color: var(--accent-color); box-shadow: 0 0 20px rgba(88, 166, 255, 0.3); }
-        .node-label { font-family: var(--font-mono); font-size: 0.6rem; color: var(--meta-color); margin-bottom: 5px; }
-        .node-status { font-family: var(--font-mono); font-size: 0.8rem; font-weight: bold; }
-
-        /* --- CONTENT --- */
-        .article-layout { display: flex; gap: 2.5rem; align-items: flex-start; flex-wrap: wrap; }
-        main { flex: 2.5; min-width: 320px; font-size: 1.1rem; line-height: 1.8; color: #adbac7; }
-        h2 { color: #fff; font-size: 1.8rem; margin: 3rem 0 1.25rem 0; font-family: var(--font-mono); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
-        .alert-box { background-color: rgba(248, 81, 73, 0.1); border-left: 4px solid var(--neon-red); padding: 1.25rem; border-radius: 4px; margin: 2rem 0; }
-        aside { flex: 1; min-width: 280px; position: sticky; top: 20px; }
-        #votePanel { background-color: var(--card-bg); border: 1px solid var(--border-color); border-top: 4px solid var(--accent-color); padding: 2rem; border-radius: 8px; text-align: center; }
-        .btn-action { background: var(--accent-color); color: #fff; border: none; padding: 0.8rem 1.5rem; font-family: var(--font-mono); font-weight: bold; border-radius: 4px; cursor: pointer; width: 100%; }
-
-        footer { text-align: center; padding: 5rem 0 2rem 0; color: #444; font-family: var(--font-mono); font-size: 0.8rem; }
-    </style>
-</head>
-<body>
-
-    <div id="glossary-bubble"><b id="bubble-title">TERM</b><p id="bubble-def">Loading...</p></div>
-
-    <div class="container">
-        <header>
-            <a href="index.html" class="nav-back">// RETURN_TO_LOBBY</a>
-            <h1>Demystifying the RPMB: How Hardware Binds Flash Storage to CPUs</h1>
-            <div class="meta">
-                <span>[ DATE: JULY_2026 ]</span> | 
-                <span style="color: var(--accent-color);">[ VIEWS: <span id="topViewCount">--</span> ]</span>
-            </div>
-        </header>
-
-        <div id="workbench-mainframe">
-            <div class="lab-header">
-                <span class="lab-title">SYSTEMS_FORENSICS_LAB v2.04</span>
-                <div style="width:8px; height:8px; border-radius:50%; background:var(--neon-green);"></div>
-            </div>
-            <div class="lab-content">
-                <div class="console-log" id="console"><div class="console-line">Waiting for instruction...</div></div>
-                <div class="visualizer">
-                    <div id="packet" style="position:absolute; width:12px; height:12px; background:var(--accent-color); border-radius:50%; display:none; z-index:20;"></div>
-                    <div class="hardware-node" id="node-cpu"><div class="node-label">SECURE_WORLD (TEE)</div><div class="node-status" id="cpu-stat">IDLE</div></div>
-                    <div style="font-family:var(--font-mono); color:var(--border-color);">[ BUS_01 ]</div>
-                    <div class="hardware-node" id="node-ufs"><div class="node-label">UFS_STORAGE</div><div class="node-status" id="ufs-stat">STANDBY</div></div>
-                </div>
-            </div>
-            <div class="lab-footer">
-                <button class="btn-action" id="nextBtn" onclick="nextSimStep()" style="width:auto;">INITIALIZE_HANDSHAKE</button>
-            </div>
-        </div>
-
-        <div class="article-layout">
-            <main id="article-body">
-                <p>If you take a fully functional flash memory storage chip from a broken motherboard and solder it onto an identical, working donor, the device will fail to boot.</p>
-
-                <h2>01_The_Logic_Gate</h2>
-                <p>The RPMB is not a software block; it is a permanent hardware-level cryptographic bond established at the moment of assembly.</p>
-                <p>Modern CPUs and Storage units use a handshake that relies on a unique 32-byte HMAC key, burned into hardware fuses like eFuses that can never be reset.</p>
-                <p>The TEE (Trusted Execution Environment) handles the verification between the CPU and the UFS storage during every boot sequence.</p>
-            </main>
-
-            <aside>
-                <div id="votePanel">
-                    <h3 style="font-family: var(--font-mono); color:#fff; margin-bottom: 1rem; font-size: 1rem;">⚡ BENCH_VERIFICATION</h3>
-                    <button onclick="incrementTelemetry('yes')" class="btn-action" style="background: rgba(63, 185, 80, 0.1); color:var(--neon-green); border: 1px solid var(--neon-green); margin-bottom: 0.75rem;">YES, WORKED! (<span id="countWorked">--</span>)</button>
-                    <button onclick="incrementTelemetry('no')" class="btn-action" style="background: rgba(248, 81, 73, 0.1); color:var(--neon-red); border: 1px solid var(--neon-red);">NO, BRICKED (<span id="countBricked">--</span>)</button>
-                </div>
-            </aside>
-        </div>
-
-        <footer>&copy; 2026 bitandboot // SYSTEMS_LAB</footer>
-    </div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-        const firebaseConfig = { apiKey: "AIzaSyAZ5kORicxNAp4iCWlGn1C3XkP0vPJ5vQw", authDomain: "bitandboot.firebaseapp.com", projectId: "bitandboot", storageBucket: "bitandboot.firebasestorage.app", messagingSenderId: "687841897835", appId: "1:687841897835:web:16e8a1b9f31e23f069b02e" };
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const pageId = (window.location.pathname.split("/").pop() || "index").replace(".html", "");
-        const articleRef = doc(db, "articles", pageId);
-
-        /* SYNC BUBBLES */
-        async function syncGlossary() {
-            try {
-                const response = await fetch('glossary.html');
-                const text = await response.text();
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(text, 'text/html');
-                const terms = {};
-                doc.querySelectorAll('.term-card').forEach(card => {
-                    const title = card.querySelector('.term-title').innerText.trim();
-                    terms[title] = card.querySelector('.term-def').innerText.trim();
-                });
-                const main = document.getElementById('article-body');
-                let html = main.innerHTML;
-                Object.keys(terms).forEach(term => {
-                    const regex = new RegExp(`\\b(${term})\\b(?![^<]*>)`, 'g');
-                    html = html.replace(regex, `<a href="glossary.html#${term.toLowerCase().replace(/\s+/g, '-')}" class="glossary-link" data-def="${terms[term]}">$1</a>`);
-                });
-                main.innerHTML = html;
-                setupBubbles();
-            } catch (e) { }
-        }
-
-        function setupBubbles() {
-            const bubble = document.getElementById('glossary-bubble');
-            const title = document.getElementById('bubble-title');
-            const def = document.getElementById('bubble-def');
-            document.querySelectorAll('.glossary-link').forEach(link => {
-                link.addEventListener('mouseenter', (e) => {
-                    title.innerText = e.target.innerText;
-                    def.innerText = e.target.getAttribute('data-def');
-                    bubble.style.display = 'block';
-                    const rect = e.target.getBoundingClientRect();
-                    bubble.style.top = `${rect.top + window.scrollY - bubble.offsetHeight - 10}px`;
-                    bubble.style.left = `${rect.left + (rect.width/2) - (bubble.offsetWidth/2)}px`;
-                });
-                link.addEventListener('mouseleave', () => { bubble.style.display = 'none'; });
-            });
-        }
-
-        /* DATA INIT */
-        async function init() {
-            const snap = await getDoc(articleRef);
-            if (!snap.exists()) await setDoc(articleRef, { viewCount: 0, workedCount: 0, brickedCount: 0 });
-            onSnapshot(articleRef, (s) => {
-                const d = s.data();
-                if(d) {
-                    document.getElementById("topViewCount").innerText = (d.viewCount || 0).toLocaleString();
-                    document.getElementById("countWorked").innerText = d.workedCount || 0;
-                    document.getElementById("countBricked").innerText = d.brickedCount || 0;
-                }
-            });
-            if(!sessionStorage.getItem('v')) { await updateDoc(articleRef, {viewCount: increment(1)}); sessionStorage.setItem('v', '1'); }
-            syncGlossary();
-        }
-
-        window.nextSimStep = () => {
-            const log = (m) => { const d=document.createElement("div"); d.className="console-line"; d.innerText=m; document.getElementById("console").appendChild(d); };
-            log("Handshake initiated...");
-            document.getElementById("cpu-stat").innerText = "AUTH_OK";
-            document.getElementById("ufs-stat").innerText = "SECURE_RW";
-        };
-
-        window.addEventListener('DOMContentLoaded', init);
+        render();
     </script>
 </body>
 </html>
