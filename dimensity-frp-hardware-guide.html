@@ -3,299 +3,504 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dimensity FRP Security: Why Software Fails & Motherboard Drilling Succeeds | bitandboot</title>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2358a6ff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='16 18 22 12 16 6'></polyline><polyline points='8 6 2 12 8 18'></polyline></svg>">
+    <title>Dimensity FRP Security: Why Software Fails & Hardware Drilling Succeeds | bitandboot</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <!-- Professional Engineering Fonts synced with Index -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    
     <style>
         :root {
-            --bg-color: #0d1117;
+            --bg-color: #05070a;
             --text-color: #c9d1d9;
             --accent-color: #58a6ff;
-            --card-bg: #161b22;
+            --neon-green: #3fb950;
+            --neon-red: #f85149;
+            --card-bg: #0d1117;
             --border-color: #30363d;
+            --terminal-bg: #010409;
             --meta-color: #8b949e;
+            --font-sans: 'Inter', sans-serif;
+            --font-mono: 'Space Mono', monospace;
+            --font-display: 'Space Grotesk', sans-serif;
             --badge-easy: #56d364;
             --badge-hard: #f85149;
-            --highlight: #f0883e;
         }
+
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        
         body {
             background-color: var(--bg-color);
+            background-image: radial-gradient(#161b22 0.5px, transparent 0.5px);
+            background-size: 28px 28px;
             color: var(--text-color);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            font-family: var(--font-sans);
             line-height: 1.6;
-            padding: 2rem 1rem;
+            padding: 0 1.5rem;
         }
+
         .container { max-width: 1100px; margin: 0 auto; }
-        header { margin-bottom: 2.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1.5rem; }
-        .nav-back { color: var(--accent-color); text-decoration: none; font-size: 0.95rem; display: inline-block; margin-bottom: 1rem; }
-        .nav-back:hover { text-decoration: underline; }
-        h1 { color: #fff; font-size: 2.2rem; line-height: 1.25; margin-bottom: 0.75rem; }
-        .meta { color: var(--meta-color); font-size: 0.9rem; display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
-        h2 { color: #fff; font-size: 1.5rem; margin: 2rem 0 1rem 0; padding-bottom: 0.3rem; border-bottom: 1px solid var(--border-color); }
-        h3 { color: #fff; font-size: 1.2rem; margin: 1.5rem 0 0.5rem 0; }
-        p { margin-bottom: 1.25rem; }
-        b, strong { color: #fff; font-weight: 600; }
-        ul { margin-bottom: 1.25rem; padding-left: 1.5rem; }
-        li { margin-bottom: 0.5rem; }
-        .alert-box {
-            background-color: rgba(240, 136, 62, 0.1);
-            border-left: 4px solid var(--highlight);
+
+        /* --- STAMPED HEADER --- */
+        header { 
+            padding: 4.5rem 0 2.5rem 0; 
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 3rem;
+        }
+        .boot-line {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--neon-green);
+            letter-spacing: 1px;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .boot-line::before {
+            content: ""; width: 6px; height: 6px; border-radius: 50%;
+            background: var(--neon-green); box-shadow: 0 0 8px var(--neon-green);
+        }
+        .nav-back { 
+            font-family: var(--font-mono);
+            color: var(--accent-color);
+            text-decoration: none;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+        h1 { 
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 2.8rem;
+            color: #fff;
+            line-height: 1.1;
+            letter-spacing: -1.5px;
+            margin-bottom: 1.5rem;
+        }
+        .meta { 
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--meta-color);
+            display: flex; gap: 1.5rem; text-transform: uppercase; flex-wrap: wrap;
+        }
+
+        /* --- GLOSSARY BUBBLE UI --- */
+        .glossary-link {
+            color: #fff;
+            border-bottom: 1px dashed var(--accent-color);
+            cursor: help;
+            font-weight: 700;
+            text-decoration: none;
+        }
+        #glossary-bubble {
+            position: absolute;
+            z-index: 1000;
+            width: 280px;
+            background: #161b22;
+            border: 1px solid var(--accent-color);
+            border-radius: 8px;
             padding: 1rem;
-            border-radius: 4px;
-            margin: 1.5rem 0;
+            font-size: 0.85rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            display: none;
+            pointer-events: none;
+            font-family: var(--font-sans);
         }
+        #glossary-bubble b { font-family: var(--font-mono); color: var(--accent-color); display: block; margin-bottom: 5px; }
+
+        /* --- THE WORKBENCH MAINFRAME --- */
+        #workbench-mainframe {
+            background: var(--terminal-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 4rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        
+        #workbench-mainframe::before {
+            content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            z-index: 10; background-size: 100% 3px, 3px 100%; pointer-events: none;
+        }
+
+        .lab-header {
+            background: #161b22;
+            padding: 0.75rem 1.5rem;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .lab-title { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent-color); }
+        
+        .lab-content { display: grid; grid-template-columns: 300px 1fr; height: 350px; }
+
+        .console-log {
+            background: #000; border-right: 1px solid var(--border-color);
+            padding: 1rem; font-family: var(--font-mono); font-size: 0.7rem;
+            color: var(--neon-green); overflow-y: auto;
+        }
+        .console-line { margin-bottom: 4px; opacity: 0.8; }
+        .console-line::before { content: "> "; color: var(--accent-color); }
+
+        .visualizer {
+            position: relative; display: flex; justify-content: space-around;
+            align-items: center; padding: 2rem;
+            background: radial-gradient(circle at center, #0d1117 0%, #010409 100%);
+        }
+
+        .hardware-node {
+            width: 130px; height: 130px; border: 2px solid var(--border-color);
+            background: #0d1117; border-radius: 8px; display: flex;
+            flex-direction: column; justify-content: center; align-items: center;
+            z-index: 5; transition: 0.3s;
+        }
+        .hardware-node.active { border-color: var(--accent-color); box-shadow: 0 0 20px rgba(88, 166, 255, 0.3); }
+        .node-label { font-family: var(--font-mono); font-size: 0.6rem; color: var(--meta-color); margin-bottom: 5px; }
+        .node-status { font-family: var(--font-mono); font-size: 0.8rem; font-weight: bold; }
+
+        .lab-footer {
+            padding: 1.25rem; background: #0d1117; border-top: 1px solid var(--border-color);
+            display: flex; justify-content: center; gap: 1rem;
+        }
+
+        /* --- ARTICLE CONTENT --- */
+        .article-layout { display: flex; gap: 2.5rem; align-items: flex-start; flex-wrap: wrap; }
+        main { flex: 2.5; min-width: 320px; font-size: 1.1rem; line-height: 1.8; color: #adbac7; }
+        
+        h2 { font-family: var(--font-display); color: #fff; font-size: 1.8rem; margin: 3rem 0 1.25rem 0; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
+        h3 { font-family: var(--font-display); color: #fff; font-size: 1.35rem; margin: 2.5rem 0 1rem 0; }
+        p { margin-bottom: 1.5rem; }
+        ul { margin-bottom: 1.5rem; padding-left: 1.5rem; }
+        li { margin-bottom: 0.75rem; }
+        b, strong { color: #fff; }
+
+        .alert-box { background-color: rgba(240, 136, 62, 0.1); border-left: 4px solid #f0883e; padding: 1.25rem; border-radius: 4px; margin: 2rem 0; }
+
         table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 1.5rem 0;
-            background-color: var(--card-bg);
-            font-size: 0.9rem;
+            width: 100%; border-collapse: collapse; margin: 2rem 0;
+            background-color: var(--card-bg); font-size: 0.85rem; font-family: var(--font-sans);
         }
-        th, td {
-            border: 1px solid var(--border-color);
-            padding: 12px;
-            text-align: left;
+        th, td { border: 1px solid var(--border-color); padding: 14px; text-align: left; }
+        th { background-color: rgba(88, 166, 255, 0.05); color: var(--accent-color); font-family: var(--font-mono); text-transform: uppercase; font-size: 0.75rem; }
+
+        /* --- SIDEBAR & VOTE --- */
+        aside { flex: 1; min-width: 280px; position: sticky; top: 20px; }
+        #votePanel {
+            background-color: var(--card-bg); border: 1px solid var(--border-color);
+            border-top: 4px solid var(--accent-color); padding: 2rem;
+            border-radius: 8px; text-align: center;
         }
-        th { background-color: rgba(88, 166, 255, 0.1); color: var(--accent-color); }
-        footer { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color); color: var(--meta-color); text-align: center; font-size: 0.85rem; }
+
+        .btn-action {
+            background: var(--accent-color); color: #05070a; border: none;
+            padding: 0.8rem 1.5rem; font-family: var(--font-mono);
+            font-weight: bold; border-radius: 6px; cursor: pointer; transition: 0.2s;
+        }
+        .btn-action:hover { filter: brightness(1.2); }
+
+        /* --- COMMENTS --- */
+        .comment-section { margin-top: 5rem; border-top: 1px solid var(--border-color); padding-top: 3rem; }
+        .comment-item { border-bottom: 1px solid var(--border-soft); padding-bottom: 1.5rem; margin-bottom: 1.5rem; }
+        .comment-header { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.5rem; font-family: var(--font-mono); }
+
+        footer { text-align: center; padding: 5rem 0 2rem 0; color: #444; font-family: var(--font-mono); font-size: 0.7rem; }
+
+        @media (max-width: 768px) {
+            .lab-content { grid-template-columns: 1fr; height: auto; }
+            .console-log { display: none; }
+            h1 { font-size: 2.2rem; }
+        }
     </style>
 </head>
 <body>
+
+    <div id="glossary-bubble"><b id="bubble-title">TERM</b><p id="bubble-def">Loading...</p></div>
+
     <div class="container">
         <header>
-            <a href="index.html" class="nav-back">← Back to Dashboard</a>
-            <h1>Beyond Software Exploits: Why Modern MediaTek Dimensity FRP Requires CPU & Motherboard Drilling</h1>
+            <div class="boot-line">SYSTEMS_FORENSICS_LAB // BYPASS_PROTOCOL_INIT</div>
+            <a href="index.html" class="nav-back">← RETURN_TO_LOBBY</a>
+            <h1>MediaTek Dimensity FRP: Why Software Fails & Hardware Drilling Succeeds</h1>
             <div class="meta">
-                <span>📅 July 2026</span> | 
-                <span>🏷️ Category: Firmware Architecture & Hardware Engineering</span> |
-                <span style="color: #8b949e; border: 1px solid var(--border-color); padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600;">
-                    📊 <span id="topViewCount">--</span> Views
-                </span>
+                <span>[ DATE: JULY_2026 ]</span> | 
+                <span>[ CATEGORY: CHIP_LEVEL_FORENSICS ]</span> |
+                <span style="color: var(--accent-color);">[ VIEWS: <span id="topViewCount">--</span> ]</span>
             </div>
         </header>
 
-        <div style="display: flex; gap: 2rem; align-items: flex-start; flex-wrap: wrap;">
-            
-            <main style="flex: 2.5; min-width: 320px;">
-                
-                <p>For years, the GSM servicing community treated <strong>MediaTek (MTK)</strong> chipsets as the golden child of easy modifications. If a device was stuck on <strong>Factory Reset Protection (FRP)</strong> or a user lock, a standard utility could trigger a <strong>BootROM (BROM) handshake exploit</strong>, disable security validation, and format the target sector in seconds. However, the introduction of modern <strong>MediaTek Dimensity lines</strong> completely upended the software service landscape, turning software-based tool operations into a collection of errors and dead ends.</p>
+        <!-- THE MAIN WORKBENCH SIMULATOR -->
+        <div id="workbench-mainframe">
+            <div class="lab-header">
+                <span class="lab-title">HARDWARE_EXPLOIT_ROUTER v4.11</span>
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <div style="width:8px; height:8px; border-radius:50%; background:var(--neon-green); box-shadow:0 0 8px var(--neon-green);"></div>
+                    <span style="font-family:var(--font-mono); font-size:0.6rem; color:var(--neon-green);">BROM_MONITOR_ACTIVE</span>
+                </div>
+            </div>
+
+            <div class="lab-content">
+                <div class="console-log" id="console">
+                    <div class="console-line">Initializing USB Stack...</div>
+                    <div class="console-line">Dimensity V6 Chipset detected.</div>
+                </div>
+
+                <div class="visualizer">
+                    <div id="packet" style="position:absolute; width:12px; height:12px; background:var(--accent-color); border-radius:50%; display:none; z-index:20;"></div>
+                    
+                    <div class="hardware-node" id="node-pc">
+                        <div class="node-label">UNLOCKTOOL_CLI</div>
+                        <div class="node-status" id="pc-stat">LINK_OK</div>
+                    </div>
+
+                    <div style="font-family:var(--font-mono); color:var(--border-color); font-size:1.5rem;">[ USB_BUS ]</div>
+
+                    <div class="hardware-node" id="node-mtk">
+                        <div class="node-label">MT68xx_CPU</div>
+                        <div class="node-status" id="mtk-stat">SECURE_BOOT</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lab-footer">
+                <button class="btn-action" id="nextBtn" onclick="nextSimStep()" style="width: auto;">ATTEMPT_SOFTWARE_BROM</button>
+                <button onclick="resetLab()" style="background:transparent; border:1px solid var(--border-color); color:var(--meta-color); font-family:var(--font-mono); font-size:0.7rem; padding:0.5rem 1rem; cursor:pointer; border-radius:4px;">REBOOT_TARGET</button>
+            </div>
+        </div>
+
+        <div class="article-layout">
+            <main id="article-body">
+                <p>For years, the GSM servicing community treated <strong>MediaTek (MTK)</strong> chipsets as the golden child of easy modifications. If a device was stuck on <strong>Factory Reset Protection (FRP)</strong>, a standard utility could trigger a <strong>BootROM (BROM) handshake exploit</strong> and format the target sector in seconds. However, modern <strong>MediaTek Dimensity lines</strong> have turned software-based tool operations into a collection of errors.</p>
 
                 <div class="alert-box">
-                    <strong>The New Reality:</strong> When flagship software suites like <strong>Unlocktool</strong>, <strong>UMT (Ultimate Multi Tool)</strong>, or <strong>Chimera</strong> attempt to read or modify partitions on modern Dimensity chips, they hit cryptographic blocks. For elite hardware engineers, the only guaranteed method left is bypassing software entirely via <strong>micro-drilling the motherboard or CPU package</strong>.
+                    <strong>The New Reality:</strong> When suites like <strong>Unlocktool</strong> or <strong>Chimera</strong> attempt to read Dimensity partitions, they hit cryptographic blocks. Elite hardware engineers must now bypass software entirely via <strong>micro-drilling the motherboard or CPU package</strong>.
                 </div>
 
                 <h2>1. The Architectural Disconnect: Legacy MTK vs. Modern Dimensity</h2>
-                <p>To understand why software exploits fail, we must examine how MediaTek overhauled its boot security tracking mechanism. Older architectures like the <strong>Helio P/G series (MT67xx)</strong> relied on predictable boot cycles. Utilities exploited vulnerabilities like <code>kamakiri</code> or <code>carbonara</code> via USB to corrupt the stack data and execute unsigned code.</p>
-                
-                <p>Modern Dimensity chipsets introduce the <strong>V6 platform architecture protocol</strong>. On these chips, major smartphone manufacturers (OEMs) permanently blow <strong>hardware eFuses</strong> inside the silicon layer during factory assembly. These blown fuses disable the <strong>BROM USB Download (USBDL)</strong> communication interface entirely. Without an active hardware handshake path, software utilities cannot force a low-level memory dump over a standard USB configuration line.</p>
+                <p>Older architectures like the <strong>Helio P/G series</strong> relied on predictable boot cycles. Utilities exploited vulnerabilities like <code>kamakiri</code> over USB to execute unsigned code. Modern Dimensity chipsets introduce the <strong>V6 platform architecture protocol</strong>, where major OEMs permanently blow <strong>hardware eFuses</strong> during assembly.</p>
 
                 <table>
                     <thead>
                         <tr>
                             <th>Security Vector</th>
                             <th>Legacy MTK / Helio Platforms</th>
-                            <th>Premium Dimensity Platforms (V6 Protocol)</th>
+                            <th>Premium Dimensity Platforms (V6)</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td><strong>BROM State Entry</strong></td>
-                            <td>Triggered easily via physical <b>Volume Key Combos</b> over USB.</td>
-                            <td>Disabled permanently at the silicon level via <b>Hardware eFuses</b>.</td>
+                            <td><strong>BROM Entry</strong></td>
+                            <td>Triggered via <b>Volume Key Combos</b>.</td>
+                            <td>Disabled via <b>Hardware eFuses</b>.</td>
                         </tr>
                         <tr>
-                            <td><strong>Download Agent (DA)</strong></td>
-                            <td>Accepts generic, open-source <b>DA binaries</b> to bypass verification.</td>
-                            <td>Requires highly restricted, <b>OEM-Signed DA2 Cryptographic Tokens</b>.</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Exploit Resistance</strong></td>
-                            <td>Vulnerable to USB stack buffer overflows (e.g., <b>SLA/DA bypasses</b>).</td>
-                            <td>Patched <b>Secure Boot ROM heap validation</b> prevents payload execution.</td>
+                            <td><strong>Download Agent</strong></td>
+                            <td>Accepts generic <b>DA binaries</b>.</td>
+                            <td>Requires <b>OEM-Signed Tokens</b>.</td>
                         </tr>
                         <tr>
                             <td><strong>FRP Wipe Method</strong></td>
-                            <td>One-click automated sector format via <b>META or Preloader Mode</b>.</td>
-                            <td>Requires direct physical access via <b>UFS ISP Motherboard Tapping</b>.</td>
+                            <td>One-click automated sector format.</td>
+                            <td>Requires <b>UFS ISP Motherboard Tapping</b>.</td>
                         </tr>
                     </tbody>
                 </table>
 
                 <h2>2. Why Software Tools Crash Out</h2>
-                <p>When you plug a modern locked Dimensity device into software like Unlocktool and attempt a standard reset sequence, the utility typically errors out during the <strong>Preloader handshake</strong> or drops a <code>STATUS_SEC_AUTH_SCHEME_NOT_SUPPORTED</code> crash dump. This happens because the device demands a unique, <strong>dynamically encrypted OEM signature challenge</strong> before unlocking its partition system. Because the software tools cannot generate these cloud-verified keys natively, the operation terminates instantly to protect system integrity.</p>
+                <p>When you attempt a standard reset, the utility typically drops a <code>STATUS_SEC_AUTH_SCHEME_NOT_SUPPORTED</code> crash dump. This happens because the device demands a unique, <strong>dynamically encrypted OEM signature challenge</strong>. Because software tools cannot generate these cloud-verified keys natively, the operation terminates instantly.</p>
 
-                <h2>3. The Elite Hardware Backdoor: Micro-Drilling & ISP Tapping</h2>
-                <p>When the CPU's embedded security layers cannot be broken by software code, engineers must use physical hardware routing to bypass the processor entirely. This method requires a high-power <strong>trinocular microscope</strong>, a precision <strong>micro-drilling rotary tool</strong>, and specialized <strong>In-System Programming (ISP) hardware boxes</strong> (such as <strong>EasyJTAG Plus</strong>, <strong>UFI Box</strong>, or <strong>Medusa Pro II</strong>).</p>
+                <h2>3. The Hardware Backdoor: Micro-Drilling & ISP Tapping</h2>
+                <p>When the CPU's embedded security layers cannot be broken by code, engineers must use physical hardware routing. This method requires a precision <strong>micro-drilling tool</strong> and specialized <strong>In-System Programming (ISP) hardware boxes</strong> (such as <strong>EasyJTAG Plus</strong>).</p>
 
-                <h3>Step 1: Locating the Traces on the PCB</h3>
-                <p>Engineers study schematic board views to find the exact layer pathways where the <strong>UFS (Universal Flash Storage)</strong> lines run between the memory chip and the processor. On highly integrated boards, these tiny traces are buried beneath layers of protective protective epoxy resin or directly underneath the processor package array itself.</p>
+                <h3>Step 1: Locating the Traces</h3>
+                <p>Engineers study schematic board views to find where the <strong>UFS (Universal Flash Storage)</strong> lines run. These tiny traces are often buried beneath layers of protective epoxy resin.</p>
 
                 <h3>Step 2: Micro-Drilling the Target Node</h3>
-                <p>Using a micro-drill bits ranging from <strong>0.1mm to 0.3mm</strong>, the engineer carefully grinds down the protective board shield layer. This step requires absolute precision: drilling a fraction of a millimeter too deep will cut internal signal traces, destroying the motherboard permanently. The target is to expose the microscopic copper pads for the essential UFS communication rails:</p>
-                <ul>
-                    <li><strong>UFS_CLK (Clock Signal Line)</strong></li>
-                    <li><strong>UFS_CMD (Command Path Line)</strong></li>
-                    <li><strong>UFS_DATA0 (Primary Data Stream Rail)</strong></li>
-                </ul>
+                <p>Using bits ranging from <strong>0.1mm to 0.3mm</strong>, the engineer grinds down the board shield. The target is to expose the microscopic copper pads for the essential UFS communication rails: <strong>UFS_CLK</strong>, <strong>UFS_CMD</strong>, and <strong>UFS_DATA0</strong>.</p>
 
                 <h3>Step 3: Direct Hardware Partition Formatting</h3>
-                <p>Once exposed, <strong>0.1mm enamel jumper wires</strong> are micro-soldered directly onto these physical copper pads. The wires are routed straight into an ISP interface card connected to a hardware flashing box. This bypasses the processor completely. By establishing direct communication with the flash memory controller, the technician bypasses all OS execution rules and runs a raw partition format command on the specific <code>frp</code> configuration sector, cleaning the lock instantly.</p>
-
-                <h2>Conclusion: The Changing Landscape of Mobile Servicing</h2>
-                <p>The transition from software automation to micro-hardware engineering marks a massive paradigm shift. As hardware manufacturers tighten boot security and encrypt USB communication channels, the age of "one-click button software repair" is coming to a close for modern Android flagships. The technicians who thrive in this new landscape are the ones moving away from clicking buttons on a monitor and moving toward mastering the microscope and the schematic circuit board.</p>
+                <p>Once exposed, <strong>0.1mm enamel jumper wires</strong> are micro-soldered directly onto these pads. The wires route straight into an ISP interface card. By establishing direct communication with the flash memory controller, the technician bypasses all OS execution rules and runs a raw partition format command on the <code>frp</code> configuration sector.</p>
             </main>
 
-            <aside style="flex: 1; min-width: 280px; position: sticky; top: 20px;">
-                <div id="votePanel" style="background-color: var(--card-bg); border: 1px solid var(--border-color); border-top: 4px solid var(--accent-color); padding: 1.5rem; border-radius: 6px; text-align: center;">
-                    <h3 style="color: #fff; margin-top: 0; margin-bottom: 0.5rem; font-size: 1.1rem;">⚡ Bench Verification</h3>
-                    <p style="margin: 0 0 1.25rem 0; color: #8b949e; font-size: 0.9rem;">Did this specific low-level workaround restore your target device hardware?</p>
+            <aside>
+                <div id="votePanel">
+                    <h3 style="font-family: var(--font-mono); color:#fff; margin-bottom: 1rem; font-size: 1rem;">⚡ BENCH_VERIFICATION</h3>
+                    <p style="margin: 0 0 1.5rem 0; color: var(--meta-color); font-size: 0.85rem;">Did micro-drilling / ISP tapping resolve the lock on your target?</p>
                     
-                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                        <button onclick="incrementTelemetry('yes')" style="background-color: rgba(86, 211, 100, 0.1); border: 1px solid var(--badge-easy); color: var(--badge-easy); padding: 0.65rem; border-radius: 4px; font-weight: 700; cursor: pointer; transition: transform 0.1s; font-size: 0.88rem;">
-                            YES, WORKED! (<span id="countWorked">142</span>)
-                        </button>
-                        <button onclick="incrementTelemetry('no')" style="background-color: rgba(248, 81, 73, 0.1); border: 1px solid var(--badge-hard); color: var(--badge-hard); padding: 0.65rem; border-radius: 4px; font-weight: 700; cursor: pointer; transition: transform 0.1s; font-size: 0.88rem;">
-                            NO, STILL BRICKED (<span id="countBricked">8</span>)
-                        </button>
-                    </div>
+                    <button onclick="incrementTelemetry('yes')" class="btn-action" style="background: rgba(63, 185, 80, 0.1); color: var(--neon-green); border: 1px solid var(--neon-green); margin-bottom: 0.75rem; width: 100%;">
+                        YES, BYPASS SUCCESS! (<span id="countWorked">--</span>)
+                    </button>
+                    <button onclick="incrementTelemetry('no')" class="btn-action" style="background: rgba(248, 81, 73, 0.1); color: var(--neon-red); border: 1px solid var(--neon-red); width: 100%;">
+                        NO, BOARD BRICKED (<span id="countBricked">--</span>)
+                    </button>
                 </div>
             </aside>
         </div>
 
-        <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 4rem 0 2rem 0;">
-
-        <section style="max-width: 100%;">
-            <h3 style="color: #fff; margin-top: 0; margin-bottom: 1.5rem;">💬 Community Bench Notes</h3>
-            
-            <div id="commentsFeed">
-                <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem;">
-                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.25rem;">
-                        <strong style="color: var(--accent-color);">@SysEngineer_99</strong>
-                        <span style="color: var(--text-color); opacity: 0.6;">July 2026</span>
-                    </div>
-                    <p style="margin: 0; font-size: 0.95rem; color: #c9d1d9;">Confirming this registry override completely fixed my Unlocktool interface drops on Windows 11 Build 22621. Absolute lifesaver for time-sensitive bench runs.</p>
+        <section class="comment-section">
+            <h3 style="color: #fff; margin-bottom: 2rem; font-family: var(--font-mono);">💬 COMMUNITY_BENCH_NOTES</h3>
+            <div id="commentsFeed"></div>
+            <div style="background-color: var(--card-bg); border: 1px solid var(--border-color); padding: 2rem; border-radius: 8px; margin-top: 2rem;">
+                <h4 style="color: #fff; margin-bottom: 1.5rem; font-size: 1rem; font-family: var(--font-mono);">[ DROP_A_SYSTEM_INSIGHT ]</h4>
+                <div style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                    <input type="text" id="suiteNameInput" placeholder="Technician Name" style="flex: 1; background: #000; border: 1px solid var(--border-color); padding: 0.8rem; color: #fff; border-radius: 4px; font-family: var(--font-mono);">
+                    <button onclick="submitGenericComment()" class="btn-action" style="width: auto; padding: 0 2rem;">SUBMIT</button>
                 </div>
-            </div>
-
-            <div style="background-color: var(--card-bg); border: 1px solid var(--border-color); padding: 1.25rem; border-radius: 6px; margin-top: 1.5rem;">
-                <h4 style="color: #fff; margin-top: 0; margin-bottom: 1rem; font-size: 0.95rem;">Contribute System Insights</h4>
-                <div style="display: flex; gap: 0.75rem; margin-bottom: 0.75rem; flex-wrap: wrap;">
-                    <input type="text" id="suiteNameInput" placeholder="First name (One word)" style="flex: 1; min-width: 150px; background-color: var(--bg-color); border: 1px solid var(--border-color); padding: 0.6rem; color: #fff; border-radius: 4px; font-size: 0.9rem;">
-                    <button onclick="submitGenericComment()" style="background-color: rgba(88, 166, 255, 0.1); border: 1px solid var(--accent-color); color: var(--accent-color); padding: 0.6rem 1.5rem; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">Drop a Quick Tip</button>
-                </div>
-                <input type="text" id="suiteCommentText" placeholder="Add your tool logs, hardware models, or note variations..." style="width: 100%; background-color: var(--bg-color); border: 1px solid var(--border-color); padding: 0.75rem; color: #fff; border-radius: 4px; box-sizing: border-box; font-size: 0.9rem;">
-                <div id="suiteValidationError" style="display: none; color: var(--badge-hard); font-size: 0.8rem; margin-top: 0.5rem;"></div>
+                <textarea id="suiteCommentText" placeholder="Log details or hardware notes..." style="width: 100%; min-height: 100px; background: #000; border: 1px solid var(--border-color); padding: 1rem; color: #fff; border-radius: 4px;"></textarea>
             </div>
         </section>
 
         <footer>
-            <p>&copy; 2026 bitandboot. All Technical Rights Reserved.</p>
+            <p>&copy; 2026 bitandboot // SYSTEMS_LAB // NO_DATA_LOST</p>
         </footer>
     </div>
 
-    <script>
-        const pageId = window.location.pathname.split("/").pop() || "dimensity-frp";
-        
-        window.addEventListener('DOMContentLoaded', () => {
-            let storedViews = localStorage.getItem(`views_${pageId}`);
-            if (!storedViews) {
-                storedViews = Math.floor(Math.random() * (450 - 200 + 1)) + 200;
-            } else {
-                storedViews = parseInt(storedViews) + 1;
-            }
-            localStorage.setItem(`views_${pageId}`, storedViews);
-            
-            const formattedViews = storedViews.toLocaleString();
-            
-            if (document.getElementById('topViewCount')) {
-                document.getElementById('topViewCount').innerText = formattedViews;
-            }
-            
-            const wCount = localStorage.getItem(`w_${pageId}`) || Math.floor(Math.random() * (90 - 45 + 1)) + 45;
-            const bCount = localStorage.getItem(`b_${pageId}`) || Math.floor(Math.random() * (12 - 3 + 1)) + 3;
-            localStorage.setItem(`w_${pageId}`, wCount);
-            localStorage.setItem(`b_${pageId}`, bCount);
-            
-            if (document.getElementById('countWorked')) document.getElementById('countWorked').innerText = wCount;
-            if (document.getElementById('countBricked')) document.getElementById('countBricked').innerText = bCount;
-        });
+    <!-- MAIN ENGINE MODULE -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        function incrementTelemetry(decision) {
-            const hasVoted = localStorage.getItem(`voted_${pageId}`);
-            if (hasVoted) {
-                alert("Your bench telemetry configuration has already been updated for this document session.");
-                return;
-            }
+        const firebaseConfig = { apiKey: "AIzaSyAZ5kORicxNAp4iCWlGn1C3XkP0vPJ5vQw", authDomain: "bitandboot.firebaseapp.com", projectId: "bitandboot", storageBucket: "bitandboot.firebasestorage.app", messagingSenderId: "687841897835", appId: "1:687841897835:web:16e8a1b9f31e23f069b02e" };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const pageId = "dimensity-frp-hardware-guide";
+        const articleRef = doc(db, "articles", pageId);
+        const commentsRef = collection(db, "articles", pageId, "comments");
 
-            if (decision === 'yes') {
-                let current = parseInt(localStorage.getItem(`w_${pageId}`)) || 142;
-                current++;
-                localStorage.setItem(`w_${pageId}`, current);
-                if (document.getElementById('countWorked')) document.getElementById('countWorked').innerText = current;
-                localStorage.setItem(`voted_${pageId}`, 'true');
-                document.getElementById('votePanel').innerHTML = `<h3 style="color: var(--badge-easy); margin: 0;">🎉 Success Telemetry Logged!</h3>`;
-            } else {
-                let current = parseInt(localStorage.getItem(`b_${pageId}`)) || 8;
-                current++;
-                localStorage.setItem(`b_${pageId}`, current);
-                if (document.getElementById('countBricked')) document.getElementById('countBricked').innerText = current;
-                localStorage.setItem(`voted_${pageId}`, 'true');
-                document.getElementById('votePanel').innerHTML = `<h3 style="color: var(--badge-hard); margin: 0;">💀 Failure Telemetry Logged</h3>`;
-            }
+        /* 1. GLOSSARY SYNC */
+        async function syncGlossary() {
+            try {
+                const response = await fetch('glossary.html');
+                const text = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(text, 'text/html');
+                const terms = {};
+                doc.querySelectorAll('.term-card').forEach(card => {
+                    const title = card.querySelector('.term-title').innerText.trim();
+                    terms[title] = card.querySelector('.term-def').innerText.trim();
+                });
+                const main = document.getElementById('article-body');
+                let html = main.innerHTML;
+                Object.keys(terms).forEach(term => {
+                    const regex = new RegExp(`\\b(${term})\\b(?![^<]*>)`, 'g');
+                    html = html.replace(regex, `<a href="glossary.html#${term.toLowerCase().replace(/\s+/g, '-')}" class="glossary-link" data-def="${terms[term]}">$1</a>`);
+                });
+                main.innerHTML = html;
+                setupBubbles();
+            } catch (e) { }
         }
 
-        function submitGenericComment() {
-            const nameField = document.getElementById('suiteNameInput').value.trim();
-            const textField = document.getElementById('suiteCommentText').value.trim();
-            const valError = document.getElementById('suiteValidationError');
+        function setupBubbles() {
+            const bubble = document.getElementById('glossary-bubble');
+            const title = document.getElementById('bubble-title');
+            const def = document.getElementById('bubble-def');
+            document.querySelectorAll('.glossary-link').forEach(link => {
+                link.addEventListener('mouseenter', (e) => {
+                    title.innerText = e.target.innerText;
+                    def.innerText = e.target.getAttribute('data-def');
+                    bubble.style.display = 'block';
+                    const rect = e.target.getBoundingClientRect();
+                    bubble.style.top = `${rect.top + window.scrollY - bubble.offsetHeight - 10}px`;
+                    bubble.style.left = `${rect.left + (rect.width/2) - (bubble.offsetWidth/2)}px`;
+                });
+                link.addEventListener('mouseleave', () => { bubble.style.display = 'none'; });
+            });
+        }
 
-            if (valError) valError.style.display = 'none';
-
-            if (!nameField || !textField) {
-                if (valError) {
-                    valError.innerText = "Error: Output parameters cannot be empty strings.";
-                    valError.style.display = 'block';
+        /* 2. FIREBASE INIT */
+        async function init() {
+            const snap = await getDoc(articleRef);
+            if (!snap.exists()) await setDoc(articleRef, { viewCount: 0, workedCount: 0, brickedCount: 0 });
+            onSnapshot(articleRef, (s) => {
+                const d = s.data();
+                if(d) {
+                    document.getElementById("topViewCount").innerText = (d.viewCount || 0).toLocaleString();
+                    document.getElementById("countWorked").innerText = d.workedCount || 0;
+                    document.getElementById("countBricked").innerText = d.brickedCount || 0;
                 }
-                return;
-            }
-
-            if (nameField.split(' ').length > 1) {
-                if (valError) {
-                    valError.innerText = "Error: Supply strictly a single word for your identity handle.";
-                    valError.style.display = 'block';
-                }
-                return;
-            }
-
-            let sanitizedName = nameField.replace(/[^a-zA-Z0-9]/g, '');
-            if (!sanitizedName) sanitizedName = "Tech";
+            });
+            if(!sessionStorage.getItem('v')) { await updateDoc(articleRef, {viewCount: increment(1)}); sessionStorage.setItem('v', '1'); }
             
-            const generatedUserHandle = `@${sanitizedName}King`;
-            const feed = document.getElementById('commentsFeed');
-            
-            if (feed) {
-                const commentDiv = document.createElement('div');
-                commentDiv.setAttribute('style', 'border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem;');
-                
-                commentDiv.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.25rem;">
-                        <strong style="color: #fff; font-family: monospace;">${generatedUserHandle}</strong>
-                        <span style="color: var(--text-color); opacity: 0.4;">Just Now</span>
-                    </div>
-                    <p style="margin: 0; font-size: 0.95rem; color: #c9d1d9;">${escapeHTML(textField)}</p>
-                `;
-
-                feed.insertBefore(commentDiv, feed.firstChild);
-            }
-            
-            document.getElementById('suiteCommentText').value = "";
+            onSnapshot(query(commentsRef, orderBy("timestamp", "desc")), (snapshot) => {
+                const feed = document.getElementById("commentsFeed");
+                feed.innerHTML = "";
+                snapshot.forEach((docSnap) => {
+                    const c = docSnap.data();
+                    const div = document.createElement("div");
+                    div.className = "comment-item";
+                    div.innerHTML = `<div class="comment-header"><strong style="color:var(--accent-color);">@${c.name}</strong></div><p style="margin:0;color:#c9d1d9;">${c.text}</p>`;
+                    feed.appendChild(div);
+                });
+            });
         }
 
-        function escapeHTML(str) {
-            return str.replace(/[&<>'"]/g, 
-                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
-            );
-        }
+        window.submitGenericComment = async () => {
+            const name = document.getElementById("suiteNameInput").value.trim();
+            const text = document.getElementById("suiteCommentText").value.trim();
+            if (!name || !text) return;
+            await addDoc(commentsRef, { name: name.replace(/\s/g, ''), text: text, timestamp: serverTimestamp() });
+            document.getElementById("suiteCommentText").value = "";
+        };
+
+        window.incrementTelemetry = async (type) => {
+            if(localStorage.getItem('voted_'+pageId)) return alert("Session Lock Active.");
+            await updateDoc(articleRef, { [type === 'yes' ? 'workedCount' : 'brickedCount']: increment(1) });
+            localStorage.setItem('voted_'+pageId, '1');
+            document.getElementById("votePanel").innerHTML = "<h2 style='color:var(--neon-green)'>LOGGED</h2>";
+        };
+
+        /* 3. SIMULATION LOGIC */
+        let step = 0;
+        const consoleEl = document.getElementById("console");
+        const mtkStat = document.getElementById("mtk-stat");
+        const btn = document.getElementById("nextBtn");
+
+        window.nextSimStep = () => {
+            step++;
+            const log = (m) => { const d=document.createElement("div"); d.className="console-line"; d.innerText=m; consoleEl.appendChild(d); consoleEl.scrollTop = consoleEl.scrollHeight; };
+            
+            if (step === 1) { 
+                log("Executing BROM_Handshake_Bypass...");
+                mtkStat.innerText = "AUTH_CHALLENGE";
+                mtkStat.style.color = "var(--accent-color)";
+                setTimeout(() => {
+                    log("ERROR: STATUS_SEC_AUTH_SCHEME_NOT_SUPPORTED");
+                    mtkStat.innerText = "SECURITY_FAULT";
+                    mtkStat.style.color = "var(--neon-red)";
+                    btn.innerText = "INIT_HARDWARE_ISP_BYPASS";
+                }, 800);
+            } 
+            else if (step === 2) { 
+                log("Locating UFS_CLK & CMD Traces...");
+                log("Executing Micro-Drill Protocol...");
+                setTimeout(() => {
+                    log("Copper Pads Exposed. Soldering Jumpers...");
+                    log("Direct Flash Access Granted.");
+                    mtkStat.innerText = "BYPASSED_BY_ISP";
+                    mtkStat.style.color = "var(--neon-green)";
+                    btn.innerText = "CLEAN_FRP_SECTOR";
+                }, 1000);
+            }
+            else if (step === 3) {
+                log("Formatting /dev/block/platform/bootdevice/by-name/frp...");
+                setTimeout(() => {
+                    log("FRP_WIPE_COMPLETE. Handset Unlocked.");
+                    btn.innerText = "SIMULATION_SUCCESS";
+                    btn.disabled = true;
+                }, 600);
+            }
+        };
+
+        window.resetLab = () => {
+            step = 0; mtkStat.innerText = "SECURE_BOOT"; mtkStat.style.color = "inherit";
+            btn.disabled = false; btn.innerText = "ATTEMPT_SOFTWARE_BROM";
+            consoleEl.innerHTML = '<div class="console-line">Initializing USB Stack...</div><div class="console-line">Dimensity V6 Chipset detected.</div>';
+        };
+
+        window.addEventListener('DOMContentLoaded', () => { syncGlossary(); init(); });
     </script>
 </body>
 </html>
