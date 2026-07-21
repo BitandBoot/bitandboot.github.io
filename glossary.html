@@ -183,6 +183,11 @@
                     <p class="term-def">An OS feature that allows suspended apps to periodically wake the CPU to poll for new data, refresh caches, or check location — bypassing normal background freeze rules.</p>
                     <div class="term-tags"><span class="tag">Power</span><span class="tag">Mobile OS</span></div>
                 </div>
+                <div class="term-card" id="brom" data-match="BROM, BootROM">
+                    <span class="term-title">BROM (BootROM)</span>
+                    <p class="term-def">The immutable boot-time code burned into a chip at manufacture, responsible for the earliest stage of startup and for deciding whether to enter a diagnostic or download mode before the OS loads.</p>
+                    <div class="term-tags"><span class="tag">Firmware</span><span class="tag">Hardware</span></div>
+                </div>
             </div>
 
             <!-- C -->
@@ -192,6 +197,16 @@
                     <span class="term-title">C-State</span>
                     <p class="term-def">A standardized processor power state, ranging from fully active (C0) to deep sleep (C3/C4). Transitioning between states carries an energy cost independent of the actual work performed.</p>
                     <div class="term-tags"><span class="tag">Hardware</span><span class="tag">Power</span></div>
+                </div>
+                <div class="term-card" id="calendar-aging" data-match="Calendar Aging">
+                    <span class="term-title">Calendar Aging</span>
+                    <p class="term-def">Battery capacity loss that occurs purely from the passage of time at a given voltage, independent of how many charge cycles the cell has completed.</p>
+                    <div class="term-tags"><span class="tag">Battery</span><span class="tag">Chemistry</span></div>
+                </div>
+                <div class="term-card" id="charge-cycle" data-match="Charge Cycle">
+                    <span class="term-title">Charge Cycle</span>
+                    <p class="term-def">One full unit of a battery's capacity moving in and out, whether completed in a single charge or accumulated across several partial charges that add up to 100%.</p>
+                    <div class="term-tags"><span class="tag">Battery</span></div>
                 </div>
             </div>
 
@@ -218,6 +233,11 @@
                     <p class="term-def">An Android power-saving state that activates when the device is stationary and screen-off, batching all background network access and wake-locks into short scheduled maintenance windows.</p>
                     <div class="term-tags"><span class="tag">Android</span><span class="tag">Power</span></div>
                 </div>
+                <div class="term-card" id="download-agent" data-match="Download Agent, DA binary">
+                    <span class="term-title">Download Agent (DA)</span>
+                    <p class="term-def">A small helper program that a chip's BootROM temporarily loads into RAM during a flashing session to mediate reading and writing the main storage. Modern chips require this binary to be cryptographically signed by the OEM.</p>
+                    <div class="term-tags"><span class="tag">Firmware</span><span class="tag">Security</span></div>
+                </div>
             </div>
 
             <!-- E -->
@@ -243,6 +263,11 @@
                     <p class="term-def">Google's push notification service for Android — a shared, persistent system-level channel that lets servers wake a specific app only when new data actually exists, instead of constant polling.</p>
                     <div class="term-tags"><span class="tag">Android</span><span class="tag">Push</span></div>
                 </div>
+                <div class="term-card" id="frp" data-match="FRP, Factory Reset Protection">
+                    <span class="term-title">FRP (Factory Reset Protection)</span>
+                    <p class="term-def">A Google Android security feature that requires the previous owner's Google account credentials after a factory reset, preventing a stolen device from being wiped and resold.</p>
+                    <div class="term-tags"><span class="tag">Android</span><span class="tag">Security</span></div>
+                </div>
             </div>
 
             <!-- H -->
@@ -252,6 +277,31 @@
                     <span class="term-title">HMAC-SHA-256</span>
                     <p class="term-def">A specific type of message authentication code involving a cryptographic hash function and a secret key, used extensively in RPMB authentication.</p>
                     <div class="term-tags"><span class="tag">Cryptography</span></div>
+                </div>
+            </div>
+
+            <!-- I -->
+            <div class="term-group" id="group-I">
+                <span class="alpha-label">I</span>
+                <div class="term-card" id="isp-programming" data-match="In-System Programming">
+                    <span class="term-title">In-System Programming (ISP)</span>
+                    <p class="term-def">A hardware servicing technique that connects directly to a storage chip's data pins on the circuit board, bypassing the main processor entirely to read or write flash memory.</p>
+                    <div class="term-tags"><span class="tag">Hardware</span><span class="tag">Servicing</span></div>
+                </div>
+                <div class="term-card" id="intercalation" data-match="Intercalation">
+                    <span class="term-title">Intercalation</span>
+                    <p class="term-def">The reversible process of lithium ions inserting themselves into the layered structure of a battery's electrode material during charging and discharging.</p>
+                    <div class="term-tags"><span class="tag">Battery</span><span class="tag">Chemistry</span></div>
+                </div>
+            </div>
+
+            <!-- L -->
+            <div class="term-group" id="group-L">
+                <span class="alpha-label">L</span>
+                <div class="term-card" id="lithium-ion" data-match="Lithium-ion">
+                    <span class="term-title">Lithium-ion</span>
+                    <p class="term-def">The dominant rechargeable battery chemistry in consumer electronics, storing energy by moving lithium ions between a graphite anode and a metal-oxide cathode.</p>
+                    <div class="term-tags"><span class="tag">Battery</span><span class="tag">Chemistry</span></div>
                 </div>
             </div>
 
@@ -275,6 +325,21 @@
                 </div>
             </div>
 
+            <!-- S -->
+            <div class="term-group" id="group-S">
+                <span class="alpha-label">S</span>
+                <div class="term-card" id="sei" data-match="SEI, Solid Electrolyte Interphase">
+                    <span class="term-title">SEI (Solid Electrolyte Interphase)</span>
+                    <p class="term-def">A thin passivation layer that forms on a lithium-ion battery's anode surface. Its gradual, irreversible thickening under voltage and heat stress is a primary driver of long-term capacity loss.</p>
+                    <div class="term-tags"><span class="tag">Battery</span><span class="tag">Chemistry</span></div>
+                </div>
+                <div class="term-card" id="soc" data-match="SoC, State of Charge">
+                    <span class="term-title">SoC (State of Charge)</span>
+                    <p class="term-def">The current charge level of a battery expressed as a percentage of its total capacity — distinct from "System on Chip", an unrelated hardware term that shares the same acronym.</p>
+                    <div class="term-tags"><span class="tag">Battery</span></div>
+                </div>
+            </div>
+
             <!-- T -->
             <div class="term-group" id="group-T">
                 <span class="alpha-label">T</span>
@@ -292,6 +357,16 @@
                     <span class="term-title">TTL (Time To Live)</span>
                     <p class="term-def">A value set by a domain owner that tells resolvers how long they're allowed to cache a DNS answer before checking again — balancing lookup speed against how quickly changes propagate.</p>
                     <div class="term-tags"><span class="tag">DNS</span><span class="tag">Caching</span></div>
+                </div>
+            </div>
+
+            <!-- U -->
+            <div class="term-group" id="group-U">
+                <span class="alpha-label">U</span>
+                <div class="term-card" id="ufs" data-match="UFS">
+                    <span class="term-title">UFS (Universal Flash Storage)</span>
+                    <p class="term-def">The modern high-speed flash memory standard used in most current smartphones, replacing the older eMMC standard.</p>
+                    <div class="term-tags"><span class="tag">Storage</span><span class="tag">Hardware</span></div>
                 </div>
             </div>
 
