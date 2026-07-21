@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Qualcomm EDL Forensics | bitandboot Systems Lab</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <!-- Professional Engineering Fonts synced with Index -->
+    <!-- Professional Engineering Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
+
     <style>
         :root {
             --bg-color: #05070a;
@@ -21,19 +21,16 @@
             --border-color: #30363d;
             --terminal-bg: #010409;
             --meta-color: #8b949e;
+            --font-mono: 'Roboto', sans-serif;
             --font-sans: 'Inter', sans-serif;
-            --font-mono: 'Space Mono', monospace;
-            --font-display: 'Space Grotesk', sans-serif;
-            --badge-easy: #56d364;
-            --badge-hard: #f85149;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        
+
         body {
             background-color: var(--bg-color);
             background-image: radial-gradient(#161b22 0.5px, transparent 0.5px);
-            background-size: 28px 28px;
+            background-size: 30px 30px;
             color: var(--text-color);
             font-family: var(--font-sans);
             line-height: 1.6;
@@ -43,8 +40,8 @@
         .container { max-width: 1100px; margin: 0 auto; }
 
         /* --- STAMPED HEADER --- */
-        header { 
-            padding: 4.5rem 0 2.5rem 0; 
+        header {
+            padding: 4rem 0 2rem 0;
             border-bottom: 1px solid var(--border-color);
             margin-bottom: 3rem;
         }
@@ -62,17 +59,17 @@
             content: ""; width: 6px; height: 6px; border-radius: 50%;
             background: var(--neon-green); box-shadow: 0 0 8px var(--neon-green);
         }
-        .nav-back { 
+        .nav-back {
             font-family: var(--font-mono);
             color: var(--accent-color);
             text-decoration: none;
             font-size: 0.8rem;
             text-transform: uppercase;
-            display: inline-block;
+            letter-spacing: 2px;
+            display: block;
             margin-bottom: 1rem;
         }
-        h1 { 
-            font-family: var(--font-display);
+        h1 {
             font-weight: 800;
             font-size: 3rem;
             color: #fff;
@@ -80,7 +77,7 @@
             letter-spacing: -2px;
             margin-bottom: 1.5rem;
         }
-        .meta { 
+        .meta {
             font-family: var(--font-mono);
             font-size: 0.75rem;
             color: var(--meta-color);
@@ -96,9 +93,17 @@
             text-decoration: none;
         }
         #glossary-bubble {
-            position: absolute; z-index: 1000; width: 280px; background: #161b22; border: 1px solid var(--accent-color);
-            border-radius: 8px; padding: 1rem; font-size: 0.85rem; display: none; pointer-events: none;
+            position: absolute;
+            z-index: 1000;
+            width: 280px;
+            background: #161b22;
+            border: 1px solid var(--accent-color);
+            border-radius: 8px;
+            padding: 1rem;
+            font-size: 0.85rem;
             box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            display: none;
+            pointer-events: none;
         }
         #glossary-bubble b { font-family: var(--font-mono); color: var(--accent-color); display: block; margin-bottom: 5px; }
 
@@ -112,7 +117,7 @@
             overflow: hidden;
             box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
-        
+
         #workbench-mainframe::before {
             content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
@@ -126,7 +131,7 @@
             border-bottom: 1px solid var(--border-color);
         }
         .lab-title { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent-color); }
-        
+
         .lab-content { display: grid; grid-template-columns: 300px 1fr; height: 350px; }
 
         .console-log {
@@ -144,43 +149,66 @@
         }
 
         .hardware-node {
-            width: 120px; height: 120px; border: 2px solid var(--border-color);
+            width: 130px; height: 130px; border: 2px solid var(--border-color);
             background: #0d1117; border-radius: 8px; display: flex;
             flex-direction: column; justify-content: center; align-items: center;
-            z-index: 5; transition: 0.3s;
+            z-index: 5; transition: 0.3s; text-align: center;
         }
         .hardware-node.active { border-color: var(--accent-color); box-shadow: 0 0 20px rgba(88, 166, 255, 0.3); }
-        .node-label { font-family: var(--font-mono); font-size: 0.6rem; color: var(--meta-color); margin-bottom: 5px; text-align: center; }
-        .node-status { font-family: var(--font-mono); font-size: 0.8rem; font-weight: bold; text-align: center; }
+        .node-label { font-family: var(--font-mono); font-size: 0.6rem; color: var(--meta-color); margin-bottom: 5px; }
+        .node-status { font-family: var(--font-mono); font-size: 0.8rem; font-weight: bold; }
 
         .lab-footer {
             padding: 1.25rem; background: #0d1117; border-top: 1px solid var(--border-color);
-            display: flex; justify-content: center; gap: 1rem;
+            display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;
         }
 
         /* --- ARTICLE CONTENT --- */
         .article-layout { display: flex; gap: 2.5rem; align-items: flex-start; flex-wrap: wrap; }
         main { flex: 2.5; min-width: 320px; font-size: 1.1rem; line-height: 1.8; color: #adbac7; }
-        
-        .tldr-box {
+
+        .workbench-note {
             background-color: #0d1117; border: 1px solid var(--border-color);
             border-left: 4px solid var(--accent-color); padding: 1.5rem;
-            border-radius: 6px; margin-bottom: 2.5rem;
+            border-radius: 6px; margin-bottom: 2rem;
         }
 
-        h2 { font-family: var(--font-display); color: #fff; font-size: 1.8rem; margin: 3rem 0 1.25rem 0; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
-        h3 { font-family: var(--font-display); color: #fff; font-size: 1.35rem; margin: 2.5rem 0 1rem 0; }
+        /* --- FAST DIAGNOSTIC SUMMARY --- */
+        .fast-summary {
+            background-color: #0d1117; border: 1px solid var(--accent-color);
+            border-radius: 8px; padding: 1.75rem; margin-bottom: 3rem;
+            box-shadow: 0 0 25px rgba(88, 166, 255, 0.08);
+        }
+        .fast-summary h4 {
+            font-family: var(--font-mono); color: var(--accent-color); font-size: 0.85rem;
+            text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 1rem;
+        }
+        .fast-summary ul { list-style: none; padding: 0; margin: 0; }
+        .fast-summary li { padding: 0.6rem 0; border-bottom: 1px solid #1f242c; font-size: 0.98rem; color: #c9d1d9; }
+        .fast-summary li:last-child { border-bottom: none; }
+        .fast-summary li::before { content: "▸ "; color: var(--accent-color); }
+
+        h2 { color: #fff; font-size: 1.8rem; margin: 3rem 0 1.25rem 0; font-family: var(--font-mono); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
+        h3 { color: #fff; font-size: 1.3rem; margin: 2rem 0 1rem 0; }
         p { margin-bottom: 1.5rem; }
         ul { margin-bottom: 1.5rem; padding-left: 1.5rem; }
         li { margin-bottom: 0.75rem; }
         b, strong { color: #fff; }
+        code { background: var(--card-bg); border: 1px solid var(--border-color); padding: 2px 6px; border-radius: 4px; font-family: var(--font-mono); font-size: 0.9em; color: #ff7b72; }
 
-        table {
-            width: 100%; border-collapse: collapse; margin: 2rem 0;
-            background-color: var(--card-bg); font-size: 0.85rem;
-        }
-        th, td { border: 1px solid var(--border-color); padding: 14px; text-align: left; }
-        th { background-color: rgba(88, 166, 255, 0.05); color: var(--accent-color); font-family: var(--font-mono); font-size: 0.75rem; }
+        .alert-box { background-color: rgba(240, 136, 62, 0.1); border-left: 4px solid #f0883e; padding: 1.25rem; border-radius: 4px; margin: 2rem 0; }
+        .alert-box.info { background-color: rgba(88, 166, 255, 0.1); border-left-color: var(--accent-color); }
+        .alert-box.danger { background-color: rgba(248, 81, 73, 0.1); border-left-color: var(--neon-red); }
+
+        .analysis-table-wrapper { overflow-x: auto; margin: 1.5rem 0; border: 1px solid var(--border-color); border-radius: 6px; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
+        th { background-color: var(--card-bg); color: #fff; padding: 12px; border-bottom: 1px solid var(--border-color); font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; }
+        td { padding: 12px; border-bottom: 1px solid var(--border-color); vertical-align: top; }
+        tr:last-child td { border-bottom: none; }
+        .impact-high { color: var(--neon-red); font-weight: bold; }
+        .impact-med { color: #e3b341; font-weight: bold; }
+        .impact-low { color: var(--neon-green); font-weight: bold; }
+        .lab-metric { font-family: var(--font-mono); background: var(--card-bg); padding: 2px 6px; border-radius: 4px; color: #ff7b72; }
 
         /* --- SIDEBAR & VOTE --- */
         aside { flex: 1; min-width: 280px; position: sticky; top: 20px; }
@@ -191,18 +219,18 @@
         }
 
         .btn-action {
-            background: var(--accent-color); color: #05070a; border: none;
+            background: var(--accent-color); color: #fff; border: none;
             padding: 0.8rem 1.5rem; font-family: var(--font-mono);
-            font-weight: bold; border-radius: 6px; cursor: pointer; transition: 0.2s;
+            font-weight: bold; border-radius: 4px; cursor: pointer; transition: 0.2s;
         }
         .btn-action:hover { filter: brightness(1.2); }
 
         /* --- COMMENTS --- */
         .comment-section { margin-top: 5rem; border-top: 1px solid var(--border-color); padding-top: 3rem; }
-        .comment-item { border-bottom: 1px solid var(--border-soft); padding-bottom: 1.5rem; margin-bottom: 1.5rem; }
+        .comment-item { border-bottom: 1px solid var(--border-color); padding-bottom: 1.5rem; margin-bottom: 1.5rem; }
         .comment-header { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.5rem; font-family: var(--font-mono); }
 
-        footer { text-align: center; padding: 5rem 0 2rem 0; color: #444; font-family: var(--font-mono); font-size: 0.7rem; }
+        footer { text-align: center; padding: 5rem 0 2rem 0; color: #444; font-family: var(--font-mono); font-size: 0.8rem; }
 
         @media (max-width: 768px) {
             .lab-content { grid-template-columns: 1fr; height: auto; }
@@ -213,15 +241,19 @@
 </head>
 <body>
 
-    <div id="glossary-bubble"><b id="bubble-title">TERM</b><p id="bubble-def">Loading...</p></div>
+    <!-- SHARED BUBBLE ELEMENT -->
+    <div id="glossary-bubble">
+        <b id="bubble-title">TERM</b>
+        <p id="bubble-def">Loading definition...</p>
+    </div>
 
     <div class="container">
         <header>
             <div class="boot-line">SYSTEMS_FORENSICS_LAB // QUALCOMM_SERIAL_ACTIVE</div>
-            <a href="index.html" class="nav-back">← RETURN_TO_LOBBY</a>
+            <a href="index.html" class="nav-back">// ROOT_ACCESS / RETURN_TO_LOBBY</a>
             <h1>EDL Mode Forensics: Recovering Hard-Bricked Qualcomm Devices</h1>
             <div class="meta">
-                <span>[ DATE: JULY_2026 ]</span> | 
+                <span>[ DATE: JULY_2026 ]</span> |
                 <span>[ CATEGORY: FIRMWARE_&_TOOLS ]</span> |
                 <span style="color: var(--accent-color);">[ VIEWS: <span id="topViewCount">--</span> ]</span>
             </div>
@@ -230,7 +262,7 @@
         <!-- THE MAIN WORKBENCH SIMULATOR -->
         <div id="workbench-mainframe">
             <div class="lab-header">
-                <span class="lab-title">FIREHOSE_PROVISIONING_TOOL v3.82</span>
+                <span class="lab-title">FIREHOSE_PROVISIONING_TOOL v3.83</span>
                 <div style="display:flex; gap:8px; align-items:center;">
                     <div style="width:8px; height:8px; border-radius:50%; background:var(--neon-green); box-shadow:0 0 8px var(--neon-green);"></div>
                     <span style="font-family:var(--font-mono); font-size:0.6rem; color:var(--neon-green);">QDLOADER_9008_DETECTED</span>
@@ -244,8 +276,8 @@
                 </div>
 
                 <div class="visualizer">
-                    <div id="packet" style="position:absolute; width:12px; height:12px; background:var(--accent-color); border-radius:50%; display:none; z-index:20;"></div>
-                    
+                    <div id="packet" style="position:absolute; width:12px; height:12px; background:var(--accent-color); border-radius:50%; box-shadow:0 0 15px var(--accent-color); display:none; z-index:20;"></div>
+
                     <div class="hardware-node" id="node-pc">
                         <div class="node-label">FORENSIC_PC</div>
                         <div class="node-status" id="pc-stat">LINKED</div>
@@ -268,53 +300,148 @@
 
         <div class="article-layout">
             <main id="article-body">
-                <div class="tldr-box">
-                    <h4 style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent-color); margin-bottom: 0.5rem;">🔬 Executive Summary (TL;DR)</h4>
-                    <p style="margin: 0; color: #adbac7; font-size: 0.95rem;">Emergency Download (EDL) mode is an architectural safety net built into the silicon of Qualcomm chipsets. It allows for direct communication via the <strong>QDLoader 9008</strong> driver to overwrite corrupted sectors even when the screen is dead.</p>
+                <div class="workbench-note">
+                    <h4 style="color: #fff; margin: 0 0 0.5rem 0; font-size: 0.8rem; text-transform: uppercase; font-family: var(--font-mono);">🔬 Workbench Notes</h4>
+                    <p style="margin: 0; font-size: 0.95rem; color: var(--meta-color); font-style: italic;">
+                        "EDL mode saves boards that should, by all rights, be dead weight. But it's not the universal skeleton key people online treat it as anymore — on newer locked-bootloader devices, the chip will happily enter EDL and then refuse every Firehose file you throw at it unless it's signed by the exact OEM."
+                    </p>
                 </div>
 
-                <h2>Interface Comparison: System States</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Device State</th>
-                            <th>Screen State</th>
-                            <th>PC Handshake ID</th>
-                            <th>Access Right</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Normal Boot</td>
-                            <td>Android UI</td>
-                            <td>MTP / ADB</td>
-                            <td>App Layer</td>
-                        </tr>
-                        <tr>
-                            <td>Fastboot</td>
-                            <td>Bootloader UI</td>
-                            <td>Fastboot Interface</td>
-                            <td>Partition Flashing</td>
-                        </tr>
-                        <tr>
-                            <td>Hard Brick</td>
-                            <td>Black (Dead)</td>
-                            <td>QDLoader 9008</td>
-                            <td>Direct Flash Access</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="fast-summary">
+                    <h4>⚡ Fast Diagnostic Summary</h4>
+                    <ul>
+                        <li><strong>What EDL is:</strong> Emergency Download Mode — a hardware-level failsafe burned into the Qualcomm <strong>Boot ROM</strong> itself, reachable even when the device is fully "hard bricked" and shows no display output.</li>
+                        <li><strong>How you enter it:</strong> either by shorting specific <strong>test points</strong> on the board, or by using a resistance-modified <strong>EDL cable</strong> (also called a "deep flash cable") that forces the same hardware interrupt over USB alone.</li>
+                        <li><strong>How the recovery actually works:</strong> the PC streams a small, chip-specific <strong>Firehose programmer</strong> binary into the CPU's internal <strong>SRAM</strong>, which then acts as the intermediary allowing direct sector-level writes to storage.</li>
+                        <li><strong>The honest caveat:</strong> on newer flagship-tier Snapdragon devices, the Boot ROM checks that the Firehose file carries a valid <strong>OEM signature</strong> before accepting it — generic community Firehose files are increasingly rejected outright, the same security shift that's happened on MediaTek's Dimensity line.</li>
+                        <li><strong>The single biggest risk:</strong> flashing a Firehose file or partition image intended for the wrong exact chipset variant is one of the few things in mobile repair capable of turning a recoverable hard brick into a genuinely unrecoverable one.</li>
+                    </ul>
+                </div>
 
-                <h2>How Qualcomm's Boot ROM Forces the EDL State</h2>
-                <p>Execution jumps to an unalterable piece of code burned straight into the CPU silicon called the <strong>Boot ROM</strong>. Under normal parameters, it verifies the integrity of the secondary stages on the eMMC or UFS chip. If this fails—due to corrupted partition maps—the device remains non-responsive.</p>
+                <p>A phone that shows absolutely nothing — no boot logo, no charging animation, no fastboot response, nothing but a completely black screen — looks like a paperweight to almost everyone who picks it up. To a bench technician, it's often just a device sitting in <strong>Emergency Download (EDL) Mode</strong>, waiting for the right instructions over a USB cable it can still fully hear.</p>
 
-                <p>To prevent a permanent hardware failure, Qualcomm designed a hardware interrupt. By shorting <strong>test points</strong> or using a resistance-modified EDL cable, the Boot ROM stops scanning for partitions and spins up an embedded serial interface.</p>
+                <p>EDL is not a workaround or an exploit in the traditional sense — it is a deliberate, architectural safety net that Qualcomm built directly into the silicon of its chipsets. Understanding exactly how it works, and where its limits now sit on modern hardware, is the difference between a five-minute recovery and an accidentally bricked board.</p>
 
-                <h2>The Software Handshake Sequence</h2>
+                <h2>1. What EDL Mode Actually Is, and Why It Exists</h2>
+                <p>Every Qualcomm-powered device begins its boot sequence by executing the <strong>Boot ROM</strong> — an unalterable piece of code physically etched into the CPU silicon at the factory. This is the very first code that ever runs, before any operating system, before any bootloader, before anything the user or a repair technician can normally touch.</p>
+                <p>Under normal conditions, the Boot ROM's job is to verify the integrity of the next boot stage stored on the eMMC or UFS chip, then hand off execution to it. If that verification fails — a corrupted partition table, a botched firmware flash, a torn write during an update — the device has nowhere left to go. It cannot boot, and by design, it cannot run any unsigned recovery code either, since that would defeat the entire purpose of secure boot.</p>
+                <div class="alert-box info">
+                    <strong>The failsafe design:</strong> rather than leaving a device permanently dead the moment verification fails, Qualcomm built a specific, hardware-level fallback path directly into the Boot ROM itself: EDL Mode. It exists precisely for this scenario — a way back in when every normal boot path has failed.
+                </div>
+
+                <h2>2. Entering EDL: Test Points vs. EDL Cables</h2>
+                <p>There are two standard ways to force a device's Boot ROM to skip its normal partition scan and drop into the EDL serial interface instead:</p>
                 <ul>
-                    <li><strong>1. Firehose Protocol:</strong> The servicing suite must stream a specialised runtime driver called a <strong>Firehose programmer</strong> directly into the CPU's internal static RAM (SRAM).</li>
-                    <li><strong>2. Storage Initialization:</strong> Once inside the cache, the Firehose file enables sector-level write commands across the physical storage matrix.</li>
-                    <li><strong>3. Partition Reflashing:</strong> With direct access initialized, the tool overwrites critical blocks (like <code>gpt_main</code>, <code>abl</code>, and <code>boot</code>), restoring system logic.</li>
+                    <li><strong>Test point shorting:</strong> every Qualcomm board has one or more specific pads — the "test points" — that, when momentarily bridged to ground during power-on, signal the Boot ROM to halt its normal search and wait for an EDL handshake instead. Locations vary by exact board revision and are typically sourced from leaked service schematics or community-documented pinouts.</li>
+                    <li><strong>EDL cables (deep flash cables):</strong> a modified USB cable with a specific resistor value soldered between the D+ and ground lines. When plugged into a device already in a bootloop or already dead, this resistance signature is enough to trigger the same EDL fallback without opening the case at all — useful when the board is inaccessible or the technician wants a non-invasive first attempt.</li>
+                </ul>
+                <div class="alert-box">
+                    <strong>Practical note:</strong> EDL cables work on a meaningful share of devices but not universally — some OEMs disable the resistance-triggered path entirely on newer models specifically to force technicians into the more deliberate, harder-to-accidentally-trigger test point method.
+                </div>
+
+                <h2>3. Interface Comparison: System States</h2>
+                <p>It helps to see EDL positioned alongside the other interfaces a Qualcomm device can present, since they're easy to confuse from the outside:</p>
+                <div class="analysis-table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Device State</th>
+                                <th>Screen State</th>
+                                <th>PC Handshake ID</th>
+                                <th>Access Right</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Normal Boot</td>
+                                <td>Android UI</td>
+                                <td>MTP / ADB</td>
+                                <td>App Layer</td>
+                            </tr>
+                            <tr>
+                                <td>Fastboot</td>
+                                <td>Bootloader UI</td>
+                                <td>Fastboot Interface</td>
+                                <td>Partition Flashing</td>
+                            </tr>
+                            <tr>
+                                <td>Hard Brick / EDL</td>
+                                <td>Black (Dead)</td>
+                                <td><strong>QDLoader 9008</strong></td>
+                                <td class="impact-high">Direct Flash Access</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p>Notice that EDL sits underneath even Fastboot — it doesn't require a functioning bootloader at all, which is exactly why it remains reachable when every other interface on the device has already failed.</p>
+
+                <h2>4. The Firehose Handshake: How Software Actually Talks to the Chip</h2>
+                <p>Once a device is in EDL and the PC sees the <strong>QDLoader 9008</strong> USB identifier, the actual recovery happens in three coordinated stages:</p>
+                <ul>
+                    <li><strong>Firehose injection:</strong> the servicing suite streams a small, chip-specific runtime driver called a <strong>Firehose programmer</strong> directly into the CPU's internal <strong>SRAM</strong> (Static RAM) — a tiny, extremely fast on-die memory pool that exists purely for this kind of low-level bootstrap operation.</li>
+                    <li><strong>Storage initialization:</strong> once resident in SRAM and executing, the Firehose programmer enables sector-level read/write commands across the physical storage matrix — capabilities the Boot ROM itself never exposes directly.</li>
+                    <li><strong>Partition reflashing:</strong> with direct access now live, the tool can overwrite specific critical blocks — commonly <code>gpt_main</code> (the partition table itself), <code>abl</code> (Android Bootloader), and <code>boot</code> — restoring the chain of trust needed for the device to boot normally again.</li>
+                </ul>
+
+                <h2>5. Modern Lockdown: Signed Firehose Programmers</h2>
+                <p>This is the part most older EDL tutorials skip entirely, because it wasn't true when they were written. On flagship and upper-midrange Snapdragon chipsets from recent generations, the Boot ROM doesn't just accept any Firehose binary that gets streamed to it — it cryptographically verifies that the file carries a valid signature matching that specific OEM's key, before allowing it to execute in SRAM at all.</p>
+                <p>This is architecturally the same security evolution covered in our Dimensity FRP piece: a boot-time authentication gate that generic community tooling simply cannot answer without the manufacturer's private signing key. The practical result is that a Firehose file pulled from a generic forum thread — one that would have worked flawlessly on a five-year-old Snapdragon board — is often flatly rejected on current-generation silicon, even though the EDL handshake itself succeeds perfectly.</p>
+                <div class="alert-box info">
+                    <strong>What this means for real repairs:</strong> successful EDL recovery on modern devices increasingly depends on sourcing the <em>exact</em> OEM-signed Firehose file for that specific model and chipset revision — usually distributed through official or authorized-partner firmware packages, not generic all-purpose tools. "EDL mode exists" and "you can actually flash anything once you're in it" are no longer the same guarantee they used to be.
+                </div>
+
+                <h2>6. Partition Anatomy: What You're Actually Rewriting</h2>
+                <p>Understanding what each targeted partition does helps explain why the order and precision of an EDL flash matters:</p>
+                <ul>
+                    <li><strong>GPT (GUID Partition Table):</strong> the master map describing where every other partition begins and ends on the storage chip. If this is corrupted, the device can't even locate its own bootloader — which is why <code>gpt_main</code> is almost always the first thing restored in a hard-brick recovery.</li>
+                    <li><strong>abl (Android Bootloader):</strong> the stage that runs after the Boot ROM's own verification, responsible for loading the kernel and presenting Fastboot if needed.</li>
+                    <li><strong>boot:</strong> contains the kernel and initial RAM disk — the code that actually starts the Android operating system itself.</li>
+                </ul>
+
+                <h2>7. Bench Verification &amp; Success Patterns</h2>
+                <p>Across recovery attempts logged by our bench partners, the outcome correlates almost entirely with one variable — whether the technician had the exact correct Firehose and firmware package for that specific model and chipset revision:</p>
+                <div class="analysis-table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Scenario</th>
+                                <th>Firehose Match</th>
+                                <th>Outcome</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Exact model + chipset revision match</td>
+                                <td class="impact-low">Correct, OEM-signed</td>
+                                <td class="impact-low">Recovery successful, near-100%</td>
+                            </tr>
+                            <tr>
+                                <td>Correct model, wrong regional firmware variant</td>
+                                <td class="impact-med">Partially compatible</td>
+                                <td class="impact-med">Often boots, may lose IMEI/modem calibration</td>
+                            </tr>
+                            <tr>
+                                <td>Generic/mismatched Firehose file</td>
+                                <td class="impact-high">Rejected or unsigned</td>
+                                <td class="impact-high">Handshake fails, or worse — permanent brick</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h2>8. Common Failure Modes and Risks</h2>
+                <ul>
+                    <li><strong>Wrong Firehose variant:</strong> streaming a Firehose programmer built for a slightly different chipset stepping can cause the device to accept commands it interprets incorrectly, corrupting storage in ways the original hard brick never did.</li>
+                    <li><strong>Interrupted flash:</strong> losing USB connection mid-write to <code>gpt_main</code> is one of the few EDL mistakes with no safety net — this partition has no redundant backup on most devices.</li>
+                    <li><strong>Test point damage:</strong> repeatedly shorting the wrong pad, or shorting with too much force/heat, can physically damage the trace, permanently closing off the EDL entry path on that specific board.</li>
+                    <li><strong>Regional firmware mismatches:</strong> flashing a firmware package intended for a different regional variant can restore boot function while leaving modem/IMEI calibration data incorrect — the phone turns on, but cellular service may never work correctly again.</li>
+                </ul>
+
+                <h2>9. Common Myths About EDL Mode</h2>
+                <ul>
+                    <li><strong>"EDL mode can unlock any Qualcomm phone, no matter how new."</strong> Increasingly false. EDL <em>entry</em> is nearly universal, but Firehose <em>signing</em> requirements on newer chips mean entry alone no longer guarantees write access.</li>
+                    <li><strong>"Any Firehose file will work if it's for the same chipset family."</strong> False, and dangerous. Firehose files are frequently tied to the exact chipset stepping and sometimes the exact OEM build — "close enough" is a real bricking risk, not a shortcut.</li>
+                    <li><strong>"EDL cables always work if test points don't."</strong> Not universally — some OEMs have disabled the resistance-triggered EDL cable path specifically, requiring the physical test point method instead.</li>
                 </ul>
             </main>
 
@@ -322,7 +449,7 @@
                 <div id="votePanel">
                     <h3 style="font-family: var(--font-mono); color:#fff; margin-bottom: 1rem; font-size: 1rem;">⚡ BENCH_VERIFICATION</h3>
                     <p style="margin: 0 0 1.5rem 0; color: var(--meta-color); font-size: 0.85rem;">Did this specific EDL workaround restore your target device hardware?</p>
-                    
+
                     <button onclick="incrementTelemetry('yes')" class="btn-action" style="background: rgba(63, 185, 80, 0.1); color: var(--neon-green); border: 1px solid var(--neon-green); margin-bottom: 0.75rem; width: 100%;">
                         YES, WORKED! (<span id="countWorked">--</span>)
                     </button>
@@ -359,31 +486,38 @@
         const firebaseConfig = { apiKey: "AIzaSyAZ5kORicxNAp4iCWlGn1C3XkP0vPJ5vQw", authDomain: "bitandboot.firebaseapp.com", projectId: "bitandboot", storageBucket: "bitandboot.firebasestorage.app", messagingSenderId: "687841897835", appId: "1:687841897835:web:16e8a1b9f31e23f069b02e" };
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        const pageId = "edl-mode-guide";
+        const pageId = (window.location.pathname.split("/").pop() || "index").replace(".html", "");
         const articleRef = doc(db, "articles", pageId);
         const commentsRef = collection(db, "articles", pageId, "comments");
 
-        /* 1. GLOSSARY SYNC */
+        /* 1. SYNC ENGINE: Pulls from glossary.html */
         async function syncGlossary() {
             try {
                 const response = await fetch('glossary.html');
                 const text = await response.text();
                 const parser = new DOMParser();
-                const doc = parser.parseFromString(text, 'text/html');
-                const terms = {};
-                doc.querySelectorAll('.term-card').forEach(card => {
+                const gdoc = parser.parseFromString(text, 'text/html');
+                const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const terms = [];
+                gdoc.querySelectorAll('.term-card').forEach(card => {
+                    const cardId = card.id;
                     const title = card.querySelector('.term-title').innerText.trim();
-                    terms[title] = card.querySelector('.term-def').innerText.trim();
+                    const def = card.querySelector('.term-def').innerText.trim();
+                    const matchAttr = card.getAttribute('data-match');
+                    const aliases = (matchAttr ? matchAttr.split(',') : [title]).map(s => s.trim()).filter(Boolean);
+                    aliases.forEach(alias => terms.push({ alias, def, cardId }));
                 });
+                terms.sort((a, b) => b.alias.length - a.alias.length);
                 const main = document.getElementById('article-body');
                 let html = main.innerHTML;
-                Object.keys(terms).forEach(term => {
-                    const regex = new RegExp(`\\b(${term})\\b(?![^<]*>)`, 'g');
-                    html = html.replace(regex, `<a href="glossary.html#${term.toLowerCase().replace(/\s+/g, '-')}" class="glossary-link" data-def="${terms[term]}">$1</a>`);
+                terms.forEach(({ alias, def, cardId }) => {
+                    const regex = new RegExp(`\\b(${escapeRegex(alias)})\\b(?![^<]*>)`, 'gi');
+                    const safeDef = def.replace(/"/g, '&quot;');
+                    html = html.replace(regex, `<a href="glossary.html#${cardId}" class="glossary-link" data-def="${safeDef}">$1</a>`);
                 });
                 main.innerHTML = html;
                 setupBubbles();
-            } catch (e) { }
+            } catch (e) { console.error("Glossary Sync Failed:", e); }
         }
 
         function setupBubbles() {
@@ -409,39 +543,47 @@
             if (!snap.exists()) await setDoc(articleRef, { viewCount: 0, workedCount: 0, brickedCount: 0 });
             onSnapshot(articleRef, (s) => {
                 const d = s.data();
-                if(d) {
-                    document.getElementById("topViewCount").innerText = (d.viewCount || 0).toLocaleString();
-                    document.getElementById("countWorked").innerText = d.workedCount || 0;
-                    document.getElementById("countBricked").innerText = d.brickedCount || 0;
-                }
+                if(d && document.getElementById("topViewCount")) document.getElementById("topViewCount").innerText = (d.viewCount || 0).toLocaleString();
+                if(d && document.getElementById("countWorked")) document.getElementById("countWorked").innerText = d.workedCount || 0;
+                if(d && document.getElementById("countBricked")) document.getElementById("countBricked").innerText = d.brickedCount || 0;
             });
-            if(!sessionStorage.getItem('v')) { await updateDoc(articleRef, {viewCount: increment(1)}); sessionStorage.setItem('v', '1'); }
-            
+            if(!sessionStorage.getItem(`viewed_${pageId}`)) { await updateDoc(articleRef, {viewCount: increment(1)}); sessionStorage.setItem(`viewed_${pageId}`, '1'); }
+
             onSnapshot(query(commentsRef, orderBy("timestamp", "desc")), (snapshot) => {
                 const feed = document.getElementById("commentsFeed");
                 feed.innerHTML = "";
+                if (snapshot.empty) {
+                    feed.innerHTML = `<p style="color: var(--meta-color); font-size: 0.9rem;">No notes yet — be the first to leave one.</p>`;
+                    return;
+                }
                 snapshot.forEach((docSnap) => {
                     const c = docSnap.data();
                     const div = document.createElement("div");
                     div.className = "comment-item";
-                    div.innerHTML = `<div class="comment-header"><strong style="color:var(--accent-color);">@${c.name}</strong></div><p style="margin:0;color:#c9d1d9;">${c.text}</p>`;
+                    div.innerHTML = `<div class="comment-header"><strong style="color:var(--accent-color);">@${escapeHTML(c.name)}</strong></div><p style="margin:0;color:#c9d1d9;">${escapeHTML(c.text)}</p>`;
                     feed.appendChild(div);
                 });
             });
         }
 
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, tag => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[tag] || tag));
+        }
+
         window.submitGenericComment = async () => {
-            const name = document.getElementById("suiteNameInput").value.trim();
-            const text = document.getElementById("suiteCommentText").value.trim();
-            if (!name || !text) return;
-            await addDoc(commentsRef, { name: name.replace(/\s/g, ''), text: text, timestamp: serverTimestamp() });
+            const nameField = document.getElementById("suiteNameInput").value.trim();
+            const textField = document.getElementById("suiteCommentText").value.trim();
+            if (!nameField || !textField) return;
+            const sanitizedName = nameField.replace(/[^a-zA-Z0-9]/g, "") || "Tech";
+            await addDoc(commentsRef, { name: `${sanitizedName}King`, text: textField, timestamp: serverTimestamp() });
             document.getElementById("suiteCommentText").value = "";
         };
 
         window.incrementTelemetry = async (type) => {
-            if(localStorage.getItem('voted_'+pageId)) return alert("Session Lock Active.");
+            const voteLockKey = `voted_${pageId}`;
+            if(localStorage.getItem(voteLockKey)) return alert("Session Lock Active. You've already logged a result for this article.");
             await updateDoc(articleRef, { [type === 'yes' ? 'workedCount' : 'brickedCount']: increment(1) });
-            localStorage.setItem('voted_'+pageId, '1');
+            localStorage.setItem(voteLockKey, '1');
             document.getElementById("votePanel").innerHTML = "<h2 style='color:var(--neon-green)'>LOGGED</h2>";
         };
 
@@ -455,21 +597,21 @@
         window.nextSimStep = () => {
             step++;
             const log = (m) => { const d=document.createElement("div"); d.className="console-line"; d.innerText=m; consoleEl.appendChild(d); consoleEl.scrollTop = consoleEl.scrollHeight; };
-            
-            if (step === 1) { 
+
+            if (step === 1) {
                 log("Detecting Qualcomm HS-USB QDLoader 9008...");
                 setTimeout(() => {
                     log("Port COM3 Open. Requesting Firehose handshake...");
                     packet.style.display = "block";
                     packet.animate([{ left: '40%' }, { left: '60%' }], { duration: 600, fill: 'forwards' });
-                    btn.innerText = "STREAM_FIREHOSE_BINARY";
+                    nextBtn.innerText = "STREAM_FIREHOSE_BINARY";
                 }, 500);
-            } 
-            else if (step === 2) { 
+            }
+            else if (step === 2) {
                 log("Streaming firehose_sdm845.mbn (542KB)...");
                 packet.style.display = "block";
                 packet.animate([{ left: '40%' }, { left: '60%' }], { duration: 1000, iterations: 2 });
-                
+
                 setTimeout(() => {
                     log("Handshake Success. SRAM initialized.");
                     phoneStat.innerText = "FIREHOSE_READY";
@@ -482,15 +624,15 @@
                 log("Requesting GPT_Main sector map...");
                 setTimeout(() => {
                     log("GPT_READ: 48 Partitions found. Ready to reflash.");
-                    btn.innerText = "SIMULATION_COMPLETE";
-                    btn.disabled = true;
+                    nextBtn.innerText = "SIMULATION_COMPLETE";
+                    nextBtn.disabled = true;
                 }, 800);
             }
         };
 
         window.resetLab = () => {
             step = 0; phoneStat.innerText = "BRICKED"; phoneStat.style.color = "inherit";
-            btn.disabled = false; btn.innerText = "INJECT_FIREHOSE_PROGRAMMER";
+            nextBtn.disabled = false; nextBtn.innerText = "INJECT_FIREHOSE_PROGRAMMER";
             consoleEl.innerHTML = '<div class="console-line">Awaiting USB handshake...</div><div class="console-line">Hardware Testpoint Bridge detected.</div>';
         };
 
