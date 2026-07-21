@@ -5,98 +5,345 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Invisible Energy Vampires: Background Refresh vs. Battery Lifespan | bitandboot</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <!-- Professional Engineering Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
+
     <style>
         :root {
-            --bg-color: #0d1117;
+            --bg-color: #05070a;
             --text-color: #c9d1d9;
             --accent-color: #58a6ff;
-            --card-bg: #161b22;
+            --neon-green: #3fb950;
+            --neon-red: #f85149;
+            --card-bg: #0d1117;
             --border-color: #30363d;
+            --terminal-bg: #010409;
             --meta-color: #8b949e;
-            --badge-easy: #56d364;
-            --badge-hard: #f85149;
-            --badge-medium: #e3b341;
+            --font-mono: 'Roboto', sans-serif;
+            --font-sans: 'Inter', sans-serif;
         }
+
         * { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
             background-color: var(--bg-color);
+            background-image: radial-gradient(#161b22 0.5px, transparent 0.5px);
+            background-size: 30px 30px;
             color: var(--text-color);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            font-family: var(--font-sans);
             line-height: 1.6;
-            padding: 2rem 1rem;
+            padding: 0 1.5rem;
         }
+
         .container { max-width: 1100px; margin: 0 auto; }
-        header { margin-bottom: 2.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1.5rem; }
-        .nav-back { color: var(--accent-color); text-decoration: none; font-size: 0.95rem; display: inline-block; margin-bottom: 1rem; }
-        .nav-back:hover { text-decoration: underline; }
-        h1 { color: #fff; font-size: 2.2rem; line-height: 1.25; margin-bottom: 0.75rem; }
-        .meta { color: var(--meta-color); font-size: 0.9rem; display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
-        h2 { color: #fff; font-size: 1.5rem; margin: 2rem 0 1rem 0; padding-bottom: 0.3rem; border-bottom: 1px solid var(--border-color); }
-        h3 { color: #fff; font-size: 1.2rem; margin: 1.5rem 0 0.5rem 0; }
-        p { margin-bottom: 1.25rem; }
-        b, strong { color: #fff; font-weight: 600; }
-        ul { margin-bottom: 1.25rem; padding-left: 1.5rem; }
-        li { margin-bottom: 0.5rem; }
-        .alert-box { background-color: rgba(255, 123, 114, 0.1); border-left: 4px solid #ff7b72; padding: 1rem; border-radius: 4px; margin: 1.5rem 0; }
+
+        /* --- STAMPED HEADER --- */
+        header {
+            padding: 4rem 0 2rem 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 3rem;
+        }
+        .nav-back {
+            font-family: var(--font-mono);
+            color: var(--accent-color);
+            text-decoration: none;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            display: block;
+            margin-bottom: 1rem;
+        }
+        h1 {
+            font-weight: 800;
+            font-size: 3rem;
+            color: #fff;
+            line-height: 1.1;
+            letter-spacing: -2px;
+            margin-bottom: 1.5rem;
+        }
+        .meta {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--meta-color);
+            display: flex; gap: 1.5rem; text-transform: uppercase; flex-wrap: wrap;
+        }
+
+        /* --- GLOSSARY BUBBLE UI --- */
+        .glossary-link {
+            color: #fff;
+            border-bottom: 1px dashed var(--accent-color);
+            cursor: help;
+            font-weight: 700;
+            text-decoration: none;
+        }
+        #glossary-bubble {
+            position: absolute;
+            z-index: 1000;
+            width: 280px;
+            background: #161b22;
+            border: 1px solid var(--accent-color);
+            border-radius: 8px;
+            padding: 1rem;
+            font-size: 0.85rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            display: none;
+            pointer-events: none;
+        }
+        #glossary-bubble b { font-family: var(--font-mono); color: var(--accent-color); display: block; margin-bottom: 5px; }
+
+        /* --- THE WORKBENCH MAINFRAME --- */
+        #workbench-mainframe {
+            background: var(--terminal-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 4rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        #workbench-mainframe::before {
+            content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            z-index: 10; background-size: 100% 3px, 3px 100%; pointer-events: none;
+        }
+
+        .lab-header {
+            background: #161b22;
+            padding: 0.75rem 1.5rem;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .lab-title { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent-color); }
+
+        .lab-content { display: grid; grid-template-columns: 300px 1fr; height: 350px; }
+
+        .console-log {
+            background: #000; border-right: 1px solid var(--border-color);
+            padding: 1rem; font-family: var(--font-mono); font-size: 0.7rem;
+            color: var(--neon-green); overflow-y: auto;
+        }
+        .console-line { margin-bottom: 4px; opacity: 0.8; }
+        .console-line::before { content: "> "; color: var(--accent-color); }
+
+        .visualizer {
+            position: relative; display: flex; justify-content: space-around;
+            align-items: center; padding: 2rem;
+            background: radial-gradient(circle at center, #0d1117 0%, #010409 100%);
+        }
+
+        .hardware-node {
+            width: 130px; height: 130px; border: 2px solid var(--border-color);
+            background: #0d1117; border-radius: 8px; display: flex;
+            flex-direction: column; justify-content: center; align-items: center;
+            z-index: 5; transition: 0.3s;
+        }
+        .hardware-node.active { border-color: var(--accent-color); box-shadow: 0 0 20px rgba(88, 166, 255, 0.3); }
+        .node-label { font-family: var(--font-mono); font-size: 0.6rem; color: var(--meta-color); margin-bottom: 5px; }
+        .node-status { font-family: var(--font-mono); font-size: 0.8rem; font-weight: bold; }
+
+        .lab-footer {
+            padding: 1.25rem; background: #0d1117; border-top: 1px solid var(--border-color);
+            display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;
+        }
+
+        /* --- ARTICLE CONTENT --- */
+        .article-layout { display: flex; gap: 2.5rem; align-items: flex-start; flex-wrap: wrap; }
+        main { flex: 2.5; min-width: 320px; font-size: 1.1rem; line-height: 1.8; color: #adbac7; }
+
+        .workbench-note {
+            background-color: #0d1117; border: 1px solid var(--border-color);
+            border-left: 4px solid var(--accent-color); padding: 1.5rem;
+            border-radius: 6px; margin-bottom: 2rem;
+        }
+
+        /* --- FAST DIAGNOSTIC SUMMARY --- */
+        .fast-summary {
+            background-color: #0d1117; border: 1px solid var(--accent-color);
+            border-radius: 8px; padding: 1.75rem; margin-bottom: 3rem;
+            box-shadow: 0 0 25px rgba(88, 166, 255, 0.08);
+        }
+        .fast-summary h4 {
+            font-family: var(--font-mono); color: var(--accent-color); font-size: 0.85rem;
+            text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 1rem;
+        }
+        .fast-summary ul { list-style: none; padding: 0; margin: 0; }
+        .fast-summary li {
+            padding: 0.6rem 0; border-bottom: 1px solid #1f242c; font-size: 0.98rem; color: #c9d1d9;
+        }
+        .fast-summary li:last-child { border-bottom: none; }
+        .fast-summary li::before { content: "▸ "; color: var(--accent-color); }
+
+        h2 { color: #fff; font-size: 1.8rem; margin: 3rem 0 1.25rem 0; font-family: var(--font-mono); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
+        h3 { color: #fff; font-size: 1.3rem; margin: 2rem 0 1rem 0; }
+        p { margin-bottom: 1.5rem; }
+        ul { margin-bottom: 1.5rem; padding-left: 1.5rem; }
+        li { margin-bottom: 0.75rem; }
+
+        .alert-box { background-color: rgba(248, 81, 73, 0.1); border-left: 4px solid var(--neon-red); padding: 1.25rem; border-radius: 4px; margin: 2rem 0; }
+        .alert-box.info { background-color: rgba(88, 166, 255, 0.1); border-left-color: var(--accent-color); }
+
         .analysis-table-wrapper { overflow-x: auto; margin: 1.5rem 0; border: 1px solid var(--border-color); border-radius: 6px; }
         table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
-        th { background-color: var(--card-bg); color: #fff; padding: 12px; border-bottom: 1px solid var(--border-color); }
+        th { background-color: var(--card-bg); color: #fff; padding: 12px; border-bottom: 1px solid var(--border-color); font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; }
         td { padding: 12px; border-bottom: 1px solid var(--border-color); }
         tr:last-child td { border-bottom: none; }
-        .impact-high { color: var(--badge-hard); font-weight: bold; }
-        .impact-med { color: var(--badge-medium); font-weight: bold; }
-        .impact-low { color: var(--badge-easy); font-weight: bold; }
-        .lab-metric { font-family: ui-monospace, SFMono-Regular, monospace; background: var(--card-bg); padding: 2px 6px; border-radius: 4px; color: #ff7b72; }
+        .impact-high { color: var(--neon-red); font-weight: bold; }
+        .impact-med { color: #e3b341; font-weight: bold; }
+        .impact-low { color: var(--neon-green); font-weight: bold; }
+        .lab-metric { font-family: var(--font-mono); background: var(--card-bg); padding: 2px 6px; border-radius: 4px; color: #ff7b72; }
+
         .code-block {
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 6px;
-            padding: 1rem;
-            font-family: ui-monospace, SFMono-Regular, "SF Pro Mono", Liberation Mono, Menlo, Courier, monospace;
+            padding: 1.25rem;
+            font-family: ui-monospace, SFMono-Regular, "SF Pro Mono", Menlo, Courier, monospace;
             font-size: 0.85rem;
             color: #e6edf3;
             overflow-x: auto;
             margin: 1.5rem 0;
             white-space: pre;
         }
-        footer { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color); color: var(--meta-color); text-align: center; font-size: 0.85rem; }
+        .code-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--meta-color); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; display: block; }
+
+        /* --- SIDEBAR & VOTE --- */
+        aside { flex: 1; min-width: 280px; position: sticky; top: 20px; }
+        #votePanel {
+            background-color: var(--card-bg); border: 1px solid var(--border-color);
+            border-top: 4px solid var(--accent-color); padding: 2rem;
+            border-radius: 8px; text-align: center;
+        }
+
+        .btn-action {
+            background: var(--accent-color); color: #fff; border: none;
+            padding: 0.8rem 1.5rem; font-family: var(--font-mono);
+            font-weight: bold; border-radius: 4px; cursor: pointer; transition: 0.2s;
+        }
+        .btn-action:hover { filter: brightness(1.2); }
+
+        /* --- COMMENTS --- */
+        .comment-section { margin-top: 5rem; border-top: 1px solid var(--border-color); padding-top: 3rem; }
+        .comment-item { border-bottom: 1px solid var(--border-color); padding-bottom: 1.5rem; margin-bottom: 1.5rem; }
+
+        footer { text-align: center; padding: 5rem 0 2rem 0; color: #444; font-family: var(--font-mono); font-size: 0.8rem; }
+
+        @media (max-width: 768px) {
+            .lab-content { grid-template-columns: 1fr; height: auto; }
+            .console-log { display: none; }
+            h1 { font-size: 2.2rem; }
+        }
     </style>
 </head>
 <body>
+
+    <!-- SHARED BUBBLE ELEMENT -->
+    <div id="glossary-bubble">
+        <b id="bubble-title">TERM</b>
+        <p id="bubble-def">Loading definition...</p>
+    </div>
+
     <div class="container">
         <header>
-            <a href="index.html" class="nav-back">← Back to Dashboard</a>
-            <h1>The Invisible Energy Vampires: How Background Refresh Quietly Kills Your Daily Battery</h1>
+            <a href="index.html" class="nav-back">// ROOT_ACCESS / RETURN_TO_LOBBY</a>
+            <h1>The Invisible Energy Vampires: How Background App Refresh Quietly Kills Your Daily Battery</h1>
             <div class="meta">
-                <span>📅 July 2026</span> | 
-                <span>🏷️ Category: OS Optimization</span> |
-                <span style="color: #8b949e; border: 1px solid var(--border-color); padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600;">
-                    📊 <span id="topViewCount">--</span> Views
-                </span>
+                <span>[ DATE: JULY_2026 ]</span> |
+                <span>[ CATEGORY: OS_OPTIMIZATION ]</span> |
+                <span style="color: var(--accent-color);">[ VIEWS: <span id="topViewCount">--</span> ]</span>
             </div>
         </header>
 
-        <div style="display: flex; gap: 2rem; align-items: flex-start; flex-wrap: wrap;">
+        <!-- THE MAIN WORKBENCH SIMULATOR -->
+        <div id="workbench-mainframe">
+            <div class="lab-header">
+                <span class="lab-title">POWER_FORENSICS_LAB v1.08</span>
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <div style="width:8px; height:8px; border-radius:50%; background:var(--neon-green); box-shadow:0 0 8px var(--neon-green);"></div>
+                    <span style="font-family:var(--font-mono); font-size:0.6rem; color:var(--neon-green);">LIVE_LINK_ACTIVE</span>
+                </div>
+            </div>
 
-            <main style="flex: 2.5; min-width: 320px;">
+            <div class="lab-content">
+                <div class="console-log" id="console">
+                    <div class="console-line">Ready for instruction.</div>
+                    <div class="console-line">Waiting for SIMULATE_POLL_CYCLE signal...</div>
+                </div>
 
-                <div style="background-color: #1f242c; border: 1px solid var(--border-color); border-left: 4px solid var(--accent-color); padding: 1.25rem; border-radius: 6px; margin-bottom: 2rem;">
-                    <h4 style="color: #fff; margin: 0 0 0.5rem 0; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.5px;">🔬 Workbench Notes</h4>
-                    <p style="margin: 0; font-size: 0.9rem; color: #8b949e; font-style: italic;">
+                <div class="visualizer">
+                    <div id="packet" style="position:absolute; width:12px; height:12px; background:var(--accent-color); border-radius:50%; box-shadow:0 0 15px var(--accent-color); display:none; z-index:20;"></div>
+
+                    <div class="hardware-node" id="node-app">
+                        <div class="node-label">SUSPENDED_APP</div>
+                        <div class="node-status" id="app-stat">FROZEN</div>
+                    </div>
+
+                    <div style="font-family:var(--font-mono); color:var(--border-color); font-size:1.5rem;">[ WAKE_LOCK ]</div>
+
+                    <div class="hardware-node" id="node-cpu">
+                        <div class="node-label">CPU_POWER_STATE</div>
+                        <div class="node-status" id="cpu-stat">C-STATE_4</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lab-footer">
+                <button class="btn-action" id="nextBtn" onclick="nextSimStep()" style="width: auto;">SIMULATE_POLL_CYCLE</button>
+                <button onclick="resetLab()" style="background:transparent; border:1px solid var(--border-color); color:var(--meta-color); font-family:var(--font-mono); font-size:0.7rem; padding:0.5rem 1rem; cursor:pointer; border-radius:4px;">SYS_RESET</button>
+            </div>
+        </div>
+
+        <div class="article-layout">
+            <main id="article-body">
+                <div class="workbench-note">
+                    <h4 style="color: #fff; margin: 0 0 0.5rem 0; font-size: 0.8rem; text-transform: uppercase; font-family: var(--font-mono);">🔬 Workbench Notes</h4>
+                    <p style="margin: 0; font-size: 0.95rem; color: var(--meta-color); font-style: italic;">
                         "Half the 'my battery is dying' tickets I get on the bench have nothing to do with cell health. Pull the current draw on a locked screen and you'll often find fifteen apps quietly wake-locking the CPU every few minutes. The battery isn't degraded — the software just never lets it sleep."
                     </p>
                 </div>
 
-                <p>You lock your phone at 80% battery, set it down on your desk, and pick it up two hours later only to find it sitting at 71%. No screen time, no active apps, and strong cell signal. What happened? You have been targeted by background energy architecture. In modern mobile operating systems, application processes are supposed to enter a frozen state when suspended. However, a feature called Background App Refresh creates explicit, invisible loopholes that bypass these restrictions, draining substantial power while your screen is completely off.</p>
+                <div class="fast-summary">
+                    <h4>⚡ Fast Diagnostic Summary</h4>
+                    <ul>
+                        <li><strong>The core culprit:</strong> <strong>Background App Refresh</strong> lets suspended apps pull network requests, refresh caches, and poll location data on a timer — bypassing the OS's normal freeze rules.</li>
+                        <li><strong>The mechanism:</strong> every poll forces the CPU out of its lowest-power <strong>C-State</strong> (deep sleep), and the energy cost of that wake-up transition is far higher than the actual work performed.</li>
+                        <li><strong>The measured impact:</strong> our bench test showed unoptimized polling apps pulling <strong>28.9 mA average current</strong> versus <strong>~5.1 mA</strong> for event-driven push — an <strong>82.3% reduction</strong> in idle drain.</li>
+                        <li><strong>The fix for developers:</strong> replace scheduled polling with silent <strong>push notifications</strong> (<strong>APNs</strong> on iOS, <strong>FCM</strong> on Android) so the CPU only wakes when there's actually something new.</li>
+                        <li><strong>The fix for everyday users:</strong> both iOS and Android let you disable Background Refresh per-app — covered step-by-step below, no root or jailbreak required.</li>
+                    </ul>
+                </div>
 
-                <h2>1. Executive Summary</h2>
+                <p>You lock your phone at 80% battery, set it down on your desk, and pick it up two hours later only to find it sitting at 71%. No screen time, no active apps, and strong cell signal. What happened? You've been targeted by background energy architecture — a layer of the operating system most users never see, and most battery-health apps never accurately measure.</p>
+
+                <p>In modern mobile operating systems, application processes are supposed to enter a fully frozen state the moment you leave them. But a feature called <strong>Background App Refresh</strong> creates explicit, deliberate loopholes in that freeze — and understanding exactly how those loopholes work is the difference between guessing at battery fixes and actually solving the problem.</p>
+
+                <h2>1. What Is Background App Refresh, Really?</h2>
+                <p>Background App Refresh is not a single mechanism — it's an umbrella term for several distinct capabilities the OS grants to apps even after you've swiped them away or locked the screen. Depending on platform and permission level, a "closed" app can still legally:</p>
                 <ul>
-                    <li><strong>The Core Culprit:</strong> Background App Refresh allows suspended applications to pull network requests, update caches, and poll GPS data asynchronously, bypassing traditional sleep limits.</li>
-                    <li><strong>The Mechanism:</strong> Frequent wake-locks drag the CPU out of its lowest power C-states (deep sleep), forcing the device into active power draw multiple times per hour for non-critical assets.</li>
-                    <li><strong>The Fix:</strong> Shifting application logic from polling-based background tasks to silent server-side Push Notifications (APNs/FCM) to radically extend standby capacity.</li>
+                    <li><strong>Poll a remote server</strong> on a timer to check for new content (email clients, news apps, social feeds).</li>
+                    <li><strong>Refresh cached data</strong> so the app opens instantly next time, instead of showing a loading spinner.</li>
+                    <li><strong>Query location services</strong> for geofencing — for example, a weather app that wants to know when you've entered a new city.</li>
+                    <li><strong>Maintain a persistent network socket</strong> for real-time messaging apps, so a call or message can arrive instantly.</li>
                 </ul>
+                <p>None of this is inherently malicious — a lot of it genuinely improves the experience. The problem is <strong>how</strong> most apps implement it: on a fixed timer, regardless of whether anything has actually changed. That's the part that quietly bleeds your battery.</p>
 
-                <h2>2. The Cost Grid: Background Operations vs. Power Demands</h2>
+                <h2>2. The CPU Sleep Cycle: What a "C-State" Actually Is</h2>
+                <p>To understand why background refresh is so costly, you have to understand what your processor does the instant your screen turns off. Modern mobile CPUs support a ladder of power states, commonly called <strong>C-States</strong>, ranging from fully active (C0) down to deep sleep (typically C3 or C4, depending on the chipset):</p>
+                <ul>
+                    <li><strong>C0 (Active):</strong> Cores fully powered, executing instructions at clock speed. Highest power draw.</li>
+                    <li><strong>C1/C2 (Light Idle):</strong> Core clock halted but instantly resumable. Used between keystrokes and frame renders.</li>
+                    <li><strong>C3 (Deep Idle):</strong> Cache flushed, core voltage reduced significantly. Takes longer to wake, but draws a fraction of the power.</li>
+                    <li><strong>C4 (Deep Sleep / Package state):</strong> Nearly the entire SoC — CPU cores, cache, and often parts of the memory controller — power down. This is where your phone should live for the vast majority of a locked-screen hour.</li>
+                </ul>
+                <div class="alert-box">
+                    <strong>The Core Mechanic:</strong> A wake-lock doesn't just cost the few milliseconds of active work — it costs the ramp-up transition into C0 and the ramp-down transition back to C4 on either side. Short, frequent wake-ups are dramatically more expensive per unit of actual work than one longer, coalesced burst. This is precisely why <strong>15 apps polling every 5 minutes</strong> is so much worse than <strong>one app syncing once an hour</strong> — even though the total "work" done might be similar.
+                </div>
+                <p>When Background App Refresh fires, it issues what's called a <strong>wake-lock</strong> — a low-level signal that tells the OS "do not let this CPU core drop into C3/C4 until I release this lock." The moment dozens of apps are each independently requesting these locks on their own uncoordinated schedules, your device effectively never reaches a stable low-power floor. It's constantly climbing back up the C-State ladder, paying the transition cost over and over.</p>
+
+                <h2>3. The Cost Grid: Background Operations vs. Power Demand</h2>
+                <p>Not all background activity is equally expensive. The trigger mechanism matters enormously — a scheduled timer that fires whether or not there's new data is fundamentally more wasteful than a trigger that only fires when something has actually changed:</p>
                 <div class="analysis-table-wrapper">
                     <table>
                         <thead>
@@ -109,38 +356,37 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td><strong>Standard Fetch API</strong></td>
-                                <td>Scheduled time intervals / OS heuristic cycles</td>
-                                <td>Forces core wake-up</td>
+                                <td><strong>Standard Fetch / Polling</strong></td>
+                                <td>Scheduled time intervals, regardless of new data</td>
+                                <td>Forces core wake-up every cycle</td>
                                 <td class="impact-med">Medium (Iterative Drains)</td>
                             </tr>
                             <tr>
                                 <td><strong>Geofencing & GPS Polling</strong></td>
                                 <td>Location change alert / cell tower handoff</td>
-                                <td>High-activity modem</td>
+                                <td>High-activity modem + GPS radio</td>
                                 <td class="impact-high">Severe (Rapid Depletion)</td>
                             </tr>
                             <tr>
                                 <td><strong>Silent Push Notifications</strong></td>
-                                <td>Remote server wake-up (APNs / FCM)</td>
-                                <td>Opportunistic burst</td>
+                                <td>Remote server wake-up (APNs / FCM), only on real change</td>
+                                <td>Opportunistic burst, then immediate re-sleep</td>
                                 <td class="impact-low">Low (Optimized)</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
 
-                <h2>3. Under the Hood: The OS Sleep Cycle Break</h2>
-                <p>When you close an app, the OS doesn't kill it immediately. It parks the application in system RAM, freezing its threads. When Background Refresh activates, the operating system issues a temporary hardware wake-lock. This mechanism spins the CPU out of its low-power sleep state into an active computing state just to run a quick background update script.</p>
-
-                <p>This causes a serious architectural issue: <strong>CPU churn</strong>. The energy required to continuously transition a processor out of deep sleep into an active frequency band is exponentially higher than the energy required to maintain a consistent state. Multiply this across 40 or 50 apps polling for updates every few minutes, and your device never reaches a true low-power standby profile.</p>
-
-                <div class="alert-box">
-                    <strong>The Core Mechanic:</strong> A wake-lock doesn't just cost the few milliseconds of active work — it costs the ramp-up and ramp-down transition on either side. Short, frequent wake-ups are far more expensive per unit of work done than one longer, coalesced burst.
+                <h2>4. Polling vs. Push: Why Silent Notifications Win</h2>
+                <p>The architectural fix at the heart of this whole problem is a shift from <strong>pull-based</strong> to <strong>push-based</strong> data delivery. It's worth walking through the mechanics of both, since the difference explains the entire 82% power gap we measured on the bench.</p>
+                <p><strong>Polling (pull-based):</strong> the app itself sets an internal timer — say, every 15 minutes — and wakes the CPU to ask the server "anything new?" Even if the answer is "no" 90% of the time, the phone still pays the full wake-lock cost for every single check. Multiply that by dozens of installed apps, each running its own independent timer, and you get constant, uncoordinated CPU churn throughout the day.</p>
+                <p><strong>Push (event-driven):</strong> instead of the phone repeatedly asking, the <em>server</em> only contacts the phone when there's actually something new to deliver. On iOS this travels through Apple's <strong>APNs</strong> (Apple Push Notification service); on Android it's Google's <strong>FCM</strong> (Firebase Cloud Messaging). Both maintain a single, shared, highly-optimized persistent connection at the OS level — meaning your phone isn't running twenty separate app-specific network sockets, just one system-level channel that all apps share. When a message arrives on that channel, the OS wakes only the specific app that needs to respond, does the work, and immediately lets the CPU fall back to deep sleep.</p>
+                <div class="alert-box info">
+                    <strong>Real-world example:</strong> a messaging app built on polling might check for new messages every 5 minutes — 288 wake-ups per day, most finding nothing. The same app rebuilt on FCM push wakes up only when a message actually arrives — for a typical user, that might be 20–40 wake-ups a day instead of 288, each one doing meaningful work instead of an empty check.
                 </div>
 
-                <h2>4. Bench Verification & Lab Telemetry</h2>
-                <p>Metrics acquired via inline battery shunt monitoring hardware connected to an ARMv8 reference platform running custom test instrumentation hooks:</p>
+                <h2>5. Bench Verification & Lab Telemetry</h2>
+                <p>Metrics acquired via inline battery shunt monitoring hardware connected to an ARMv8 reference platform running custom test instrumentation hooks, isolating background-only current draw across a full hour of locked-screen idle time:</p>
                 <div class="analysis-table-wrapper">
                     <table>
                         <thead>
@@ -173,11 +419,28 @@
                         </tbody>
                     </table>
                 </div>
-                <p><em>Empirical conclusion:</em> Event-driven payload structures yield an <strong style="color: var(--badge-easy);">82.3% reduction</strong> in idle current consumption compared to uncoordinated polling implementations.</p>
+                <p><em>Empirical conclusion:</em> event-driven payload structures yield an <strong style="color: var(--neon-green);">82.3% reduction</strong> in idle current consumption compared to uncoordinated polling implementations — nearly matching the baseline control with refresh fully disabled, while still allowing real-time updates to arrive instantly.</p>
 
-                <h2>5. The Developer Blueprint: Programmatic Verification</h2>
-                <p>If you are an engineer building applications, your background execution threads must adhere to explicit performance targets. Below is a verified architectural framework implementing bench monitoring alongside optimized remote event triggers:</p>
+                <h2>6. How iOS and Android Actually Manage This</h2>
+                <p>Both major platforms have converged on similar philosophies here, but the implementation details differ enough to matter:</p>
+                <h3>iOS: Background App Refresh + App Nap</h3>
+                <p>iOS exposes a direct per-app toggle under <strong>Settings → General → Background App Refresh</strong>. Apple also layers on "App Nap," which further throttles CPU priority for apps that aren't visible, and a machine-learning-driven scheduler that learns your usage patterns — an app you open every morning at 8 AM will get a small background refresh window right before that time, while an app you rarely open gets almost none.</p>
+                <h3>Android: Doze Mode + App Standby Buckets</h3>
+                <p>Android's equivalent system is more aggressive by default. <strong>Doze Mode</strong> kicks in after the device has been stationary and screen-off for a period, batching all pending network access and wake-locks into short "maintenance windows" instead of letting apps wake the CPU whenever they want. Layered on top, <strong>App Standby Buckets</strong> classify every installed app into a tier (Active, Working Set, Frequent, Rare, or Restricted) based on how often you actually use it — apps in the "Rare" bucket might only get a background execution window once a day, regardless of what their own internal timer wants.</p>
 
+                <h2>7. How to Actually Fix This on Your Own Phone</h2>
+                <p>You don't need a developer background to apply this fix — both platforms expose it directly:</p>
+                <ul>
+                    <li><strong>iOS:</strong> Settings → General → Background App Refresh → toggle off globally, or scroll down to disable it per-app for just the worst offenders (usually social media and news apps).</li>
+                    <li><strong>Android:</strong> Settings → Apps → [App Name] → Battery → Restrict background activity. For a more targeted approach, use Settings → Battery → Battery Optimization to see which apps are currently exempt from Doze restrictions, and remove exemptions you don't recognize granting.</li>
+                </ul>
+                <div class="alert-box">
+                    <strong>Diagnostic tip from the bench:</strong> before disabling refresh app-by-app blindly, check your battery usage breakdown first (Settings → Battery on both platforms) and sort by "Background Activity" specifically, not total usage. This isolates exactly which apps are the actual wake-lock offenders instead of guessing.
+                </div>
+
+                <h2>8. The Developer Blueprint: Programmatic Verification</h2>
+                <p>If you're building the app rather than just using one, your background execution threads should be held to explicit, measurable performance targets — not just "make it work." Below is a verified architectural framework implementing bench-style runtime monitoring alongside an optimized, event-driven push trigger:</p>
+                <span class="code-label">iOS / Swift — Push-Triggered Background Fetch</span>
                 <div class="code-block">// Programmatic Performance Targets for Hardware Telemetry Verification
 struct BenchVerificationConfig {
     static let maxExecutionTimeWindow: TimeInterval = 3.0 // Seconds allowed before core suspension
@@ -220,209 +483,227 @@ func application(_ application: UIApplication,
     }
 }</div>
 
-                <p>By forcing the data refresh to execute only when the server specifically flags a change, and monitoring runtime windows directly within code assertions, you prevent the app from wake-locking the phone unnecessarily — securing maximum battery life.</p>
+                <span class="code-label">Android / Kotlin — FCM Data Message Handler</span>
+                <div class="code-block">// Optimized Architecture: FCM silent data message instead of a polling WorkManager loop
+class BenchMessagingService : FirebaseMessagingService() {
+
+    override fun onMessageReceived(remoteMessage: RemoteMessage) {
+        val wakeLockStart = System.currentTimeMillis()
+        Log.d("BenchTelemetry", "Wake-lock acknowledged via FCM. Starting window...")
+
+        // Only act if the payload actually contains new data —
+        // never wake the CPU on an empty scheduled check.
+        remoteMessage.data["contentUpdated"]?.let {
+            SyncRepository.fetchLatestAssets { success ->
+                val runtime = System.currentTimeMillis() - wakeLockStart
+                if (runtime > 3000) {
+                    Log.e("BenchTelemetry", "Wake-lock violation! Exceeded 3.0s window.")
+                } else {
+                    Log.d("BenchTelemetry", "Verified: compliant with Doze maintenance window.")
+                }
+            }
+        }
+    }
+}</div>
+                <p>By forcing the data refresh to execute only when the server specifically flags a change, and monitoring runtime windows directly within code assertions, you prevent the app from wake-locking the phone unnecessarily — securing maximum battery life for every user running your software, not just the ones who know to dig through Settings.</p>
+
+                <h2>9. Common Myths About Background Refresh</h2>
+                <ul>
+                    <li><strong>"Force-closing apps saves battery."</strong> Usually false. On both iOS and Android, force-closing an app actually removes it from the OS's optimized suspended state, meaning the next time you open it, it has to fully cold-start — which costs more CPU cycles than simply staying frozen in the background would have.</li>
+                    <li><strong>"More RAM means better battery life."</strong> Unrelated. RAM capacity affects how many apps can stay suspended simultaneously, not how much power a wake-lock costs when it fires.</li>
+                    <li><strong>"Battery percentage drops are always a hardware problem."</strong> As this bench data shows, a huge share of "battery health" complaints are actually software wake-lock issues — worth ruling out before assuming cell degradation.</li>
+                </ul>
             </main>
 
-            <aside style="flex: 1; min-width: 280px; position: sticky; top: 20px;">
-                <div id="votePanel" style="background-color: var(--card-bg); border: 1px solid var(--border-color); border-top: 4px solid var(--accent-color); padding: 1.5rem; border-radius: 6px; text-align: center;">
-                    <h3 style="color: #fff; margin-top: 0; margin-bottom: 0.5rem; font-size: 1.1rem;">⚡ Bench Verification</h3>
-                    <p style="margin: 0 0 1.25rem 0; color: #8b949e; font-size: 0.9rem;">Did disabling background refresh actually improve your standby drain?</p>
+            <aside>
+                <div id="votePanel">
+                    <h3 style="font-family: var(--font-mono); color:#fff; margin-bottom: 1rem; font-size: 1rem;">⚡ BENCH_VERIFICATION</h3>
+                    <p style="margin: 0 0 1.5rem 0; color: var(--meta-color); font-size: 0.85rem;">Did disabling background refresh actually improve your standby drain?</p>
 
-                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                        <button onclick="incrementTelemetry('yes')" style="background-color: rgba(86, 211, 100, 0.1); border: 1px solid var(--badge-easy); color: var(--badge-easy); padding: 0.65rem; border-radius: 4px; font-weight: 700; cursor: pointer; transition: transform 0.1s; font-size: 0.88rem;">
-                            YES, WORKED! (<span id="countWorked">142</span>)
-                        </button>
-                        <button onclick="incrementTelemetry('no')" style="background-color: rgba(248, 81, 73, 0.1); border: 1px solid var(--badge-hard); color: var(--badge-hard); padding: 0.65rem; border-radius: 4px; font-weight: 700; cursor: pointer; transition: transform 0.1s; font-size: 0.88rem;">
-                            NO, STILL BRICKED (<span id="countBricked">8</span>)
-                        </button>
-                    </div>
+                    <button onclick="incrementTelemetry('yes')" class="btn-action" style="background: rgba(63, 185, 80, 0.1); color: var(--neon-green); border: 1px solid var(--neon-green); margin-bottom: 0.75rem; width: 100%;">
+                        YES, WORKED! (<span id="countWorked">--</span>)
+                    </button>
+                    <button onclick="incrementTelemetry('no')" class="btn-action" style="background: rgba(248, 81, 73, 0.1); color: var(--neon-red); border: 1px solid var(--neon-red); width: 100%;">
+                        NO, STILL BRICKED (<span id="countBricked">--</span>)
+                    </button>
                 </div>
             </aside>
         </div>
 
-        <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 4rem 0 2rem 0;">
-
-        <section style="max-width: 100%;">
-            <h3 style="color: #fff; margin-top: 0; margin-bottom: 1.5rem;">💬 Community Bench Notes</h3>
-
-            <div id="commentsFeed">
-                <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem;">
-                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.25rem;">
-                        <strong style="color: var(--accent-color);">@SysDev_Alex</strong>
-                        <span style="color: var(--text-color); opacity: 0.6;">July 2026</span>
-                    </div>
-                    <p style="margin: 0; font-size: 0.95rem; color: #c9d1d9;">Spot-on analysis. CPU wake-locks are the ultimate stealth killer. Shifting my app's sync engine over to FCM silent payloads saved nearly 14% on daily idle drain.</p>
+        <section class="comment-section">
+            <h3 style="color: #fff; margin-bottom: 2rem; font-family: var(--font-mono);">💬 COMMUNITY_BENCH_NOTES</h3>
+            <div id="commentsFeed"></div>
+            <div style="background-color: var(--card-bg); border: 1px solid var(--border-color); padding: 2rem; border-radius: 8px; margin-top: 2rem;">
+                <h4 style="color: #fff; margin-bottom: 1.5rem; font-size: 1rem; font-family: var(--font-mono);">[ DROP_A_SYSTEM_INSIGHT ]</h4>
+                <div style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                    <input type="text" id="suiteNameInput" placeholder="Technician Name" style="flex: 1; background: #000; border: 1px solid var(--border-color); padding: 0.8rem; color: #fff; border-radius: 4px; font-family: var(--font-mono);">
+                    <button onclick="submitGenericComment()" class="btn-action" style="width: auto; padding: 0 2rem;">SUBMIT</button>
                 </div>
-            </div>
-
-            <div style="background-color: var(--card-bg); border: 1px solid var(--border-color); padding: 1.25rem; border-radius: 6px; margin-top: 1.5rem;">
-                <h4 style="color: #fff; margin-top: 0; margin-bottom: 1rem; font-size: 0.95rem;">Contribute System Insights</h4>
-                <div style="display: flex; gap: 0.75rem; margin-bottom: 0.75rem; flex-wrap: wrap;">
-                    <input type="text" id="suiteNameInput" placeholder="First name (One word)" style="flex: 1; min-width: 150px; background-color: var(--bg-color); border: 1px solid var(--border-color); padding: 0.6rem; color: #fff; border-radius: 4px; font-size: 0.9rem;">
-                    <button onclick="submitGenericComment()" style="background-color: rgba(88, 166, 255, 0.1); border: 1px solid var(--accent-color); color: var(--accent-color); padding: 0.6rem 1.5rem; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">Drop a Quick Tip</button>
-                </div>
-                <input type="text" id="suiteCommentText" placeholder="Add your tool logs, hardware models, or note variations..." style="width: 100%; background-color: var(--bg-color); border: 1px solid var(--border-color); padding: 0.75rem; color: #fff; border-radius: 4px; box-sizing: border-box; font-size: 0.9rem;">
-                <div id="suiteValidationError" style="display: none; color: var(--badge-hard); font-size: 0.8rem; margin-top: 0.5rem;"></div>
+                <textarea id="suiteCommentText" placeholder="Log details, hardware variations, or tool results..." style="width: 100%; min-height: 100px; background: #000; border: 1px solid var(--border-color); padding: 1rem; color: #fff; border-radius: 4px;"></textarea>
             </div>
         </section>
 
         <footer>
-            <p>&copy; 2026 bitandboot. All rights reserved.</p>
+            <p>&copy; 2026 bitandboot // SYSTEMS_LAB // NO_DATA_LOST</p>
         </footer>
     </div>
 
+    <!-- MAIN ENGINE MODULE -->
     <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import {
-        getFirestore, doc, getDoc, setDoc, updateDoc, increment,
-        collection, addDoc, query, orderBy, onSnapshot, serverTimestamp
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyAZ5kORicxNAp4iCWlGn1C3XkP0vPJ5vQw",
-        authDomain: "bitandboot.firebaseapp.com",
-        projectId: "bitandboot",
-        storageBucket: "bitandboot.firebasestorage.app",
-        messagingSenderId: "687841897835",
-        appId: "1:687841897835:web:16e8a1b9f31e23f069b02e"
-    };
+        const firebaseConfig = { apiKey: "AIzaSyAZ5kORicxNAp4iCWlGn1C3XkP0vPJ5vQw", authDomain: "bitandboot.firebaseapp.com", projectId: "bitandboot", storageBucket: "bitandboot.firebasestorage.app", messagingSenderId: "687841897835", appId: "1:687841897835:web:16e8a1b9f31e23f069b02e" };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const pageId = (window.location.pathname.split("/").pop() || "index").replace(".html", "");
+        const articleRef = doc(db, "articles", pageId);
+        const commentsRef = collection(db, "articles", pageId, "comments");
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    const pageId = (window.location.pathname.split("/").pop() || "index").replace(".html", "");
-    const articleRef = doc(db, "articles", pageId);
-    const commentsRef = collection(db, "articles", pageId, "comments");
-
-    // --- Views + Vote counts: live, shared, real ---
-    async function initArticle() {
-        const snap = await getDoc(articleRef);
-
-        if (!snap.exists()) {
-            // First ever visitor to this article creates it — honest zero start
+        /* 1. SYNC ENGINE: Pulls from glossary.html */
+        async function syncGlossary() {
             try {
-                await setDoc(articleRef, { viewCount: 0, workedCount: 0, brickedCount: 0 });
-            } catch (e) { /* another visitor may have created it first — fine, ignore */ }
+                const response = await fetch('glossary.html');
+                const text = await response.text();
+                const parser = new DOMParser();
+                const gdoc = parser.parseFromString(text, 'text/html');
+                const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const terms = [];
+                gdoc.querySelectorAll('.term-card').forEach(card => {
+                    const cardId = card.id;
+                    const title = card.querySelector('.term-title').innerText.trim();
+                    const def = card.querySelector('.term-def').innerText.trim();
+                    const matchAttr = card.getAttribute('data-match');
+                    const aliases = (matchAttr ? matchAttr.split(',') : [title]).map(s => s.trim()).filter(Boolean);
+                    aliases.forEach(alias => terms.push({ alias, def, cardId }));
+                });
+                terms.sort((a, b) => b.alias.length - a.alias.length);
+                const main = document.getElementById('article-body');
+                let html = main.innerHTML;
+                terms.forEach(({ alias, def, cardId }) => {
+                    const regex = new RegExp(`\\b(${escapeRegex(alias)})\\b(?![^<]*>)`, 'gi');
+                    const safeDef = def.replace(/"/g, '&quot;');
+                    html = html.replace(regex, `<a href="glossary.html#${cardId}" class="glossary-link" data-def="${safeDef}">$1</a>`);
+                });
+                main.innerHTML = html;
+                setupBubbles();
+            } catch (e) { console.error("Glossary Sync Failed:", e); }
         }
 
-        // Count this visit once per browser session (not every page reload/scroll)
-        if (!sessionStorage.getItem(`viewed_${pageId}`)) {
-            try {
-                await updateDoc(articleRef, { viewCount: increment(1) });
-            } catch (e) { console.warn("View count update failed:", e); }
-            sessionStorage.setItem(`viewed_${pageId}`, "true");
-        }
-
-        // Live-sync counts to the UI — updates instantly for every visitor watching
-        onSnapshot(articleRef, (docSnap) => {
-            const data = docSnap.data();
-            if (!data) return;
-            const viewEl = document.getElementById("topViewCount");
-            const workedEl = document.getElementById("countWorked");
-            const brickedEl = document.getElementById("countBricked");
-            if (viewEl) viewEl.innerText = (data.viewCount || 0).toLocaleString();
-            if (workedEl) workedEl.innerText = data.workedCount || 0;
-            if (brickedEl) brickedEl.innerText = data.brickedCount || 0;
-        });
-    }
-    initArticle();
-
-    window.incrementTelemetry = async function (decision) {
-        const hasVoted = localStorage.getItem(`voted_${pageId}`);
-        if (hasVoted) {
-            alert("Your bench telemetry configuration has already been updated for this document session.");
-            return;
-        }
-
-        try {
-            if (decision === "yes") {
-                await updateDoc(articleRef, { workedCount: increment(1) });
-                document.getElementById("votePanel").innerHTML =
-                    `<h3 style="color: var(--badge-easy); margin: 0;">🎉 Success Telemetry Logged!</h3>`;
-            } else {
-                await updateDoc(articleRef, { brickedCount: increment(1) });
-                document.getElementById("votePanel").innerHTML =
-                    `<h3 style="color: var(--badge-hard); margin: 0;">💀 Failure Telemetry Logged</h3>`;
-            }
-            localStorage.setItem(`voted_${pageId}`, "true");
-        } catch (e) {
-            console.error("Vote failed:", e);
-            alert("Something went wrong logging your vote — please try again.");
-        }
-    };
-
-    // --- Comments: real, shared, permanent ---
-    const commentsQuery = query(commentsRef, orderBy("timestamp", "desc"));
-    onSnapshot(commentsQuery, (snapshot) => {
-        const feed = document.getElementById("commentsFeed");
-        if (!feed) return;
-        feed.innerHTML = "";
-        snapshot.forEach((docSnap) => {
-            const c = docSnap.data();
-            const dateStr = c.timestamp ? new Date(c.timestamp.toDate()).toLocaleDateString("en-US", { month: "short", year: "numeric" }) : "Just now";
-            const div = document.createElement("div");
-            div.setAttribute("style", "border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem;");
-            div.innerHTML = `
-                <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.25rem;">
-                    <strong style="color: #fff; font-family: monospace;">${escapeHTML(c.name)}</strong>
-                    <span style="color: var(--text-color); opacity: 0.4;">${dateStr}</span>
-                </div>
-                <p style="margin: 0; font-size: 0.95rem; color: #c9d1d9;">${escapeHTML(c.text)}</p>
-            `;
-            feed.appendChild(div);
-        });
-        if (snapshot.empty) {
-            feed.innerHTML = `<p style="color: var(--meta-color); font-size: 0.9rem;">No notes yet — be the first to leave one.</p>`;
-        }
-    });
-
-    window.submitGenericComment = async function () {
-        const nameField = document.getElementById("suiteNameInput").value.trim();
-        const textField = document.getElementById("suiteCommentText").value.trim();
-        const valError = document.getElementById("suiteValidationError");
-        if (valError) valError.style.display = "none";
-
-        if (!nameField || !textField) {
-            if (valError) {
-                valError.innerText = "Error: Output parameters cannot be empty strings.";
-                valError.style.display = "block";
-            }
-            return;
-        }
-        if (nameField.split(" ").length > 1) {
-            if (valError) {
-                valError.innerText = "Error: Supply strictly a single word for your identity handle.";
-                valError.style.display = "block";
-            }
-            return;
-        }
-
-        let sanitizedName = nameField.replace(/[^a-zA-Z0-9]/g, "");
-        if (!sanitizedName) sanitizedName = "Tech";
-        const generatedUserHandle = `@${sanitizedName}King`;
-
-        try {
-            await addDoc(commentsRef, {
-                name: generatedUserHandle,
-                text: textField,
-                timestamp: serverTimestamp()
+        function setupBubbles() {
+            const bubble = document.getElementById('glossary-bubble');
+            const title = document.getElementById('bubble-title');
+            const def = document.getElementById('bubble-def');
+            document.querySelectorAll('.glossary-link').forEach(link => {
+                link.addEventListener('mouseenter', (e) => {
+                    title.innerText = e.target.innerText;
+                    def.innerText = e.target.getAttribute('data-def');
+                    bubble.style.display = 'block';
+                    const rect = e.target.getBoundingClientRect();
+                    bubble.style.top = `${rect.top + window.scrollY - bubble.offsetHeight - 10}px`;
+                    bubble.style.left = `${rect.left + (rect.width/2) - (bubble.offsetWidth/2)}px`;
+                });
+                link.addEventListener('mouseleave', () => { bubble.style.display = 'none'; });
             });
-            document.getElementById("suiteCommentText").value = "";
-        } catch (e) {
-            console.error("Comment submit failed:", e);
-            if (valError) {
-                valError.innerText = "Error: Could not post comment — please try again.";
-                valError.style.display = "block";
-            }
         }
-    };
 
-    function escapeHTML(str) {
-        return str.replace(/[&<>'"]/g,
-            tag => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[tag] || tag)
-        );
-    }
-</script>
+        /* 2. FIREBASE INIT */
+        async function init() {
+            const snap = await getDoc(articleRef);
+            if (!snap.exists()) await setDoc(articleRef, { viewCount: 0, workedCount: 0, brickedCount: 0 });
+            onSnapshot(articleRef, (s) => {
+                const d = s.data();
+                if(d && document.getElementById("topViewCount")) document.getElementById("topViewCount").innerText = (d.viewCount || 0).toLocaleString();
+                if(d && document.getElementById("countWorked")) document.getElementById("countWorked").innerText = d.workedCount || 0;
+                if(d && document.getElementById("countBricked")) document.getElementById("countBricked").innerText = d.brickedCount || 0;
+            });
+            if(!sessionStorage.getItem(`viewed_${pageId}`)) { await updateDoc(articleRef, {viewCount: increment(1)}); sessionStorage.setItem(`viewed_${pageId}`, '1'); }
 
+            onSnapshot(query(commentsRef, orderBy("timestamp", "desc")), (snapshot) => {
+                const feed = document.getElementById("commentsFeed");
+                feed.innerHTML = "";
+                if (snapshot.empty) {
+                    feed.innerHTML = `<p style="color: var(--meta-color); font-size: 0.9rem;">No notes yet — be the first to leave one.</p>`;
+                    return;
+                }
+                snapshot.forEach((docSnap) => {
+                    const c = docSnap.data();
+                    const div = document.createElement("div");
+                    div.className = "comment-item";
+                    div.innerHTML = `<div class="comment-header"><strong style="color:var(--accent-color);">@${escapeHTML(c.name)}</strong></div><p style="margin:0;color:#c9d1d9;">${escapeHTML(c.text)}</p>`;
+                    feed.appendChild(div);
+                });
+            });
+        }
+
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, tag => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[tag] || tag));
+        }
+
+        window.submitGenericComment = async () => {
+            const nameField = document.getElementById("suiteNameInput").value.trim();
+            const textField = document.getElementById("suiteCommentText").value.trim();
+            if (!nameField || !textField) return;
+            const sanitizedName = nameField.replace(/[^a-zA-Z0-9]/g, "") || "Tech";
+            await addDoc(commentsRef, { name: `${sanitizedName}King`, text: textField, timestamp: serverTimestamp() });
+            document.getElementById("suiteCommentText").value = "";
+        };
+
+        window.incrementTelemetry = async (type) => {
+            const voteLockKey = `voted_${pageId}`;
+            if(localStorage.getItem(voteLockKey)) return alert("Session Lock Active. You've already logged a result for this article.");
+            await updateDoc(articleRef, { [type === 'yes' ? 'workedCount' : 'brickedCount']: increment(1) });
+            localStorage.setItem(voteLockKey, '1');
+            document.getElementById("votePanel").innerHTML = "<h2 style='color:var(--neon-green)'>LOGGED</h2>";
+        };
+
+        /* 3. SIMULATION LOGIC — Wake-lock vs. Deep Sleep */
+        let step = 0;
+        const consoleEl = document.getElementById("console");
+        const appStat = document.getElementById("app-stat");
+        const cpuStat = document.getElementById("cpu-stat");
+        const packet = document.getElementById("packet");
+        const btn = document.getElementById("nextBtn");
+
+        window.nextSimStep = () => {
+            step++;
+            const log = (m) => { const d=document.createElement("div"); d.className="console-line"; d.innerText=m; consoleEl.appendChild(d); consoleEl.scrollTop = consoleEl.scrollHeight; };
+            if (step === 1) {
+                log("Suspended app requests wake-lock...");
+                appStat.innerText = "REQUESTING";
+                appStat.style.color = "var(--accent-color)";
+                btn.innerText = "GRANT_WAKE_LOCK";
+            } else if (step === 2) {
+                log("OS grants lock. CPU forced out of C-State 4...");
+                packet.style.display = "block";
+                packet.animate([{ left: '40%' }, { left: '60%' }], { duration: 600, fill: 'forwards' });
+                setTimeout(() => {
+                    cpuStat.innerText = "C-STATE_0";
+                    cpuStat.style.color = "var(--neon-red)";
+                    appStat.innerText = "POLLING";
+                    packet.style.display = "none";
+                    btn.innerText = "RELEASE_LOCK";
+                }, 600);
+            } else if (step === 3) {
+                log("No new data found. Releasing wake-lock...");
+                cpuStat.innerText = "C-STATE_4";
+                appStat.innerText = "FROZEN";
+                cpuStat.style.color = appStat.style.color = "var(--neon-green)";
+                btn.innerText = "CYCLE_COMPLETE";
+                btn.disabled = true;
+                log("Net result: 0 new data, full wake-cost paid.");
+            }
+        };
+
+        window.resetLab = () => {
+            step = 0;
+            appStat.innerText = "FROZEN"; cpuStat.innerText = "C-STATE_4";
+            appStat.style.color = cpuStat.style.color = "inherit";
+            btn.disabled = false; btn.innerText = "SIMULATE_POLL_CYCLE";
+            consoleEl.innerHTML = '<div class="console-line">Ready for instruction.</div><div class="console-line">Waiting for SIMULATE_POLL_CYCLE signal...</div>';
+        };
+
+        window.addEventListener('DOMContentLoaded', () => { syncGlossary(); init(); });
+    </script>
 </body>
 </html>
