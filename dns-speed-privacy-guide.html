@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DNS Speed & Privacy | bitandboot Systems Lab</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <!-- Professional Engineering Fonts synced with Index -->
+    <!-- Professional Engineering Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
+
     <style>
         :root {
             --bg-color: #05070a;
@@ -21,19 +21,16 @@
             --border-color: #30363d;
             --terminal-bg: #010409;
             --meta-color: #8b949e;
+            --font-mono: 'Roboto', sans-serif;
             --font-sans: 'Inter', sans-serif;
-            --font-mono: 'Space Mono', monospace;
-            --font-display: 'Space Grotesk', sans-serif;
-            --badge-easy: #56d364;
-            --badge-hard: #f85149;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        
+
         body {
             background-color: var(--bg-color);
             background-image: radial-gradient(#161b22 0.5px, transparent 0.5px);
-            background-size: 28px 28px;
+            background-size: 30px 30px;
             color: var(--text-color);
             font-family: var(--font-sans);
             line-height: 1.6;
@@ -43,8 +40,8 @@
         .container { max-width: 1100px; margin: 0 auto; }
 
         /* --- STAMPED HEADER --- */
-        header { 
-            padding: 4.5rem 0 2.5rem 0; 
+        header {
+            padding: 4rem 0 2rem 0;
             border-bottom: 1px solid var(--border-color);
             margin-bottom: 3rem;
         }
@@ -62,25 +59,25 @@
             content: ""; width: 6px; height: 6px; border-radius: 50%;
             background: var(--neon-green); box-shadow: 0 0 8px var(--neon-green);
         }
-        .nav-back { 
+        .nav-back {
             font-family: var(--font-mono);
             color: var(--accent-color);
             text-decoration: none;
             font-size: 0.8rem;
             text-transform: uppercase;
-            display: inline-block;
+            letter-spacing: 2px;
+            display: block;
             margin-bottom: 1rem;
         }
-        h1 { 
-            font-family: var(--font-display);
+        h1 {
             font-weight: 800;
-            font-size: 2.8rem;
+            font-size: 3rem;
             color: #fff;
             line-height: 1.1;
-            letter-spacing: -1.5px;
+            letter-spacing: -2px;
             margin-bottom: 1.5rem;
         }
-        .meta { 
+        .meta {
             font-family: var(--font-mono);
             font-size: 0.75rem;
             color: var(--meta-color);
@@ -107,7 +104,6 @@
             box-shadow: 0 10px 40px rgba(0,0,0,0.8);
             display: none;
             pointer-events: none;
-            font-family: var(--font-sans);
         }
         #glossary-bubble b { font-family: var(--font-mono); color: var(--accent-color); display: block; margin-bottom: 5px; }
 
@@ -121,7 +117,7 @@
             overflow: hidden;
             box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
-        
+
         #workbench-mainframe::before {
             content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
@@ -135,7 +131,7 @@
             border-bottom: 1px solid var(--border-color);
         }
         .lab-title { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent-color); }
-        
+
         .lab-content { display: grid; grid-template-columns: 300px 1fr; height: 350px; }
 
         .console-log {
@@ -153,38 +149,64 @@
         }
 
         .hardware-node {
-            width: 120px; height: 120px; border: 2px solid var(--border-color);
+            width: 130px; height: 130px; border: 2px solid var(--border-color);
             background: #0d1117; border-radius: 8px; display: flex;
             flex-direction: column; justify-content: center; align-items: center;
-            z-index: 5; transition: 0.3s;
+            z-index: 5; transition: 0.3s; text-align: center;
         }
         .hardware-node.active { border-color: var(--accent-color); box-shadow: 0 0 20px rgba(88, 166, 255, 0.3); }
-        .node-label { font-family: var(--font-mono); font-size: 0.6rem; color: var(--meta-color); margin-bottom: 5px; text-align: center; }
+        .node-label { font-family: var(--font-mono); font-size: 0.6rem; color: var(--meta-color); margin-bottom: 5px; }
         .node-status { font-family: var(--font-mono); font-size: 0.8rem; font-weight: bold; }
 
         .lab-footer {
             padding: 1.25rem; background: #0d1117; border-top: 1px solid var(--border-color);
-            display: flex; justify-content: center; gap: 1rem;
+            display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;
         }
 
         /* --- ARTICLE CONTENT --- */
         .article-layout { display: flex; gap: 2.5rem; align-items: flex-start; flex-wrap: wrap; }
         main { flex: 2.5; min-width: 320px; font-size: 1.1rem; line-height: 1.8; color: #adbac7; }
-        
+
         .workbench-note {
             background-color: #0d1117; border: 1px solid var(--border-color);
             border-left: 4px solid var(--accent-color); padding: 1.5rem;
-            border-radius: 6px; margin-bottom: 2.5rem;
+            border-radius: 6px; margin-bottom: 2rem;
         }
 
-        h2 { font-family: var(--font-display); color: #fff; font-size: 1.8rem; margin: 3rem 0 1.25rem 0; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
-        h3 { font-family: var(--font-display); color: #fff; font-size: 1.35rem; margin: 2.5rem 0 1rem 0; }
+        /* --- FAST DIAGNOSTIC SUMMARY --- */
+        .fast-summary {
+            background-color: #0d1117; border: 1px solid var(--accent-color);
+            border-radius: 8px; padding: 1.75rem; margin-bottom: 3rem;
+            box-shadow: 0 0 25px rgba(88, 166, 255, 0.08);
+        }
+        .fast-summary h4 {
+            font-family: var(--font-mono); color: var(--accent-color); font-size: 0.85rem;
+            text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 1rem;
+        }
+        .fast-summary ul { list-style: none; padding: 0; margin: 0; }
+        .fast-summary li { padding: 0.6rem 0; border-bottom: 1px solid #1f242c; font-size: 0.98rem; color: #c9d1d9; }
+        .fast-summary li:last-child { border-bottom: none; }
+        .fast-summary li::before { content: "▸ "; color: var(--accent-color); }
+
+        h2 { color: #fff; font-size: 1.8rem; margin: 3rem 0 1.25rem 0; font-family: var(--font-mono); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
+        h3 { color: #fff; font-size: 1.3rem; margin: 2rem 0 1rem 0; }
         p { margin-bottom: 1.5rem; }
         ul { margin-bottom: 1.5rem; padding-left: 1.5rem; }
         li { margin-bottom: 0.75rem; }
         b, strong { color: #fff; }
+        code { background: var(--card-bg); border: 1px solid var(--border-color); padding: 2px 6px; border-radius: 4px; font-family: var(--font-mono); font-size: 0.9em; color: #ff7b72; }
 
-        .alert-box { background-color: rgba(88, 166, 255, 0.05); border-left: 4px solid var(--accent-color); padding: 1.25rem; border-radius: 4px; margin: 2rem 0; }
+        .alert-box { background-color: rgba(248, 81, 73, 0.1); border-left: 4px solid var(--neon-red); padding: 1.25rem; border-radius: 4px; margin: 2rem 0; }
+        .alert-box.info { background-color: rgba(88, 166, 255, 0.1); border-left-color: var(--accent-color); }
+
+        .analysis-table-wrapper { overflow-x: auto; margin: 1.5rem 0; border: 1px solid var(--border-color); border-radius: 6px; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
+        th { background-color: var(--card-bg); color: #fff; padding: 12px; border-bottom: 1px solid var(--border-color); font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; }
+        td { padding: 12px; border-bottom: 1px solid var(--border-color); }
+        tr:last-child td { border-bottom: none; }
+        .impact-high { color: var(--neon-red); font-weight: bold; }
+        .impact-med { color: #e3b341; font-weight: bold; }
+        .impact-low { color: var(--neon-green); font-weight: bold; }
 
         /* --- SIDEBAR & VOTE --- */
         aside { flex: 1; min-width: 280px; position: sticky; top: 20px; }
@@ -195,18 +217,18 @@
         }
 
         .btn-action {
-            background: var(--accent-color); color: #05070a; border: none;
+            background: var(--accent-color); color: #fff; border: none;
             padding: 0.8rem 1.5rem; font-family: var(--font-mono);
-            font-weight: bold; border-radius: 6px; cursor: pointer; transition: 0.2s;
+            font-weight: bold; border-radius: 4px; cursor: pointer; transition: 0.2s;
         }
         .btn-action:hover { filter: brightness(1.2); }
 
         /* --- COMMENTS --- */
         .comment-section { margin-top: 5rem; border-top: 1px solid var(--border-color); padding-top: 3rem; }
-        .comment-item { border-bottom: 1px solid var(--border-soft); padding-bottom: 1.5rem; margin-bottom: 1.5rem; }
+        .comment-item { border-bottom: 1px solid var(--border-color); padding-bottom: 1.5rem; margin-bottom: 1.5rem; }
         .comment-header { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.5rem; font-family: var(--font-mono); }
 
-        footer { text-align: center; padding: 5rem 0 2rem 0; color: #444; font-family: var(--font-mono); font-size: 0.7rem; }
+        footer { text-align: center; padding: 5rem 0 2rem 0; color: #444; font-family: var(--font-mono); font-size: 0.8rem; }
 
         @media (max-width: 768px) {
             .lab-content { grid-template-columns: 1fr; height: auto; }
@@ -217,15 +239,19 @@
 </head>
 <body>
 
-    <div id="glossary-bubble"><b id="bubble-title">TERM</b><p id="bubble-def">Loading...</p></div>
+    <!-- SHARED BUBBLE ELEMENT -->
+    <div id="glossary-bubble">
+        <b id="bubble-title">TERM</b>
+        <p id="bubble-def">Loading definition...</p>
+    </div>
 
     <div class="container">
         <header>
             <div class="boot-line">SYSTEMS_FORENSICS_LAB // NETWORK_RESOLVER_ACTIVE</div>
-            <a href="index.html" class="nav-back">← RETURN_TO_LOBBY</a>
+            <a href="index.html" class="nav-back">// ROOT_ACCESS / RETURN_TO_LOBBY</a>
             <h1>DNS Speed & Privacy: Why Changing Four Numbers Instantly Secures Your Connection</h1>
             <div class="meta">
-                <span>[ DATE: JULY_2026 ]</span> | 
+                <span>[ DATE: JULY_2026 ]</span> |
                 <span>[ CATEGORY: EVERYDAY_TECH ]</span> |
                 <span style="color: var(--accent-color);">[ VIEWS: <span id="topViewCount">--</span> ]</span>
             </div>
@@ -234,7 +260,7 @@
         <!-- THE MAIN WORKBENCH SIMULATOR -->
         <div id="workbench-mainframe">
             <div class="lab-header">
-                <span class="lab-title">DNS_LATENCY_COMPARATOR v2.09</span>
+                <span class="lab-title">DNS_LATENCY_COMPARATOR v2.10</span>
                 <div style="display:flex; gap:8px; align-items:center;">
                     <div style="width:8px; height:8px; border-radius:50%; background:var(--neon-green); box-shadow:0 0 8px var(--neon-green);"></div>
                     <span style="font-family:var(--font-mono); font-size:0.6rem; color:var(--neon-green);">PING_ACTIVE</span>
@@ -248,8 +274,8 @@
                 </div>
 
                 <div class="visualizer">
-                    <div id="packet" style="position:absolute; width:12px; height:12px; background:var(--accent-color); border-radius:50%; display:none; z-index:20;"></div>
-                    
+                    <div id="packet" style="position:absolute; width:12px; height:12px; background:var(--accent-color); border-radius:50%; box-shadow:0 0 15px var(--accent-color); display:none; z-index:20;"></div>
+
                     <div class="hardware-node" id="node-user">
                         <div class="node-label">USER_CLIENT</div>
                         <div class="node-status" id="user-stat">github.com</div>
@@ -258,7 +284,7 @@
                     <div style="font-family:var(--font-mono); color:var(--border-color); font-size:1.5rem;">[ NET_GATE ]</div>
 
                     <div class="hardware-node" id="node-dns">
-                        <div class="node-label">DEFAULT_ISP</div>
+                        <div class="node-label" id="dns-label">DEFAULT_ISP</div>
                         <div class="node-status" id="dns-stat">STANDBY</div>
                     </div>
                 </div>
@@ -275,46 +301,102 @@
                 <div class="workbench-note">
                     <h4 style="color: #fff; margin: 0 0 0.5rem 0; font-size: 0.8rem; text-transform: uppercase; font-family: var(--font-mono);">🔬 Networking Note</h4>
                     <p style="margin: 0; font-size: 0.95rem; color: var(--meta-color); font-style: italic;">
-                        "By default, your router routes requests directly through your ISP's localized resolver tables. These tables are regularly bottlenecked and easily logged for corporate trackers."
+                        "By default, your router routes every request through your ISP's localized resolver tables. These tables are regularly bottlenecked during peak hours, and every domain you visit is logged there — even sites you access over HTTPS."
                     </p>
                 </div>
-                
-                <p>When you click a link or hit enter on a web address, your device doesn't automatically know where that website exists. Computers do not understand words like <code>github.com</code> or <code>google.com</code>. They only communicate through IP addresses.</p>
 
-                <p>The bridge that translates human text into machine coordinates is known as the <strong>DNS (Domain Name System)</strong>. By default, you are assigned an unoptimized layout, but updating it manually instantly supercharges your browsing pipeline.</p>
-
-                <h2>1. The Phonebook Analogy of the Web</h2>
-                <p>Think of a DNS provider exactly like the contacts app on your phone. You don't memorize the exact 10-digit phone numbers for all of your friends; you just tap their name, and your operating system runs the mapping match behind the scenes.</p>
-                
-                <p>Every time you request a webpage, your router has to look up that exact domain in a digital phonebook. If your default internet provider has slow, poorly configured lookup books, you experience a subtle but noticeable 1-to-2 second delay before any webpage even begins to load.</p>
-
-                <div class="alert-box">
-                    <strong>The Privacy Loophole:</strong> Because your ISP handles this phonebook lookup, they can view and log a history of every domain name you query—even if you browse using encrypted HTTPS connections.
+                <div class="fast-summary">
+                    <h4>⚡ Fast Diagnostic Summary</h4>
+                    <ul>
+                        <li><strong>The core issue:</strong> your device translates domain names like <strong>github.com</strong> into IP addresses via <strong>DNS</strong> — and by default, that lookup runs through your ISP's often slow, always-logged resolver.</li>
+                        <li><strong>The privacy gap:</strong> even encrypted HTTPS traffic leaks the domain name during a standard DNS lookup, giving your ISP a readable log of every site you visit, regardless of what you're doing on it.</li>
+                        <li><strong>The fix:</strong> point your device or router at a fast, privacy-respecting public resolver — <strong>Cloudflare (1.1.1.1)</strong>, <strong>Google (8.8.8.8)</strong>, or <strong>Quad9 (9.9.9.9)</strong> — for a typical latency drop from 1000ms+ down to under 20ms.</li>
+                        <li><strong>The stronger fix:</strong> enable <strong>DNS over HTTPS (DoH)</strong> or <strong>DNS over TLS (DoT)</strong> so the lookup itself is encrypted end-to-end, closing the visibility gap entirely — not just changing who can see it.</li>
+                        <li><strong>The trade-off to know:</strong> some CDNs use your resolver's location to route you to the nearest server — switching to a distant public resolver can occasionally add a few milliseconds to content delivery, even while DNS lookup itself gets faster.</li>
+                    </ul>
                 </div>
 
-                <h2>2. Swapping the Default Book for High-Performance Steel</h2>
-                <p>Fortunately, you aren't forced to use your internet provider's slow lookup infrastructure. Global security frameworks provide high-speed, privacy-first lookup maps entirely for free.</p>
+                <p>When you click a link or type a web address, your device doesn't inherently know where that website lives. Computers don't understand words like <code>github.com</code> — they only route traffic using numeric IP addresses. The bridge that translates human-readable text into machine coordinates is the <strong>Domain Name System (DNS)</strong>, and by default, you're routed through whatever resolver your ISP assigned you — usually the least optimized option available.</p>
 
+                <h2>1. The Phonebook Analogy, and Why It's Incomplete</h2>
+                <p>Think of DNS like your phone's contacts app: you tap a name instead of memorizing a ten-digit number, and the lookup happens invisibly behind the scenes. But the phonebook analogy undersells what's actually happening — a single DNS lookup for a simple domain typically involves several layers of servers cooperating in sequence:</p>
                 <ul>
-                    <li><strong>Cloudflare’s Array:</strong> Primary address <code>1.1.1.1</code> (Engineered for pure speed and absolute privacy logging erasure).</li>
-                    <li><strong>Google’s Map:</strong> Primary address <code>8.8.8.8</code> (Engineered for globally distributed fault-tolerance and malware protection).</li>
+                    <li><strong>Recursive Resolver:</strong> the first server your device asks — this is usually your ISP by default, or a public alternative like Cloudflare once you switch. It does the legwork of tracking down the answer on your behalf.</li>
+                    <li><strong>Root Server:</strong> the resolver's first stop, which doesn't know the exact answer but points it toward the right Top-Level Domain (TLD) server based on the ending of the domain (.com, .org, .io).</li>
+                    <li><strong>TLD Server:</strong> narrows the search further, pointing to the specific Authoritative Nameserver responsible for that exact domain.</li>
+                    <li><strong>Authoritative Nameserver:</strong> the final source of truth — it holds the actual IP address record for that domain and returns it to the resolver.</li>
+                </ul>
+                <p>Once the resolver has the answer, it caches it for a period defined by the domain's <strong>TTL (Time To Live)</strong> — so the next few thousand people who ask for the same domain get an instant cached answer instead of repeating that whole four-step chain.</p>
+
+                <div class="alert-box">
+                    <strong>The Privacy Loophole:</strong> because your resolver — typically your ISP — is the very first server that sees your request, it can log a complete history of every domain you query, timestamped, even if the actual page content is fully encrypted over HTTPS. The lock icon in your browser protects <em>what you read</em>; standard DNS does nothing to protect <em>which site you asked for</em>.
+                </div>
+
+                <h2>2. Why the Default Is Almost Always Slow</h2>
+                <p>Your ISP's resolver isn't necessarily slow because of incompetence — it's usually a matter of scale and investment. Consumer ISPs serve DNS as a low-priority side function on aging infrastructure, often centralized in just one or two regional data centers, while dedicated public resolvers like Cloudflare and Google operate global <strong>Anycast</strong> networks: the same IP address (<code>1.1.1.1</code>, for instance) is broadcast from hundreds of physical locations worldwide, and your request is automatically routed to whichever one is geographically closest to you, typically resolving in single-digit milliseconds.</p>
+
+                <h2>3. Choosing a Public Resolver: A Real Comparison</h2>
+                <p>Not all public DNS providers are interchangeable — they differ meaningfully in what they log, what they filter, and what they optimize for:</p>
+                <div class="analysis-table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Provider</th>
+                                <th>Primary Address</th>
+                                <th>Optimized For</th>
+                                <th>Logging Policy</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Cloudflare</strong></td>
+                                <td><code>1.1.1.1</code></td>
+                                <td class="impact-low">Raw speed, minimal logging</td>
+                                <td>No domain logs retained beyond 24h for debugging, independently audited</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Google Public DNS</strong></td>
+                                <td><code>8.8.8.8</code></td>
+                                <td class="impact-med">Global fault tolerance</td>
+                                <td>Temporary logs retained, tied to Google's broader data ecosystem</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Quad9</strong></td>
+                                <td><code>9.9.9.9</code></td>
+                                <td class="impact-low">Security + malware blocking</td>
+                                <td>Non-profit, no personal data sold, blocks known malicious domains at the resolver level</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h2>4. Going Further: Encrypting the Lookup Itself</h2>
+                <p>Switching resolvers fixes <em>who</em> can see your DNS queries — it doesn't fix the fact that standard DNS traffic is sent in plaintext, meaning anyone on the network path (a public Wi-Fi operator, for instance) could technically observe it. Two newer protocols close that gap by encrypting the DNS query itself:</p>
+                <ul>
+                    <li><strong>DoH (DNS over HTTPS):</strong> wraps DNS queries inside standard HTTPS traffic, on the same port browsers already use for web pages — making DNS lookups indistinguishable from regular web traffic to anyone monitoring the network.</li>
+                    <li><strong>DoT (DNS over TLS):</strong> encrypts DNS queries using TLS on a dedicated port, giving network administrators a clear, filterable signal that DNS traffic is happening (useful for corporate/school networks), while still keeping the query content itself encrypted.</li>
+                </ul>
+                <div class="alert-box info">
+                    <strong>Practical note:</strong> most modern browsers (Firefox, Chrome, Edge) now support DoH natively in their network settings, meaning you can encrypt your DNS lookups without touching OS-level or router settings at all — a lower-friction entry point if you're not ready to change system-wide settings yet.
+                </div>
+
+                <h2>5. Implementing the Change Natively</h2>
+                <ul>
+                    <li><strong>On Windows 11:</strong> Settings → Network & internet → Wi-Fi → Hardware properties. Find <em>DNS server assignment</em>, switch to Manual, and insert <code>1.1.1.1</code> (and <code>1.0.0.1</code> as a secondary).</li>
+                    <li><strong>On Apple macOS:</strong> System Settings → Network → Wi-Fi → Details. Select the DNS tab, hit '+', and input <code>1.1.1.1</code>.</li>
+                    <li><strong>On Mobile Handsets:</strong> Navigate to your Wi-Fi connection configuration, switch IP settings from DHCP to Static, and locate the DNS fields to append your numbers — or, more simply, use your OS's built-in "Private DNS" toggle (Android: Settings → Network → Private DNS → set to <code>1dot1dot1dot1.cloudflare-dns.com</code> for automatic DoT).</li>
+                    <li><strong>On your router (whole-home effect):</strong> changing DNS at the router level applies the fix to every device on your network at once — phones, laptops, smart TVs, game consoles — without configuring each one individually. Look for a "DNS" or "WAN DNS" field in your router's admin panel, usually reachable at <code>192.168.1.1</code> or <code>192.168.0.1</code>.</li>
                 </ul>
 
-                <h2>3. Implementing the Change Natively</h2>
-                <ul>
-                    <li><strong>On Windows 11:</strong> Settings > Network & internet > Wi-Fi > Hardware properties. Find <i>DNS server assignment</i>, switch to Manual, and insert <code>1.1.1.1</code>.</li>
-                    <li><strong>On Apple macOS:</strong> System Settings > Network > Wi-Fi > Details. Select the DNS tab, hit '+', and input <code>1.1.1.1</code>.</li>
-                    <li><strong>On Mobile Handsets:</strong> Navigate to your Wi-Fi connection configurations, switch IP settings from DHCP over to Static, and locate the DNS fields to append your numbers.</li>
-                </ul>
-
-                <p>Once updated, your raw link resolve loops execute across high-speed optical pipelines, shaving milliseconds off every web request while shutting down localized tracking logs.</p>
+                <h2>6. What You Might Notice, and What You Won't</h2>
+                <p>Once switched, page-load-initiating requests resolve dramatically faster on first visit to any new domain — the difference is most noticeable browsing to sites you haven't visited recently, since cached domains were already fast either way. One trade-off worth knowing honestly: some Content Delivery Networks (CDNs) use your resolver's physical location to route you to the geographically nearest content server. A small number of users report marginally slower large file downloads after switching to a distant public resolver, since the CDN's routing logic gets slightly less accurate about where you actually are. For the vast majority of everyday browsing, the DNS lookup speed and privacy gain far outweighs this edge case.</p>
             </main>
 
             <aside>
                 <div id="votePanel">
                     <h3 style="font-family: var(--font-mono); color:#fff; margin-bottom: 1rem; font-size: 1rem;">⚡ BENCH_VERIFICATION</h3>
                     <p style="margin: 0 0 1.5rem 0; color: var(--meta-color); font-size: 0.85rem;">Did swapping your DNS noticeably drop your initial web request resolve times?</p>
-                    
+
                     <button onclick="incrementTelemetry('yes')" class="btn-action" style="background: rgba(63, 185, 80, 0.1); color: var(--neon-green); border: 1px solid var(--neon-green); margin-bottom: 0.75rem; width: 100%;">
                         YES, FASTER RESOLVE! (<span id="countWorked">--</span>)
                     </button>
@@ -351,31 +433,38 @@
         const firebaseConfig = { apiKey: "AIzaSyAZ5kORicxNAp4iCWlGn1C3XkP0vPJ5vQw", authDomain: "bitandboot.firebaseapp.com", projectId: "bitandboot", storageBucket: "bitandboot.firebasestorage.app", messagingSenderId: "687841897835", appId: "1:687841897835:web:16e8a1b9f31e23f069b02e" };
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        const pageId = "dns-speed-privacy-guide";
+        const pageId = (window.location.pathname.split("/").pop() || "index").replace(".html", "");
         const articleRef = doc(db, "articles", pageId);
         const commentsRef = collection(db, "articles", pageId, "comments");
 
-        /* 1. GLOSSARY SYNC */
+        /* 1. SYNC ENGINE: Pulls from glossary.html */
         async function syncGlossary() {
             try {
                 const response = await fetch('glossary.html');
                 const text = await response.text();
                 const parser = new DOMParser();
-                const doc = parser.parseFromString(text, 'text/html');
-                const terms = {};
-                doc.querySelectorAll('.term-card').forEach(card => {
+                const gdoc = parser.parseFromString(text, 'text/html');
+                const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const terms = [];
+                gdoc.querySelectorAll('.term-card').forEach(card => {
+                    const cardId = card.id;
                     const title = card.querySelector('.term-title').innerText.trim();
-                    terms[title] = card.querySelector('.term-def').innerText.trim();
+                    const def = card.querySelector('.term-def').innerText.trim();
+                    const matchAttr = card.getAttribute('data-match');
+                    const aliases = (matchAttr ? matchAttr.split(',') : [title]).map(s => s.trim()).filter(Boolean);
+                    aliases.forEach(alias => terms.push({ alias, def, cardId }));
                 });
+                terms.sort((a, b) => b.alias.length - a.alias.length);
                 const main = document.getElementById('article-body');
                 let html = main.innerHTML;
-                Object.keys(terms).forEach(term => {
-                    const regex = new RegExp(`\\b(${term})\\b(?![^<]*>)`, 'g');
-                    html = html.replace(regex, `<a href="glossary.html#${term.toLowerCase().replace(/\s+/g, '-')}" class="glossary-link" data-def="${terms[term]}">$1</a>`);
+                terms.forEach(({ alias, def, cardId }) => {
+                    const regex = new RegExp(`\\b(${escapeRegex(alias)})\\b(?![^<]*>)`, 'gi');
+                    const safeDef = def.replace(/"/g, '&quot;');
+                    html = html.replace(regex, `<a href="glossary.html#${cardId}" class="glossary-link" data-def="${safeDef}">$1</a>`);
                 });
                 main.innerHTML = html;
                 setupBubbles();
-            } catch (e) { }
+            } catch (e) { console.error("Glossary Sync Failed:", e); }
         }
 
         function setupBubbles() {
@@ -401,39 +490,47 @@
             if (!snap.exists()) await setDoc(articleRef, { viewCount: 0, workedCount: 0, brickedCount: 0 });
             onSnapshot(articleRef, (s) => {
                 const d = s.data();
-                if(d) {
-                    document.getElementById("topViewCount").innerText = (d.viewCount || 0).toLocaleString();
-                    document.getElementById("countWorked").innerText = d.workedCount || 0;
-                    document.getElementById("countBricked").innerText = d.brickedCount || 0;
-                }
+                if(d && document.getElementById("topViewCount")) document.getElementById("topViewCount").innerText = (d.viewCount || 0).toLocaleString();
+                if(d && document.getElementById("countWorked")) document.getElementById("countWorked").innerText = d.workedCount || 0;
+                if(d && document.getElementById("countBricked")) document.getElementById("countBricked").innerText = d.brickedCount || 0;
             });
-            if(!sessionStorage.getItem('v')) { await updateDoc(articleRef, {viewCount: increment(1)}); sessionStorage.setItem('v', '1'); }
-            
+            if(!sessionStorage.getItem(`viewed_${pageId}`)) { await updateDoc(articleRef, {viewCount: increment(1)}); sessionStorage.setItem(`viewed_${pageId}`, '1'); }
+
             onSnapshot(query(commentsRef, orderBy("timestamp", "desc")), (snapshot) => {
                 const feed = document.getElementById("commentsFeed");
                 feed.innerHTML = "";
+                if (snapshot.empty) {
+                    feed.innerHTML = `<p style="color: var(--meta-color); font-size: 0.9rem;">No notes yet — be the first to leave one.</p>`;
+                    return;
+                }
                 snapshot.forEach((docSnap) => {
                     const c = docSnap.data();
                     const div = document.createElement("div");
                     div.className = "comment-item";
-                    div.innerHTML = `<div class="comment-header"><strong style="color:var(--accent-color);">@${c.name}</strong></div><p style="margin:0;color:#c9d1d9;">${c.text}</p>`;
+                    div.innerHTML = `<div class="comment-header"><strong style="color:var(--accent-color);">@${escapeHTML(c.name)}</strong></div><p style="margin:0;color:#c9d1d9;">${escapeHTML(c.text)}</p>`;
                     feed.appendChild(div);
                 });
             });
         }
 
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, tag => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[tag] || tag));
+        }
+
         window.submitGenericComment = async () => {
-            const name = document.getElementById("suiteNameInput").value.trim();
-            const text = document.getElementById("suiteCommentText").value.trim();
-            if (!name || !text) return;
-            await addDoc(commentsRef, { name: name.replace(/\s/g, ''), text: text, timestamp: serverTimestamp() });
+            const nameField = document.getElementById("suiteNameInput").value.trim();
+            const textField = document.getElementById("suiteCommentText").value.trim();
+            if (!nameField || !textField) return;
+            const sanitizedName = nameField.replace(/[^a-zA-Z0-9]/g, "") || "Tech";
+            await addDoc(commentsRef, { name: `${sanitizedName}King`, text: textField, timestamp: serverTimestamp() });
             document.getElementById("suiteCommentText").value = "";
         };
 
         window.incrementTelemetry = async (type) => {
-            if(localStorage.getItem('voted_'+pageId)) return alert("Session Lock Active.");
+            const voteLockKey = `voted_${pageId}`;
+            if(localStorage.getItem(voteLockKey)) return alert("Session Lock Active. You've already logged a result for this article.");
             await updateDoc(articleRef, { [type === 'yes' ? 'workedCount' : 'brickedCount']: increment(1) });
-            localStorage.setItem('voted_'+pageId, '1');
+            localStorage.setItem(voteLockKey, '1');
             document.getElementById("votePanel").innerHTML = "<h2 style='color:var(--neon-green)'>LOGGED</h2>";
         };
 
@@ -441,46 +538,48 @@
         let step = 0;
         const consoleEl = document.getElementById("console");
         const dnsStat = document.getElementById("dns-stat");
+        const dnsLabel = document.getElementById("dns-label");
         const packet = document.getElementById("packet");
         const nextBtn = document.getElementById("nextBtn");
 
         window.nextSimStep = () => {
             step++;
             const log = (m) => { const d=document.createElement("div"); d.className="console-line"; d.innerText=m; consoleEl.appendChild(d); consoleEl.scrollTop = consoleEl.scrollHeight; };
-            
-            if (step === 1) { 
+
+            if (step === 1) {
                 log("Querying Default ISP Resolver...");
                 packet.style.display = "block";
-                packet.animate([{ left: '40%' }, { left: '60%' }], { duration: 1500, fill: 'forwards' });
+                packet.animate([{ left: '40%' }, { left: '60%' }], { duration: 1200, fill: 'forwards' });
                 setTimeout(() => {
                     log("ISP Resolve Delay: 1240ms (High)");
                     dnsStat.innerText = "ISP_BOTTLENECK";
                     dnsStat.style.color = "var(--neon-red)";
                     packet.style.display = "none";
                     nextBtn.innerText = "SWITCH_TO_CLOUDFLARE_1.1.1.1";
-                }, 1500);
-            } 
-            else if (step === 2) { 
-                log("Routing through Cloudflare Edge (PoP)...");
-                document.getElementById("node-dns").querySelector(".node-label").innerText = "CLOUDFLARE_ANYCAST";
+                }, 1200);
+            }
+            else if (step === 2) {
+                log("Routing through Cloudflare Edge (Anycast PoP)...");
+                dnsLabel.innerText = "CLOUDFLARE_ANYCAST";
                 packet.style.display = "block";
-                packet.animate([{ left: '40%' }, { left: '60%' }], { duration: 200, fill: 'forwards' });
+                packet.animate([{ left: '40%' }, { left: '60%' }], { duration: 250, fill: 'forwards' });
                 setTimeout(() => {
                     log("Resolve Latency: 14ms (Ultra Low)");
                     dnsStat.innerText = "IP: 140.82.112.3";
                     dnsStat.style.color = "var(--neon-green)";
                     packet.style.display = "none";
-                    btn.disabled = true;
-                    btn.innerText = "RESOLVE_OPTIMIZED";
-                }, 200);
+                    nextBtn.disabled = true;
+                    nextBtn.innerText = "RESOLVE_OPTIMIZED";
+                }, 250);
             }
         };
 
         window.resetLab = () => {
-            step = 0; dnsStat.innerText = "STANDBY"; dnsStat.style.color = "inherit";
-            document.getElementById("node-dns").querySelector(".node-label").innerText = "DEFAULT_ISP";
+            step = 0;
+            dnsStat.innerText = "STANDBY"; dnsStat.style.color = "inherit";
+            dnsLabel.innerText = "DEFAULT_ISP";
             nextBtn.disabled = false; nextBtn.innerText = "START_DEFAULT_RESOLVE";
-            consoleEl.innerHTML = '<div class="console-line">Initializing link resolve loop...</div>';
+            consoleEl.innerHTML = '<div class="console-line">Initializing link resolve loop...</div><div class="console-line">Ready to test domain mapping.</div>';
         };
 
         window.addEventListener('DOMContentLoaded', () => { syncGlossary(); init(); });
