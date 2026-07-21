@@ -8,7 +8,7 @@
     <!-- Professional Engineering Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
     
     <style>
         :root {
@@ -21,7 +21,7 @@
             --border-color: #30363d;
             --terminal-bg: #010409;
             --meta-color: #8b949e;
-            --font-mono: 'JetBrains Mono', monospace;
+            --font-mono: 'Roboto', sans-serif;
             --font-sans: 'Inter', sans-serif;
         }
 
@@ -416,9 +416,10 @@
         };
 
         window.incrementTelemetry = async (type) => {
-            if(localStorage.getItem('voted')) return alert("Session Lock Active.");
+            const voteLockKey = `voted_${pageId}`;
+            if(localStorage.getItem(voteLockKey)) return alert("Session Lock Active. You've already logged a result for this article.");
             await updateDoc(articleRef, { [type === 'yes' ? 'workedCount' : 'brickedCount']: increment(1) });
-            localStorage.setItem('voted', '1');
+            localStorage.setItem(voteLockKey, '1');
             document.getElementById("votePanel").innerHTML = "<h2 style='color:var(--neon-green)'>LOGGED</h2>";
         };
 
