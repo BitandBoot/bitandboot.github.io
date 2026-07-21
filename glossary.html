@@ -153,6 +153,71 @@
                     <p class="term-def">A security mechanism that prevents a device from being downgraded to an older, vulnerable version of firmware by using hardware-based fuses or counters.</p>
                     <div class="term-tags"><span class="tag">Security</span><span class="tag">Firmware</span></div>
                 </div>
+                <div class="term-card" id="anycast" data-match="Anycast">
+                    <span class="term-title">Anycast</span>
+                    <p class="term-def">A network routing technique where the same IP address is broadcast from many physical server locations worldwide, automatically directing each request to the nearest one for minimum latency.</p>
+                    <div class="term-tags"><span class="tag">Networking</span><span class="tag">Infrastructure</span></div>
+                </div>
+                <div class="term-card" id="apns" data-match="APNs, Apple Push Notification service">
+                    <span class="term-title">APNs (Apple Push Notification service)</span>
+                    <p class="term-def">Apple's push notification service — a single persistent, system-level connection that lets servers wake a specific iOS app only when there's new data, instead of the app repeatedly polling on its own.</p>
+                    <div class="term-tags"><span class="tag">iOS</span><span class="tag">Push</span></div>
+                </div>
+                <div class="term-card" id="app-standby-buckets" data-match="App Standby Buckets">
+                    <span class="term-title">App Standby Buckets</span>
+                    <p class="term-def">Android's classification system that sorts installed apps into tiers (Active, Working Set, Frequent, Rare, Restricted) based on usage frequency, limiting how often rarely-used apps can wake the CPU in the background.</p>
+                    <div class="term-tags"><span class="tag">Android</span><span class="tag">Power</span></div>
+                </div>
+                <div class="term-card" id="authoritative-nameserver" data-match="Authoritative Nameserver">
+                    <span class="term-title">Authoritative Nameserver</span>
+                    <p class="term-def">The final server in a DNS lookup chain that holds the actual IP address record for a domain and returns it directly to the requesting resolver.</p>
+                    <div class="term-tags"><span class="tag">DNS</span><span class="tag">Networking</span></div>
+                </div>
+            </div>
+
+            <!-- B -->
+            <div class="term-group" id="group-B">
+                <span class="alpha-label">B</span>
+                <div class="term-card" id="background-app-refresh" data-match="Background App Refresh">
+                    <span class="term-title">Background App Refresh</span>
+                    <p class="term-def">An OS feature that allows suspended apps to periodically wake the CPU to poll for new data, refresh caches, or check location — bypassing normal background freeze rules.</p>
+                    <div class="term-tags"><span class="tag">Power</span><span class="tag">Mobile OS</span></div>
+                </div>
+            </div>
+
+            <!-- C -->
+            <div class="term-group" id="group-C">
+                <span class="alpha-label">C</span>
+                <div class="term-card" id="c-state" data-match="C-State, C-States">
+                    <span class="term-title">C-State</span>
+                    <p class="term-def">A standardized processor power state, ranging from fully active (C0) to deep sleep (C3/C4). Transitioning between states carries an energy cost independent of the actual work performed.</p>
+                    <div class="term-tags"><span class="tag">Hardware</span><span class="tag">Power</span></div>
+                </div>
+            </div>
+
+            <!-- D -->
+            <div class="term-group" id="group-D">
+                <span class="alpha-label">D</span>
+                <div class="term-card" id="dns" data-match="DNS, Domain Name System">
+                    <span class="term-title">DNS (Domain Name System)</span>
+                    <p class="term-def">The system that translates human-readable domain names (like github.com) into the numeric IP addresses computers use to route traffic.</p>
+                    <div class="term-tags"><span class="tag">Networking</span></div>
+                </div>
+                <div class="term-card" id="doh" data-match="DoH, DNS over HTTPS">
+                    <span class="term-title">DoH (DNS over HTTPS)</span>
+                    <p class="term-def">A protocol that encrypts DNS queries inside standard HTTPS traffic, making lookups indistinguishable from regular web traffic to anyone monitoring the network.</p>
+                    <div class="term-tags"><span class="tag">DNS</span><span class="tag">Privacy</span></div>
+                </div>
+                <div class="term-card" id="dot" data-match="DoT, DNS over TLS">
+                    <span class="term-title">DoT (DNS over TLS)</span>
+                    <p class="term-def">A protocol that encrypts DNS queries using TLS on a dedicated port, keeping the query content private while still signaling that DNS traffic is occurring.</p>
+                    <div class="term-tags"><span class="tag">DNS</span><span class="tag">Privacy</span></div>
+                </div>
+                <div class="term-card" id="doze-mode" data-match="Doze Mode">
+                    <span class="term-title">Doze Mode</span>
+                    <p class="term-def">An Android power-saving state that activates when the device is stationary and screen-off, batching all background network access and wake-locks into short scheduled maintenance windows.</p>
+                    <div class="term-tags"><span class="tag">Android</span><span class="tag">Power</span></div>
+                </div>
             </div>
 
             <!-- E -->
@@ -170,6 +235,16 @@
                 </div>
             </div>
 
+            <!-- F -->
+            <div class="term-group" id="group-F">
+                <span class="alpha-label">F</span>
+                <div class="term-card" id="fcm" data-match="FCM, Firebase Cloud Messaging">
+                    <span class="term-title">FCM (Firebase Cloud Messaging)</span>
+                    <p class="term-def">Google's push notification service for Android — a shared, persistent system-level channel that lets servers wake a specific app only when new data actually exists, instead of constant polling.</p>
+                    <div class="term-tags"><span class="tag">Android</span><span class="tag">Push</span></div>
+                </div>
+            </div>
+
             <!-- H -->
             <div class="term-group" id="group-H">
                 <span class="alpha-label">H</span>
@@ -183,6 +258,16 @@
             <!-- R -->
             <div class="term-group" id="group-R">
                 <span class="alpha-label">R</span>
+                <div class="term-card" id="recursive-resolver" data-match="Recursive Resolver">
+                    <span class="term-title">Recursive Resolver</span>
+                    <p class="term-def">The server that receives your device's DNS query first and does the work of tracking down the final answer by consulting root, TLD, and authoritative servers on your behalf.</p>
+                    <div class="term-tags"><span class="tag">DNS</span><span class="tag">Networking</span></div>
+                </div>
+                <div class="term-card" id="root-server" data-match="Root Server">
+                    <span class="term-title">Root Server</span>
+                    <p class="term-def">The first stop in a DNS lookup chain — it doesn't know the final answer but points the resolver toward the correct Top-Level Domain server based on the domain's ending.</p>
+                    <div class="term-tags"><span class="tag">DNS</span><span class="tag">Networking</span></div>
+                </div>
                 <div class="term-card" id="rpmb" data-match="RPMB">
                     <span class="term-title">RPMB (Replay Protected Memory Block)</span>
                     <p class="term-def">A dedicated partition within eMMC/UFS storage that prevents unauthorized data modification by verifying every write command with a hardware-locked key.</p>
@@ -197,6 +282,26 @@
                     <span class="term-title">TEE (Trusted Execution Environment)</span>
                     <p class="term-def">A secure, isolated area of the main processor that runs sensitive operations (like biometric checks and encryption) separate from the main Operating System.</p>
                     <div class="term-tags"><span class="tag">Security</span><span class="tag">Architecture</span></div>
+                </div>
+                <div class="term-card" id="tld" data-match="TLD, Top-Level Domain">
+                    <span class="term-title">TLD (Top-Level Domain)</span>
+                    <p class="term-def">The final segment of a domain name (.com, .org, .io) which determines which TLD server is responsible for narrowing down the DNS lookup toward the correct authoritative nameserver.</p>
+                    <div class="term-tags"><span class="tag">DNS</span></div>
+                </div>
+                <div class="term-card" id="ttl" data-match="TTL, Time To Live">
+                    <span class="term-title">TTL (Time To Live)</span>
+                    <p class="term-def">A value set by a domain owner that tells resolvers how long they're allowed to cache a DNS answer before checking again — balancing lookup speed against how quickly changes propagate.</p>
+                    <div class="term-tags"><span class="tag">DNS</span><span class="tag">Caching</span></div>
+                </div>
+            </div>
+
+            <!-- W -->
+            <div class="term-group" id="group-W">
+                <span class="alpha-label">W</span>
+                <div class="term-card" id="wake-lock" data-match="Wake-lock">
+                    <span class="term-title">Wake-lock</span>
+                    <p class="term-def">A low-level signal an app sends to prevent the CPU from entering a deep sleep power state until the lock is released, typically used to complete a background task.</p>
+                    <div class="term-tags"><span class="tag">Power</span><span class="tag">Mobile OS</span></div>
                 </div>
             </div>
         </main>
