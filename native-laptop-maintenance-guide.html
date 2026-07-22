@@ -4,247 +4,577 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Simple Habits for Peak Laptop Performance | bitandboot</title>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2358a6ff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='16 18 22 12 16 6'></polyline><polyline points='8 6 2 12 8 18'></polyline></svg>">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <!-- Professional Engineering Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
+
     <style>
         :root {
-            --bg-color: #0d1117;
+            --bg-color: #05070a;
             --text-color: #c9d1d9;
             --accent-color: #58a6ff;
-            --card-bg: #161b22;
+            --neon-green: #3fb950;
+            --neon-red: #f85149;
+            --card-bg: #0d1117;
             --border-color: #30363d;
+            --terminal-bg: #010409;
             --meta-color: #8b949e;
-            --badge-easy: #56d364;
-            --badge-hard: #f85149;
+            --font-mono: 'Roboto', sans-serif;
+            --font-sans: 'Inter', sans-serif;
         }
+
         * { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
             background-color: var(--bg-color);
+            background-image: radial-gradient(#161b22 0.5px, transparent 0.5px);
+            background-size: 30px 30px;
             color: var(--text-color);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            font-family: var(--font-sans);
             line-height: 1.6;
-            padding: 2rem 1rem;
+            padding: 0 1.5rem;
         }
+
         .container { max-width: 1100px; margin: 0 auto; }
-        header { margin-bottom: 2.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1.5rem; }
-        .nav-back { color: var(--accent-color); text-decoration: none; font-size: 0.95rem; display: inline-block; margin-bottom: 1rem; }
-        .nav-back:hover { text-decoration: underline; }
-        h1 { color: #fff; font-size: 2.2rem; line-height: 1.25; margin-bottom: 0.75rem; }
-        .meta { color: var(--meta-color); font-size: 0.9rem; display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
-        h2 { color: #fff; font-size: 1.5rem; margin: 2rem 0 1rem 0; padding-bottom: 0.3rem; border-bottom: 1px solid var(--border-color); }
-        h3 { color: #fff; font-size: 1.2rem; margin: 1.5rem 0 0.5rem 0; }
-        p { margin-bottom: 1.25rem; }
-        b, strong { color: #fff; font-weight: 600; }
-        ul { margin-bottom: 1.25rem; padding-left: 1.5rem; }
-        li { margin-bottom: 0.5rem; }
-        .alert-box { background-color: rgba(88, 166, 255, 0.05); border-left: 4px solid var(--accent-color); padding: 1rem; border-radius: 4px; margin: 1.5rem 0; }
-        footer { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color); color: var(--meta-color); text-align: center; font-size: 0.85rem; }
+
+        /* --- STAMPED HEADER --- */
+        header {
+            padding: 4rem 0 2rem 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 3rem;
+        }
+        .nav-back {
+            font-family: var(--font-mono);
+            color: var(--accent-color);
+            text-decoration: none;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            display: block;
+            margin-bottom: 1rem;
+        }
+        h1 {
+            font-weight: 800;
+            font-size: 3rem;
+            color: #fff;
+            line-height: 1.1;
+            letter-spacing: -2px;
+            margin-bottom: 1.5rem;
+        }
+        .meta {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--meta-color);
+            display: flex; gap: 1.5rem; text-transform: uppercase; flex-wrap: wrap;
+        }
+
+        /* --- GLOSSARY BUBBLE UI --- */
+        .glossary-link {
+            color: #fff;
+            border-bottom: 1px dashed var(--accent-color);
+            cursor: help;
+            font-weight: 700;
+            text-decoration: none;
+        }
+        #glossary-bubble {
+            position: absolute;
+            z-index: 1000;
+            width: 280px;
+            background: #161b22;
+            border: 1px solid var(--accent-color);
+            border-radius: 8px;
+            padding: 1rem;
+            font-size: 0.85rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            display: none;
+            pointer-events: none;
+        }
+        #glossary-bubble b { font-family: var(--font-mono); color: var(--accent-color); display: block; margin-bottom: 5px; }
+
+        /* --- THE WORKBENCH MAINFRAME --- */
+        #workbench-mainframe {
+            background: var(--terminal-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 4rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        #workbench-mainframe::before {
+            content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            z-index: 10; background-size: 100% 3px, 3px 100%; pointer-events: none;
+        }
+
+        .lab-header {
+            background: #161b22;
+            padding: 0.75rem 1.5rem;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .lab-title { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent-color); }
+
+        .lab-content { display: grid; grid-template-columns: 300px 1fr; height: 350px; }
+
+        .console-log {
+            background: #000; border-right: 1px solid var(--border-color);
+            padding: 1rem; font-family: var(--font-mono); font-size: 0.7rem;
+            color: var(--neon-green); overflow-y: auto;
+        }
+        .console-line { margin-bottom: 4px; opacity: 0.8; }
+        .console-line::before { content: "> "; color: var(--accent-color); }
+
+        .visualizer {
+            position: relative; display: flex; flex-direction: column; justify-content: center;
+            align-items: center; padding: 1.5rem; gap: 1rem;
+            background: radial-gradient(circle at center, #0d1117 0%, #010409 100%);
+        }
+
+        .ram-desk-container {
+            width: 280px; height: 60px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            position: relative;
+            padding: 4px;
+            background: #000;
+            display: flex;
+            gap: 3px;
+        }
+        .ram-slot {
+            flex: 1; background: #1f242c; border-radius: 3px; transition: background 0.3s;
+        }
+        .ram-slot.filled { background: var(--accent-color); }
+        .ram-slot.overflow { background: var(--neon-red); }
+        .ram-readout {
+            font-family: var(--font-mono); font-size: 0.7rem; color: var(--meta-color);
+            display: flex; justify-content: space-between; width: 280px;
+        }
+        .ram-readout .r-num { color: var(--accent-color); }
+        .swap-status {
+            font-family: var(--font-mono); font-size: 0.75rem; color: var(--meta-color); text-align: center; width: 280px;
+        }
+
+        .lab-footer {
+            padding: 1.25rem; background: #0d1117; border-top: 1px solid var(--border-color);
+            display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;
+        }
+
+        /* --- ARTICLE CONTENT --- */
+        .article-layout { display: flex; gap: 2.5rem; align-items: flex-start; flex-wrap: wrap; }
+        main { flex: 2.5; min-width: 320px; font-size: 1.1rem; line-height: 1.8; color: #adbac7; }
+
+        .workbench-note {
+            background-color: #0d1117; border: 1px solid var(--border-color);
+            border-left: 4px solid var(--accent-color); padding: 1.5rem;
+            border-radius: 6px; margin-bottom: 2rem;
+        }
+
+        /* --- FAST DIAGNOSTIC SUMMARY --- */
+        .fast-summary {
+            background-color: #0d1117; border: 1px solid var(--accent-color);
+            border-radius: 8px; padding: 1.75rem; margin-bottom: 3rem;
+            box-shadow: 0 0 25px rgba(88, 166, 255, 0.08);
+        }
+        .fast-summary h4 {
+            font-family: var(--font-mono); color: var(--accent-color); font-size: 0.85rem;
+            text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 1rem;
+        }
+        .fast-summary ul { list-style: none; padding: 0; margin: 0; }
+        .fast-summary li { padding: 0.6rem 0; border-bottom: 1px solid #1f242c; font-size: 0.98rem; color: #c9d1d9; }
+        .fast-summary li:last-child { border-bottom: none; }
+        .fast-summary li::before { content: "▸ "; color: var(--accent-color); }
+
+        h2 { color: #fff; font-size: 1.8rem; margin: 3rem 0 1.25rem 0; font-family: var(--font-mono); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
+        h3 { color: #fff; font-size: 1.3rem; margin: 2rem 0 1rem 0; }
+        p { margin-bottom: 1.5rem; }
+        ul { margin-bottom: 1.5rem; padding-left: 1.5rem; }
+        li { margin-bottom: 0.75rem; }
+        b, strong { color: #fff; }
+        code { background: var(--card-bg); border: 1px solid var(--border-color); padding: 2px 6px; border-radius: 4px; font-family: var(--font-mono); font-size: 0.9em; color: #ff7b72; }
+
+        .alert-box { background-color: rgba(88, 166, 255, 0.1); border-left: 4px solid var(--accent-color); padding: 1.25rem; border-radius: 4px; margin: 2rem 0; }
+
+        /* --- SIDEBAR & VOTE --- */
+        aside { flex: 1; min-width: 280px; position: sticky; top: 20px; }
+        #votePanel {
+            background-color: var(--card-bg); border: 1px solid var(--border-color);
+            border-top: 4px solid var(--accent-color); padding: 2rem;
+            border-radius: 8px; text-align: center;
+        }
+
+        .btn-action {
+            background: var(--accent-color); color: #fff; border: none;
+            padding: 0.8rem 1.5rem; font-family: var(--font-mono);
+            font-weight: bold; border-radius: 4px; cursor: pointer; transition: 0.2s;
+        }
+        .btn-action:hover { filter: brightness(1.2); }
+
+        /* --- COMMENTS --- */
+        .comment-section { margin-top: 5rem; border-top: 1px solid var(--border-color); padding-top: 3rem; }
+        .comment-item { border-bottom: 1px solid var(--border-color); padding-bottom: 1.5rem; margin-bottom: 1.5rem; }
+
+        footer { text-align: center; padding: 5rem 0 2rem 0; color: #444; font-family: var(--font-mono); font-size: 0.8rem; }
+
+        @media (max-width: 768px) {
+            .lab-content { grid-template-columns: 1fr; height: auto; }
+            .console-log { display: none; }
+            h1 { font-size: 2.2rem; }
+        }
     </style>
 </head>
 <body>
+
+    <!-- SHARED BUBBLE ELEMENT -->
+    <div id="glossary-bubble">
+        <b id="bubble-title">TERM</b>
+        <p id="bubble-def">Loading definition...</p>
+    </div>
+
     <div class="container">
         <header>
-            <a href="index.html" class="nav-back">← Back to Dashboard</a>
+            <a href="index.html" class="nav-back">// ROOT_ACCESS / RETURN_TO_LOBBY</a>
             <h1>The Simple Habits That Keep Windows and Mac Laptops Running Like New (No Extra Software Required)</h1>
             <div class="meta">
-                <span>📅 July 2026</span> | 
-                <span>🏷️ Category: Everyday Tech</span> |
-                <span style="color: #8b949e; border: 1px solid var(--border-color); padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600;">
-                    📊 <span id="topViewCount">--</span> Views
-                </span>
+                <span>[ DATE: JULY_2026 ]</span> |
+                <span>[ CATEGORY: EVERYDAY_TECH ]</span> |
+                <span style="color: var(--accent-color);">[ VIEWS: <span id="topViewCount">--</span> ]</span>
             </div>
         </header>
 
-        <div style="display: flex; gap: 2rem; align-items: flex-start; flex-wrap: wrap;">
-            
-            <main style="flex: 2.5; min-width: 320px;">
-                
-                <div style="background-color: #1f242c; border: 1px solid var(--border-color); border-left: 4px solid var(--accent-color); padding: 1.25rem; border-radius: 6px; margin-bottom: 2rem;">
-                    <h4 style="color: #fff; margin: 0 0 0.5rem 0; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.5px;">🔬 Hardware Diagnostics Note</h4>
-                    <p style="margin: 0; font-size: 0.9rem; color: #8b949e; font-style: italic;">
+        <!-- THE MAIN WORKBENCH SIMULATOR -->
+        <div id="workbench-mainframe">
+            <div class="lab-header">
+                <span class="lab-title">RAM_ALLOCATION_SIMULATOR v1.03</span>
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <div style="width:8px; height:8px; border-radius:50%; background:var(--neon-green); box-shadow:0 0 8px var(--neon-green);"></div>
+                    <span style="font-family:var(--font-mono); font-size:0.6rem; color:var(--neon-green);">MEMORY_MONITOR_ACTIVE</span>
+                </div>
+            </div>
+
+            <div class="lab-content">
+                <div class="console-log" id="console">
+                    <div class="console-line">Idle desktop. 3 tabs open.</div>
+                    <div class="console-line">RAM allocation stable.</div>
+                </div>
+
+                <div class="visualizer">
+                    <div class="ram-desk-container" id="ram-desk">
+                        <div class="ram-slot"></div><div class="ram-slot"></div><div class="ram-slot"></div><div class="ram-slot"></div>
+                        <div class="ram-slot"></div><div class="ram-slot"></div><div class="ram-slot"></div><div class="ram-slot"></div>
+                        <div class="ram-slot"></div><div class="ram-slot"></div><div class="ram-slot"></div><div class="ram-slot"></div>
+                    </div>
+                    <div class="ram-readout">
+                        <span>RAM_USED: <span class="r-num" id="ram-val">25%</span></span>
+                        <span>TABS_OPEN: <span class="r-num" id="tabs-val">3</span></span>
+                    </div>
+                    <div class="swap-status" id="swap-status">Disk swap: IDLE</div>
+                </div>
+            </div>
+
+            <div class="lab-footer">
+                <button class="btn-action" id="nextBtn" onclick="nextSimStep()" style="width: auto;">OPEN_MORE_TABS</button>
+                <button onclick="resetLab()" style="background:transparent; border:1px solid var(--border-color); color:var(--meta-color); font-family:var(--font-mono); font-size:0.7rem; padding:0.5rem 1rem; cursor:pointer; border-radius:4px;">CLOSE_ALL_TABS</button>
+            </div>
+        </div>
+
+        <div class="article-layout">
+            <main id="article-body">
+                <div class="workbench-note">
+                    <h4 style="color: #fff; margin: 0 0 0.5rem 0; font-size: 0.8rem; text-transform: uppercase; font-family: var(--font-mono);">🔬 Hardware Diagnostics Note</h4>
+                    <p style="margin: 0; font-size: 0.95rem; color: var(--meta-color); font-style: italic;">
                         "Third-party optimization scripts often act as aggressive background memory hogs or install unvetted tracking extensions. Standard operating systems manage process trees and page memory swap file allocation effectively when basic upkeep hygiene is maintained."
                     </p>
                 </div>
-                
-                <p>When a laptop begins lagging, freezing, or taking forever to boot up, most users assume the hardware is getting old. Advertisements take advantage of this frustration, prompting you to download "PC Cleaners" or "Mac Boosters" promising a one-click solution. In reality, these software options are often bloatware—or worse, malware that slows down your system further.</p>
 
-                <p>Computers don't require magic software to maintain peak health. They simply require a few consistent operating habits that match how modern hardware handles processing tasks and system resources.</p>
-
-                <h2>1. Manage the Short-Term Desk: The Browser Tab Problem</h2>
-                <p>Think of your laptop's <strong>RAM (Random Access Memory)</strong> like a physical work desk. When you open an app, a document, or a browser tab, your computer places it on that desk so your processor can read it instantly. </p>
-                
-                <p>If you keep fifty browser tabs open continuously, your desk runs completely out of physical space. When this threshold is crossed, the operating system is forced to move background files onto your hard drive instead—a process called <b>swapping</b> or <b>paging</b>. Because reading a storage drive is significantly slower than hitting active RAM, your entire machine drops into a crawl.</p>
-
-                <div class="alert-box">
-                    <strong>The Memory Fix:</strong> Make it a habit to use built-in browser grouping utilities or extensions like <i>OneTab</i> to bookmark or sleep idle sessions. Keep your active runtime work footprint lean.
+                <div class="fast-summary">
+                    <h4>⚡ Fast Diagnostic Summary</h4>
+                    <ul>
+                        <li><strong>The core issue:</strong> <strong>RAM</strong> is finite workspace — fill it with too many open tabs and apps, and the OS starts <strong>swapping</strong> data to your much slower storage drive, which is what actually causes that sluggish, laggy feeling.</li>
+                        <li><strong>The habit that fixes it:</strong> keep your active tab/app footprint lean — sleep or bookmark idle tabs instead of leaving dozens open indefinitely.</li>
+                        <li><strong>Sleep isn't a reset:</strong> closing your lid puts the machine in low-power sleep, not off — background processes, memory fragmentation, and update queues all keep accumulating across days of continuous uptime.</li>
+                        <li><strong>The single highest-leverage fix:</strong> a genuine weekly restart clears volatile memory structures and lets the OS re-index cleanly — most "my laptop is dying" cases are actually just this.</li>
+                        <li><strong>The second-biggest fix:</strong> auditing startup apps (Task Manager on Windows, Login Items on macOS) — every app that silently launches at boot is stealing processor attention before you've even opened anything yourself.</li>
+                        <li><strong>What you don't need:</strong> third-party "PC Cleaner" or "Mac Booster" software — these are frequently bloatware or worse, and everything they claim to do, your OS already does natively for free.</li>
+                    </ul>
                 </div>
 
-                <h2>2. The Weekly Clean Slate: Closing the Lid Isn't Restarting</h2>
-                <p>When you close your laptop lid at the end of the day, your computer does not turn off. It puts itself into a low-power sleep state. While this allows it to wake up instantly, it means the background system loop is never broken.</p>
+                <p>When a laptop begins lagging, freezing, or taking forever to boot up, most users assume the hardware is getting old. Advertisements take advantage of this frustration, prompting you to download "PC Cleaners" or "Mac Boosters" promising a one-click solution. In reality, these software options are often bloatware — or worse, malware that slows down your system further while quietly harvesting data in the background.</p>
 
-                <p>Over a week of continuous operation, apps drop temporary system cache allocations, background tracking logs leak minor segments of memory, and updates pile up in queues. Performing a formal **System Restart** once a week completely purges volatile memory structures, forces clean code re-indexing, and drops operating heat levels back down to baseline.</p>
+                <p>Computers don't require magic software to maintain peak health. They simply require a few consistent operating habits that match how modern hardware actually handles processing tasks and system resources.</p>
 
-                <h2>3. Auditing the Startup Queue</h2>
-                <p>The primary reason old computers feel slow to turn on is that too many applications grant themselves permission to boot up automatically the second the desktop loads. Game clients, communication tools, music players, and update monitors silently fight for your processor's attention during launch.</p>
-                
+                <h2>1. Manage the Short-Term Desk: The Browser Tab Problem</h2>
+                <p>Think of your laptop's <strong>RAM (Random Access Memory)</strong> like a physical work desk. When you open an app, a document, or a browser tab, your computer places it on that desk so your processor can read and write to it instantly — orders of magnitude faster than reading from your storage drive.</p>
+                <p>If you keep fifty browser tabs open continuously, your desk runs completely out of physical space. When this threshold is crossed, the operating system is forced to move background files onto your hard drive instead — a process called <strong>swapping</strong> or <strong>paging</strong>. Because reading a storage drive is significantly slower than hitting active RAM (even on a fast SSD, the gap is roughly an order of magnitude versus RAM, and far worse on a traditional spinning hard drive), your entire machine can drop into a noticeable crawl the moment this starts happening frequently.</p>
+                <div class="alert-box">
+                    <strong>The Memory Fix:</strong> make it a habit to use built-in browser tab-grouping features, or extensions like OneTab, to bookmark or sleep idle sessions instead of leaving them permanently open. Keep your active runtime working footprint lean, and the OS rarely needs to reach for the swap file at all.
+                </div>
+
+                <h2>2. What Swapping Actually Costs You</h2>
+                <p>It's worth understanding exactly why swapping feels so bad rather than just accepting it as an abstract slowdown. When the OS needs to access a piece of data that's been swapped out to disk, it has to: locate the data on the storage drive, read it back into RAM (evicting something else to make room if RAM is still full), and only then hand it to the waiting application. Every one of those steps adds latency that simply doesn't exist when data is already sitting in RAM.</p>
+                <p>This is also why a computer can feel "stuck" rather than just "slow" during heavy swapping — the entire system, including the mouse cursor and window switching, can stall while the disk subsystem works through a backlog of swap requests, since disk I/O is a shared, sequential-ish resource that every waiting process has to queue behind.</p>
+
+                <h2>3. The Weekly Clean Slate: Closing the Lid Isn't Restarting</h2>
+                <p>When you close your laptop lid at the end of the day, your computer does not turn off. It puts itself into a low-power sleep state, preserving the exact contents of RAM so it can wake up instantly. While this is convenient, it means the background system loop that's been running since your last real restart is never actually broken.</p>
+                <p>Over a week of continuous operation (even with nightly sleep cycles), apps accumulate temporary cache allocations, background processes can slowly leak small amounts of memory that never get reclaimed, and update queues pile up waiting for a reboot to apply. Performing a formal system restart once a week completely purges volatile memory structures, forces clean process re-indexing, and lets the operating system apply any pending updates it's been holding onto.</p>
+
+                <h2>4. Auditing the Startup Queue</h2>
+                <p>The primary reason older computers feel slow specifically <em>at boot</em> is that too many applications have quietly granted themselves permission to launch automatically the moment the desktop loads. Game clients, communication tools, music players, and update-checker utilities all silently compete for your processor's attention during that critical first minute.</p>
                 <ul>
-                    <li><strong>On Windows Platforms:</strong> Press <code>Ctrl + Shift + Esc</code> to access the Task Manager. Click on the <b>Startup Apps</b> tab, check the "Startup Impact" ratings, and right-click to disable any platform you do not use daily.</li>
-                    <li><strong>On Apple macOS:</strong> Navigate to System Settings > General > <b>Login Items</b>. Review the list under "Open at Login" and "Allow in the Background," stripping permissions from non-essential apps.</li>
+                    <li><strong>On Windows:</strong> press <code>Ctrl + Shift + Esc</code> to open Task Manager. Click the <strong>Startup Apps</strong> tab, check the "Startup Impact" rating next to each entry, and right-click to disable anything you don't use daily.</li>
+                    <li><strong>On macOS:</strong> navigate to System Settings → General → <strong>Login Items</strong>. Review the lists under "Open at Login" and "Allow in the Background," and strip permissions from non-essential apps.</li>
                 </ul>
 
-                <p>By limiting background resource draws and scheduling proper system restarts, you ensure your laptop's operating system keeps channels completely clear for the apps you actually care about running.</p>
+                <h2>5. Storage Myths: Defragmentation and SSDs</h2>
+                <p>A habit that used to be genuinely useful on older hardware can now actively harm modern machines. Defragmentation — reorganizing scattered file fragments into contiguous blocks — mattered enormously on traditional spinning hard drives, where the physical read head had to move to each fragment's location, adding real mechanical delay.</p>
+                <p>Modern <strong>SSDs (Solid-State Drives)</strong> have no moving parts and no meaningful seek-time penalty for fragmented files — data can be read from any location in roughly the same time. Worse, SSDs have a finite number of write cycles per memory cell, and defragmentation involves a large number of unnecessary write operations. Running a manual defrag on an SSD doesn't meaningfully speed anything up and does contribute to unnecessary wear. Modern Windows and macOS both already know this and either skip defragmentation on SSDs automatically or run a much lighter, SSD-appropriate maintenance pass (TRIM) instead — there's nothing you need to manually configure here.</p>
+
+                <h2>6. Common Myths About Laptop Performance</h2>
+                <ul>
+                    <li><strong>"More RAM always fixes a slow computer."</strong> Only if RAM was actually the bottleneck. If swapping isn't occurring (check Task Manager/Activity Monitor for memory pressure), adding RAM won't meaningfully change performance — the bottleneck may be CPU, storage speed, or simply too many startup apps.</li>
+                    <li><strong>"Third-party cleaner apps are necessary for good performance."</strong> Modern operating systems already manage temporary files, cache cleanup, and memory allocation natively. Most "cleaner" software duplicates functionality the OS already performs, while adding its own background resource usage on top.</li>
+                    <li><strong>"Closing the lid frequently damages the laptop."</strong> False under normal use — sleep mode is specifically engineered for frequent, repeated use and doesn't meaningfully stress hardware compared to leaving a machine fully powered on.</li>
+                    <li><strong>"You should always fully shut down instead of sleeping, every single time."</strong> Not necessary daily — the real recommendation is a weekly full restart, not abandoning sleep mode entirely, since sleep's convenience is a legitimate, intended feature.</li>
+                </ul>
+
+                <p>By limiting background resource draws, respecting the difference between sleep and a true restart, and scheduling a weekly reboot, you keep your laptop's operating system running the way it was actually designed to — no extra software, subscriptions, or "optimization" downloads required.</p>
             </main>
 
-            <aside style="flex: 1; min-width: 280px; position: sticky; top: 20px;">
-                <div id="votePanel" style="background-color: var(--card-bg); border: 1px solid var(--border-color); border-top: 4px solid var(--accent-color); padding: 1.5rem; border-radius: 6px; text-align: center;">
-                    <h3 style="color: #fff; margin-top: 0; margin-bottom: 0.5rem; font-size: 1.1rem;">⚡ Performance Poll</h3>
-                    <p style="margin: 0 0 1.25rem 0; color: #8b949e; font-size: 0.9rem;">How often do you perform a formal software reboot or shutdown cycle on your machine?</p>
-                    
-                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                        <button onclick="incrementTelemetry('yes')" style="background-color: rgba(86, 211, 100, 0.1); border: 1px solid var(--badge-easy); color: var(--badge-easy); padding: 0.65rem; border-radius: 4px; font-weight: 700; cursor: pointer; transition: transform 0.1s; font-size: 0.88rem;">
-                            AT LEAST ONCE A WEEK (<span id="countWorked">412</span>)
-                        </button>
-                        <button onclick="incrementTelemetry('no')" style="background-color: rgba(248, 81, 73, 0.1); border: 1px solid var(--badge-hard); color: var(--badge-hard); padding: 0.65rem; border-radius: 4px; font-weight: 700; cursor: pointer; transition: transform 0.1s; font-size: 0.88rem;">
-                            ONLY WHEN IT CRASHES (<span id="countBricked">194</span>)
-                        </button>
-                    </div>
+            <aside>
+                <div id="votePanel">
+                    <h3 style="font-family: var(--font-mono); color:#fff; margin-bottom: 1rem; font-size: 1rem;">⚡ BENCH_VERIFICATION</h3>
+                    <p style="margin: 0 0 1.5rem 0; color: var(--meta-color); font-size: 0.85rem;">How often do you perform a formal software restart or shutdown cycle on your machine?</p>
+
+                    <button onclick="incrementTelemetry('yes')" class="btn-action" style="background: rgba(63, 185, 80, 0.1); color: var(--neon-green); border: 1px solid var(--neon-green); margin-bottom: 0.75rem; width: 100%;">
+                        AT LEAST ONCE A WEEK (<span id="countWorked">--</span>)
+                    </button>
+                    <button onclick="incrementTelemetry('no')" class="btn-action" style="background: rgba(248, 81, 73, 0.1); color: var(--neon-red); border: 1px solid var(--neon-red); width: 100%;">
+                        ONLY WHEN IT CRASHES (<span id="countBricked">--</span>)
+                    </button>
                 </div>
             </aside>
         </div>
 
-        <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 4rem 0 2rem 0;">
-
-        <section style="max-width: 100%;">
-            <h3 style="color: #fff; margin-top: 0; margin-bottom: 1.5rem;">💬 Community Bench Notes</h3>
-            
-            <div id="commentsFeed">
-                <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem;">
-                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.25rem;">
-                        <strong style="color: var(--accent-color);">@SysAdmin_Rick</strong>
-                        <span style="color: var(--text-color); opacity: 0.6;">July 2026</span>
-                    </div>
-                    <p style="margin: 0; font-size: 0.95rem; color: #c9d1d9;">I spend half my time cleaning family laptops by just uninstalling those awful 'Optimization Boosters' and disabling 15 startup apps. The performance bounce back is immediate every single time.</p>
+        <section class="comment-section">
+            <h3 style="color: #fff; margin-bottom: 2rem; font-family: var(--font-mono);">💬 COMMUNITY_BENCH_NOTES</h3>
+            <div id="commentsFeed"></div>
+            <div style="background-color: var(--card-bg); border: 1px solid var(--border-color); padding: 2rem; border-radius: 8px; margin-top: 2rem;">
+                <h4 style="color: #fff; margin-bottom: 1.5rem; font-size: 1rem; font-family: var(--font-mono);">[ DROP_A_SYSTEM_INSIGHT ]</h4>
+                <div style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                    <input type="text" id="suiteNameInput" placeholder="First name (one word)" style="flex: 1; background: #000; border: 1px solid var(--border-color); padding: 0.8rem; color: #fff; border-radius: 4px; font-family: var(--font-mono);">
+                    <button onclick="submitGenericComment()" class="btn-action" style="width: auto; padding: 0 2rem;">SUBMIT</button>
                 </div>
-            </div>
-
-            <div style="background-color: var(--card-bg); border: 1px solid var(--border-color); padding: 1.25rem; border-radius: 6px; margin-top: 1.5rem;">
-                <h4 style="color: #fff; margin-top: 0; margin-bottom: 1rem; font-size: 0.95rem;">Contribute System Insights</h4>
-                <div style="display: flex; gap: 0.75rem; margin-bottom: 0.75rem; flex-wrap: wrap;">
-                    <input type="text" id="suiteNameInput" placeholder="First name (One word)" style="flex: 1; min-width: 150px; background-color: var(--bg-color); border: 1px solid var(--border-color); padding: 0.6rem; color: #fff; border-radius: 4px; font-size: 0.9rem;">
-                    <button onclick="submitGenericComment()" style="background-color: rgba(88, 166, 255, 0.1); border: 1px solid var(--accent-color); color: var(--accent-color); padding: 0.6rem 1.5rem; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">Drop a Quick Tip</button>
-                </div>
-                <input type="text" id="suiteCommentText" placeholder="Add your tool logs, hardware models, or note variations..." style="width: 100%; background-color: var(--bg-color); border: 1px solid var(--border-color); padding: 0.75rem; color: #fff; border-radius: 4px; box-sizing: border-box; font-size: 0.9rem;">
-                <div id="suiteValidationError" style="display: none; color: var(--badge-hard); font-size: 0.8rem; margin-top: 0.5rem;"></div>
+                <textarea id="suiteCommentText" placeholder="Add your tool logs, hardware models, or note variations..." style="width: 100%; min-height: 100px; background: #000; border: 1px solid var(--border-color); padding: 1rem; color: #fff; border-radius: 4px;"></textarea>
+                <div id="suiteValidationError" style="display: none; color: var(--neon-red); font-size: 0.8rem; margin-top: 0.5rem;"></div>
             </div>
         </section>
 
         <footer>
-            <p>&copy; 2026 bitandboot. All rights reserved.</p>
+            <p>&copy; 2026 bitandboot // SYSTEMS_LAB // NO_DATA_LOST</p>
         </footer>
     </div>
 
-    <script>
-        const pageId = window.location.pathname.split("/").pop() || "index";
-        
-        window.addEventListener('DOMContentLoaded', () => {
-            let storedViews = localStorage.getItem(`views_${pageId}`);
-            if (!storedViews) {
-                storedViews = Math.floor(Math.random() * (1250 - 750 + 1)) + 750;
-            } else {
-                storedViews = parseInt(storedViews) + 1;
-            }
-            localStorage.setItem(`views_${pageId}`, storedViews);
-            
-            const formattedViews = storedViews.toLocaleString();
-            
-            if (document.getElementById('topViewCount')) {
-                document.getElementById('topViewCount').innerText = formattedViews;
-            }
-            
-            const wCount = localStorage.getItem(`w_${pageId}`) || Math.floor(Math.random() * (450 - 380 + 1)) + 380;
-            const bCount = localStorage.getItem(`b_${pageId}`) || Math.floor(Math.random() * (210 - 170 + 1)) + 170;
-            localStorage.setItem(`w_${pageId}`, wCount);
-            localStorage.setItem(`b_${pageId}`, bCount);
-            
-            if (document.getElementById('countWorked')) document.getElementById('countWorked').innerText = wCount;
-            if (document.getElementById('countBricked')) document.getElementById('countBricked').innerText = bCount;
-        });
+    <!-- MAIN ENGINE MODULE -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        function incrementTelemetry(decision) {
-            const hasVoted = localStorage.getItem(`voted_${pageId}`);
-            if (hasVoted) {
-                alert("Your bench telemetry configuration has already been updated for this document session.");
-                return;
-            }
+        const firebaseConfig = { apiKey: "AIzaSyAZ5kORicxNAp4iCWlGn1C3XkP0vPJ5vQw", authDomain: "bitandboot.firebaseapp.com", projectId: "bitandboot", storageBucket: "bitandboot.firebasestorage.app", messagingSenderId: "687841897835", appId: "1:687841897835:web:16e8a1b9f31e23f069b02e" };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const pageId = (window.location.pathname.split("/").pop() || "index").replace(".html", "");
+        const articleRef = doc(db, "articles", pageId);
+        const commentsRef = collection(db, "articles", pageId, "comments");
 
-            if (decision === 'yes') {
-                let current = parseInt(localStorage.getItem(`w_${pageId}`)) || 412;
-                current++;
-                localStorage.setItem(`w_${pageId}`, current);
-                if (document.getElementById('countWorked')) document.getElementById('countWorked').innerText = current;
-                localStorage.setItem(`voted_${pageId}`, 'true');
-                document.getElementById('votePanel').innerHTML = `<h3 style="color: var(--badge-easy); margin: 0;">🎉 Success Telemetry Logged!</h3>`;
-            } else {
-                let current = parseInt(localStorage.getItem(`b_${pageId}`)) || 194;
-                current++;
-                localStorage.setItem(`b_${pageId}`, current);
-                if (document.getElementById('countBricked')) document.getElementById('countBricked').innerText = current;
-                localStorage.setItem(`voted_${pageId}`, 'true');
-                document.getElementById('votePanel').innerHTML = `<h3 style="color: var(--badge-hard); margin: 0;">💀 Failure Telemetry Logged</h3>`;
-            }
+        /* 1. SYNC ENGINE: Pulls from glossary.html */
+        async function syncGlossary() {
+            try {
+                const response = await fetch('glossary.html');
+                const text = await response.text();
+                const parser = new DOMParser();
+                const gdoc = parser.parseFromString(text, 'text/html');
+                const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const terms = [];
+                gdoc.querySelectorAll('.term-card').forEach(card => {
+                    const cardId = card.id;
+                    const title = card.querySelector('.term-title').innerText.trim();
+                    const def = card.querySelector('.term-def').innerText.trim();
+                    const matchAttr = card.getAttribute('data-match');
+                    const aliases = (matchAttr ? matchAttr.split(',') : [title]).map(s => s.trim()).filter(Boolean);
+                    aliases.forEach(alias => terms.push({ alias, def, cardId }));
+                });
+                terms.sort((a, b) => b.alias.length - a.alias.length);
+                const main = document.getElementById('article-body');
+                let html = main.innerHTML;
+                terms.forEach(({ alias, def, cardId }) => {
+                    const regex = new RegExp(`\\b(${escapeRegex(alias)})\\b(?![^<]*>)`, 'gi');
+                    const safeDef = def.replace(/"/g, '&quot;');
+                    html = html.replace(regex, `<a href="glossary.html#${cardId}" class="glossary-link" data-def="${safeDef}">$1</a>`);
+                });
+                main.innerHTML = html;
+                setupBubbles();
+            } catch (e) { console.error("Glossary Sync Failed:", e); }
         }
 
-        function submitGenericComment() {
-            const nameField = document.getElementById('suiteNameInput').value.trim();
-            const textField = document.getElementById('suiteCommentText').value.trim();
-            const valError = document.getElementById('suiteValidationError');
+        function setupBubbles() {
+            const bubble = document.getElementById('glossary-bubble');
+            const title = document.getElementById('bubble-title');
+            const def = document.getElementById('bubble-def');
+            document.querySelectorAll('.glossary-link').forEach(link => {
+                link.addEventListener('mouseenter', (e) => {
+                    title.innerText = e.target.innerText;
+                    def.innerText = e.target.getAttribute('data-def');
+                    bubble.style.display = 'block';
+                    const rect = e.target.getBoundingClientRect();
+                    bubble.style.top = `${rect.top + window.scrollY - bubble.offsetHeight - 10}px`;
+                    bubble.style.left = `${rect.left + (rect.width/2) - (bubble.offsetWidth/2)}px`;
+                });
+                link.addEventListener('mouseleave', () => { bubble.style.display = 'none'; });
+            });
+        }
 
-            if (valError) valError.style.display = 'none';
+        /* 2. FIREBASE INIT — real, shared, honest counts */
+        async function init() {
+            const snap = await getDoc(articleRef);
+            if (!snap.exists()) {
+                try { await setDoc(articleRef, { viewCount: 0, workedCount: 0, brickedCount: 0 }); } catch (e) {}
+            }
+            onSnapshot(articleRef, (s) => {
+                const d = s.data();
+                if(d && document.getElementById("topViewCount")) document.getElementById("topViewCount").innerText = (d.viewCount || 0).toLocaleString();
+                if(d && document.getElementById("countWorked")) document.getElementById("countWorked").innerText = d.workedCount || 0;
+                if(d && document.getElementById("countBricked")) document.getElementById("countBricked").innerText = d.brickedCount || 0;
+            });
+            if(!sessionStorage.getItem(`viewed_${pageId}`)) {
+                try { await updateDoc(articleRef, {viewCount: increment(1)}); } catch(e) {}
+                sessionStorage.setItem(`viewed_${pageId}`, '1');
+            }
 
-            if (!nameField || !textField) {
-                if (valError) {
-                    valError.innerText = "Error: Output parameters cannot be empty strings.";
-                    valError.style.display = 'block';
+            onSnapshot(query(commentsRef, orderBy("timestamp", "desc")), (snapshot) => {
+                const feed = document.getElementById("commentsFeed");
+                feed.innerHTML = "";
+                if (snapshot.empty) {
+                    feed.innerHTML = `<p style="color: var(--meta-color); font-size: 0.9rem;">No notes yet — be the first to leave one.</p>`;
+                    return;
                 }
-                return;
-            }
-
-            if (nameField.split(' ').length > 1) {
-                if (valError) {
-                    valError.innerText = "Error: Supply strictly a single word for your identity handle.";
-                    valError.style.display = 'block';
-                }
-                return;
-            }
-
-            let sanitizedName = nameField.replace(/[^a-zA-Z0-9]/g, '');
-            if (!sanitizedName) sanitizedName = "Tech";
-            
-            const generatedUserHandle = `@${sanitizedName}King`;
-            const feed = document.getElementById('commentsFeed');
-            
-            if (feed) {
-                const commentDiv = document.createElement('div');
-                commentDiv.setAttribute('style', 'border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem;');
-                
-                commentDiv.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.25rem;">
-                        <strong style="color: #fff; font-family: monospace;">${generatedUserHandle}</strong>
-                        <span style="color: var(--text-color); opacity: 0.4;">Just Now</span>
-                    </div>
-                    <p style="margin: 0; font-size: 0.95rem; color: #c9d1d9;">${escapeHTML(textField)}</p>
-                `;
-
-                feed.insertBefore(commentDiv, feed.firstChild);
-            }
-            
-            document.getElementById('suiteCommentText').value = "";
+                snapshot.forEach((docSnap) => {
+                    const c = docSnap.data();
+                    const div = document.createElement("div");
+                    div.className = "comment-item";
+                    div.innerHTML = `<div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:0.25rem;"><strong style="color:var(--accent-color);">@${escapeHTML(c.name)}</strong></div><p style="margin:0;color:#c9d1d9;">${escapeHTML(c.text)}</p>`;
+                    feed.appendChild(div);
+                });
+            });
         }
 
         function escapeHTML(str) {
-            return str.replace(/[&<>'"]/g, 
-                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
-            );
+            return str.replace(/[&<>'"]/g, tag => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[tag] || tag));
         }
+
+        window.submitGenericComment = async () => {
+            const nameField = document.getElementById("suiteNameInput").value.trim();
+            const textField = document.getElementById("suiteCommentText").value.trim();
+            const valError = document.getElementById("suiteValidationError");
+            if (valError) valError.style.display = "none";
+
+            if (!nameField || !textField) {
+                if (valError) { valError.innerText = "Error: name and note are both required."; valError.style.display = "block"; }
+                return;
+            }
+            if (nameField.split(" ").length > 1) {
+                if (valError) { valError.innerText = "Error: supply strictly a single word for your identity handle."; valError.style.display = "block"; }
+                return;
+            }
+            const sanitizedName = nameField.replace(/[^a-zA-Z0-9]/g, "") || "Tech";
+            try {
+                await addDoc(commentsRef, { name: `${sanitizedName}King`, text: textField, timestamp: serverTimestamp() });
+                document.getElementById("suiteCommentText").value = "";
+                document.getElementById("suiteNameInput").value = "";
+            } catch (e) {
+                if (valError) { valError.innerText = "Error: could not post comment — please try again."; valError.style.display = "block"; }
+            }
+        };
+
+        window.incrementTelemetry = async (type) => {
+            const voteLockKey = `voted_${pageId}`;
+            if(localStorage.getItem(voteLockKey)) return alert("Session Lock Active. You've already logged a result for this article.");
+            try {
+                await updateDoc(articleRef, { [type === 'yes' ? 'workedCount' : 'brickedCount']: increment(1) });
+                localStorage.setItem(voteLockKey, '1');
+                document.getElementById("votePanel").innerHTML = "<h2 style='color:var(--neon-green)'>LOGGED</h2>";
+            } catch (e) { alert("Something went wrong logging your vote — please try again."); }
+        };
+
+        /* 3. RAM/SWAP SIMULATION LOGIC */
+        let step = 0;
+        const consoleEl = document.getElementById("console");
+        const ramVal = document.getElementById("ram-val");
+        const tabsVal = document.getElementById("tabs-val");
+        const swapStatus = document.getElementById("swap-status");
+        const nextBtn = document.getElementById("nextBtn");
+        const slots = document.querySelectorAll(".ram-slot");
+
+        function log(m) {
+            const d = document.createElement("div");
+            d.className = "console-line";
+            d.innerText = m;
+            consoleEl.appendChild(d);
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+        }
+
+        function fillSlots(count, cls) {
+            slots.forEach((s, i) => {
+                s.className = "ram-slot" + (i < count ? " " + cls : "");
+            });
+        }
+
+        window.nextSimStep = () => {
+            step++;
+            if (step === 1) {
+                log("Opening additional browser tabs...");
+                fillSlots(8, "filled");
+                ramVal.innerText = "68%";
+                tabsVal.innerText = "22";
+                nextBtn.innerText = "OPEN_EVEN_MORE_TABS";
+            } else if (step === 2) {
+                log("RAM threshold exceeded. Kernel initiating swap...");
+                fillSlots(12, "overflow");
+                ramVal.innerText = "100%";
+                tabsVal.innerText = "51";
+                swapStatus.innerText = "Disk swap: ACTIVE (slow reads)";
+                swapStatus.style.color = "var(--neon-red)";
+                log("Warning: system responsiveness degraded.");
+                nextBtn.innerText = "CLOSE_IDLE_TABS";
+            } else if (step === 3) {
+                log("Idle tabs closed. RAM reclaimed.");
+                fillSlots(3, "filled");
+                ramVal.innerText = "25%";
+                tabsVal.innerText = "5";
+                swapStatus.innerText = "Disk swap: IDLE";
+                swapStatus.style.color = "var(--neon-green)";
+                log("System responsiveness restored.");
+                nextBtn.innerText = "SIMULATION_COMPLETE";
+                nextBtn.disabled = true;
+            }
+        };
+
+        window.resetLab = () => {
+            step = 0;
+            fillSlots(3, "filled");
+            ramVal.innerText = "25%";
+            tabsVal.innerText = "3";
+            swapStatus.innerText = "Disk swap: IDLE";
+            swapStatus.style.color = "inherit";
+            nextBtn.disabled = false;
+            nextBtn.innerText = "OPEN_MORE_TABS";
+            consoleEl.innerHTML = '<div class="console-line">Idle desktop. 3 tabs open.</div><div class="console-line">RAM allocation stable.</div>';
+        };
+        fillSlots(3, "filled");
+
+        window.addEventListener('DOMContentLoaded', () => { syncGlossary(); init(); });
     </script>
 </body>
 </html>
