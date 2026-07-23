@@ -4,272 +4,597 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fixing Samsung M34 5G Touch Dead After Update: Firmware Downgrade & Hardware Requirements | bitandboot</title>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2358a6ff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='16 18 22 12 16 6'></polyline><polyline points='8 6 2 12 8 18'></polyline></svg>">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <!-- Professional Engineering Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
+
     <style>
         :root {
-            --bg-color: #0d1117;
+            --bg-color: #05070a;
             --text-color: #c9d1d9;
             --accent-color: #58a6ff;
-            --card-bg: #161b22;
+            --neon-green: #3fb950;
+            --neon-red: #f85149;
+            --card-bg: #0d1117;
             --border-color: #30363d;
+            --terminal-bg: #010409;
             --meta-color: #8b949e;
-            --badge-easy: #56d364;
-            --badge-hard: #f85149;
-            --danger: #ff7b72;
+            --font-mono: 'Roboto', sans-serif;
+            --font-sans: 'Inter', sans-serif;
         }
+
         * { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
             background-color: var(--bg-color);
+            background-image: radial-gradient(#161b22 0.5px, transparent 0.5px);
+            background-size: 30px 30px;
             color: var(--text-color);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            font-family: var(--font-sans);
             line-height: 1.6;
-            padding: 2rem 1rem;
+            padding: 0 1.5rem;
         }
+
         .container { max-width: 1100px; margin: 0 auto; }
-        header { margin-bottom: 2.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1.5rem; }
-        .nav-back { color: var(--accent-color); text-decoration: none; font-size: 0.95rem; display: inline-block; margin-bottom: 1rem; }
-        .nav-back:hover { text-decoration: underline; }
-        h1 { color: #fff; font-size: 2.2rem; line-height: 1.25; margin-bottom: 0.75rem; }
-        .meta { color: var(--meta-color); font-size: 0.9rem; display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
-        h2 { color: #fff; font-size: 1.5rem; margin: 2rem 0 1rem 0; padding-bottom: 0.3rem; border-bottom: 1px solid var(--border-color); }
-        h3 { color: #fff; font-size: 1.2rem; margin: 1.5rem 0 0.5rem 0; }
-        p { margin-bottom: 1.25rem; }
-        b, strong { color: #fff; font-weight: 600; }
-        ol, ul { margin-bottom: 1.25rem; padding-left: 1.5rem; }
-        li { margin-bottom: 0.5rem; }
-        code { font-family: monospace; color: #ff7b72; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; }
-        .warning-box {
-            background-color: rgba(255, 123, 114, 0.1);
-            border-left: 4px solid var(--danger);
-            border-radius: 4px;
-            padding: 1.25rem;
-            margin-bottom: 2rem;
+
+        /* --- STAMPED HEADER --- */
+        header {
+            padding: 4rem 0 2rem 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 3rem;
         }
-        .info-box {
-            background-color: rgba(88, 166, 255, 0.1);
-            border-left: 4px solid var(--accent-color);
-            border-radius: 4px;
-            padding: 1.25rem;
-            margin-bottom: 2rem;
+        .nav-back {
+            font-family: var(--font-mono);
+            color: var(--accent-color);
+            text-decoration: none;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            display: block;
+            margin-bottom: 1rem;
         }
-        footer { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color); color: var(--meta-color); text-align: center; font-size: 0.85rem; }
+        h1 {
+            font-weight: 800;
+            font-size: 2.6rem;
+            color: #fff;
+            line-height: 1.15;
+            letter-spacing: -1.5px;
+            margin-bottom: 1.5rem;
+        }
+        .meta {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--meta-color);
+            display: flex; gap: 1.5rem; text-transform: uppercase; flex-wrap: wrap;
+        }
+
+        /* --- GLOSSARY BUBBLE UI --- */
+        .glossary-link {
+            color: #fff;
+            border-bottom: 1px dashed var(--accent-color);
+            cursor: help;
+            font-weight: 700;
+            text-decoration: none;
+        }
+        #glossary-bubble {
+            position: absolute;
+            z-index: 1000;
+            width: 280px;
+            background: #161b22;
+            border: 1px solid var(--accent-color);
+            border-radius: 8px;
+            padding: 1rem;
+            font-size: 0.85rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            display: none;
+            pointer-events: none;
+        }
+        #glossary-bubble b { font-family: var(--font-mono); color: var(--accent-color); display: block; margin-bottom: 5px; }
+
+        /* --- THE WORKBENCH MAINFRAME --- */
+        #workbench-mainframe {
+            background: var(--terminal-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 4rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        #workbench-mainframe::before {
+            content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            z-index: 10; background-size: 100% 3px, 3px 100%; pointer-events: none;
+        }
+
+        .lab-header {
+            background: #161b22;
+            padding: 0.75rem 1.5rem;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .lab-title { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent-color); }
+
+        .lab-content { display: grid; grid-template-columns: 300px 1fr; height: 350px; }
+
+        .console-log {
+            background: #000; border-right: 1px solid var(--border-color);
+            padding: 1rem; font-family: var(--font-mono); font-size: 0.7rem;
+            color: var(--neon-green); overflow-y: auto;
+        }
+        .console-line { margin-bottom: 4px; opacity: 0.8; }
+        .console-line::before { content: "> "; color: var(--accent-color); }
+
+        .visualizer {
+            position: relative; display: flex; flex-direction: column; justify-content: center;
+            align-items: center; padding: 1.5rem; gap: 0.75rem;
+            background: radial-gradient(circle at center, #0d1117 0%, #010409 100%);
+        }
+
+        .odin-slots {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; width: 100%; max-width: 320px;
+        }
+        .odin-slot {
+            border: 2px solid var(--border-color); border-radius: 6px; background: #0d1117;
+            padding: 0.6rem 0.3rem; text-align: center; transition: 0.3s;
+        }
+        .odin-slot.loaded { border-color: var(--accent-color); box-shadow: 0 0 12px rgba(88, 166, 255, 0.3); }
+        .odin-slot.done { border-color: var(--neon-green); box-shadow: 0 0 12px rgba(63, 185, 80, 0.3); }
+        .odin-slot-label { font-family: var(--font-mono); font-size: 0.65rem; color: var(--meta-color); }
+        .odin-slot-status { font-family: var(--font-mono); font-size: 0.6rem; color: #fff; margin-top: 4px; }
+        .odin-progress {
+            width: 100%; max-width: 320px; height: 10px; background: #1f242c; border-radius: 5px; overflow: hidden;
+        }
+        .odin-progress-fill { height: 100%; width: 0%; background: var(--accent-color); transition: width 0.4s; }
+        .odin-result { font-family: var(--font-mono); font-size: 0.9rem; font-weight: bold; color: var(--meta-color); }
+
+        .lab-footer {
+            padding: 1.25rem; background: #0d1117; border-top: 1px solid var(--border-color);
+            display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;
+        }
+
+        /* --- ARTICLE CONTENT --- */
+        .article-layout { display: flex; gap: 2.5rem; align-items: flex-start; flex-wrap: wrap; }
+        main { flex: 2.5; min-width: 320px; font-size: 1.1rem; line-height: 1.8; color: #adbac7; }
+
+        .workbench-note {
+            background-color: #0d1117; border: 1px solid var(--border-color);
+            border-left: 4px solid var(--accent-color); padding: 1.5rem;
+            border-radius: 6px; margin-bottom: 2rem;
+        }
+
+        /* --- FAST DIAGNOSTIC SUMMARY --- */
+        .fast-summary {
+            background-color: #0d1117; border: 1px solid var(--accent-color);
+            border-radius: 8px; padding: 1.75rem; margin-bottom: 3rem;
+            box-shadow: 0 0 25px rgba(88, 166, 255, 0.08);
+        }
+        .fast-summary h4 {
+            font-family: var(--font-mono); color: var(--accent-color); font-size: 0.85rem;
+            text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 1rem;
+        }
+        .fast-summary ul { list-style: none; padding: 0; margin: 0; }
+        .fast-summary li { padding: 0.6rem 0; border-bottom: 1px solid #1f242c; font-size: 0.98rem; color: #c9d1d9; }
+        .fast-summary li:last-child { border-bottom: none; }
+        .fast-summary li::before { content: "▸ "; color: var(--accent-color); }
+
+        h2 { color: #fff; font-size: 1.8rem; margin: 3rem 0 1.25rem 0; font-family: var(--font-mono); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
+        h3 { color: #fff; font-size: 1.3rem; margin: 2rem 0 1rem 0; }
+        p { margin-bottom: 1.5rem; }
+        ol, ul { margin-bottom: 1.5rem; padding-left: 1.5rem; }
+        li { margin-bottom: 0.75rem; }
+        b, strong { color: #fff; }
+        code { font-family: var(--font-mono); color: #ff7b72; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; }
+
+        .alert-box { background-color: rgba(248, 81, 73, 0.1); border-left: 4px solid var(--neon-red); padding: 1.25rem; border-radius: 4px; margin: 2rem 0; }
+        .alert-box.info { background-color: rgba(88, 166, 255, 0.1); border-left-color: var(--accent-color); }
+
+        .analysis-table-wrapper { overflow-x: auto; margin: 1.5rem 0; border: 1px solid var(--border-color); border-radius: 6px; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
+        th { background-color: var(--card-bg); color: #fff; padding: 12px; border-bottom: 1px solid var(--border-color); font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; }
+        td { padding: 12px; border-bottom: 1px solid var(--border-color); vertical-align: top; }
+        tr:last-child td { border-bottom: none; }
+
+        /* --- SIDEBAR & VOTE --- */
+        aside { flex: 1; min-width: 280px; position: sticky; top: 20px; }
+        #votePanel {
+            background-color: var(--card-bg); border: 1px solid var(--border-color);
+            border-top: 4px solid var(--accent-color); padding: 2rem;
+            border-radius: 8px; text-align: center;
+        }
+
+        .btn-action {
+            background: var(--accent-color); color: #fff; border: none;
+            padding: 0.8rem 1.5rem; font-family: var(--font-mono);
+            font-weight: bold; border-radius: 4px; cursor: pointer; transition: 0.2s;
+        }
+        .btn-action:hover { filter: brightness(1.2); }
+
+        /* --- COMMENTS --- */
+        .comment-section { margin-top: 5rem; border-top: 1px solid var(--border-color); padding-top: 3rem; }
+        .comment-item { border-bottom: 1px solid var(--border-color); padding-bottom: 1.5rem; margin-bottom: 1.5rem; }
+
+        footer { text-align: center; padding: 5rem 0 2rem 0; color: #444; font-family: var(--font-mono); font-size: 0.8rem; }
+
+        @media (max-width: 768px) {
+            .lab-content { grid-template-columns: 1fr; height: auto; }
+            .console-log { display: none; }
+            h1 { font-size: 1.9rem; }
+        }
     </style>
 </head>
 <body>
+
+    <!-- SHARED BUBBLE ELEMENT -->
+    <div id="glossary-bubble">
+        <b id="bubble-title">TERM</b>
+        <p id="bubble-def">Loading definition...</p>
+    </div>
+
     <div class="container">
         <header>
-            <a href="index.html" class="nav-back">← Back to Dashboard</a>
-            <h1>Fixing Samsung M34 5G Touch Dead After Update: Firmware Downgrade & Hardware Constraints</h1>
+            <a href="index.html" class="nav-back">// ROOT_ACCESS / RETURN_TO_LOBBY</a>
+            <h1>Fixing Samsung M34 5G Touch Dead After Update: Firmware Downgrade & Hardware Requirements</h1>
             <div class="meta">
-                <span>📅 July 2026</span> | 
-                <span>🏷️ Category: Mobile Servicing & Firmware Flashing</span> |
-                <span style="color: #8b949e; border: 1px solid var(--border-color); padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600;">
-                    📊 <span id="topViewCount">--</span> Views
-                </span>
+                <span>[ DATE: JULY_2026 ]</span> |
+                <span>[ CATEGORY: MOBILE_SERVICING_&_FIRMWARE ]</span> |
+                <span style="color: var(--accent-color);">[ VIEWS: <span id="topViewCount">--</span> ]</span>
             </div>
         </header>
 
-        <div style="display: flex; gap: 2rem; align-items: flex-start; flex-wrap: wrap;">
-            
-            <main style="flex: 2.5; min-width: 320px;">
-                <p>A widespread anomaly affecting Samsung devices—particularly mid-range drivers like the <strong>Galaxy M34 5G</strong>—is the sudden, total **loss of touchscreen responsiveness following an OTA update**. The glass is unbroken, the display lines are pristine, yet the screen refuses to register input. This problem stems directly from an **architectural mismatch between the updated One UI kernel input drivers and the Touch IC embedded firmware** on the display assembly.</p>
+        <!-- THE MAIN WORKBENCH SIMULATOR -->
+        <div id="workbench-mainframe">
+            <div class="lab-header">
+                <span class="lab-title">ODIN_FLASH_SEQUENCE_SIMULATOR v1.00</span>
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <div style="width:8px; height:8px; border-radius:50%; background:var(--neon-green); box-shadow:0 0 8px var(--neon-green);"></div>
+                    <span style="font-family:var(--font-mono); font-size:0.6rem; color:var(--neon-green);">DOWNLOAD_MODE_READY</span>
+                </div>
+            </div>
 
-                <div class="warning-box">
-                    <strong>CRITICAL HARDWARE WARNING:</strong> Before downloading a single file, you must inspect the phone's physical <strong>charging jack / sub-board assembly</strong>. Even if the device charges perfectly when powered on, degraded or dirty USB data pins (D+ / D-) inside the Type-C port will fail to establish a stable connection with the computer, causing Odin to drop connections mid-flash and completely hard-brick the device.
+            <div class="lab-content">
+                <div class="console-log" id="console">
+                    <div class="console-line">Awaiting Download Mode entry...</div>
+                    <div class="console-line">ID:COM box: not yet verified.</div>
                 </div>
 
-                <h2>1. The Prerequisite: Validating the USB Hardware Connection Path</h2>
-                <p>In many Samsung service cases, a phone connects smoothly to a wall brick but fails to communicate with a PC. Standard charging only requires the <strong>VBUS and GND lines</strong> to deliver raw current. However, firmware flashing demands an uncorrupted high-speed serial connection via the <strong>USB 2.0 Differential Data Pair (Data Plus / Data Minus) pins</strong>.</p>
-                
+                <div class="visualizer">
+                    <div class="odin-slots">
+                        <div class="odin-slot" id="slot-bl"><div class="odin-slot-label">BL</div><div class="odin-slot-status" id="slot-bl-stat">EMPTY</div></div>
+                        <div class="odin-slot" id="slot-ap"><div class="odin-slot-label">AP</div><div class="odin-slot-status" id="slot-ap-stat">EMPTY</div></div>
+                        <div class="odin-slot" id="slot-cp"><div class="odin-slot-label">CP</div><div class="odin-slot-status" id="slot-cp-stat">EMPTY</div></div>
+                        <div class="odin-slot" id="slot-csc"><div class="odin-slot-label">CSC</div><div class="odin-slot-status" id="slot-csc-stat">EMPTY</div></div>
+                    </div>
+                    <div class="odin-progress"><div class="odin-progress-fill" id="odin-progress-fill"></div></div>
+                    <div class="odin-result" id="odin-result">ID:COM — WAITING</div>
+                </div>
+            </div>
+
+            <div class="lab-footer">
+                <button class="btn-action" id="nextBtn" onclick="nextSimStep()" style="width: auto;">CONNECT_DOWNLOAD_MODE</button>
+                <button onclick="resetLab()" style="background:transparent; border:1px solid var(--border-color); color:var(--meta-color); font-family:var(--font-mono); font-size:0.7rem; padding:0.5rem 1rem; cursor:pointer; border-radius:4px;">DISCONNECT</button>
+            </div>
+        </div>
+
+        <div class="article-layout">
+            <main id="article-body">
+                <div class="workbench-note">
+                    <h4 style="color: #fff; margin: 0 0 0.5rem 0; font-size: 0.8rem; text-transform: uppercase; font-family: var(--font-mono);">🔬 Workbench Notes</h4>
+                    <p style="margin: 0; font-size: 0.95rem; color: var(--meta-color); font-style: italic;">
+                        "A widespread anomaly affecting Samsung devices — particularly mid-range models like the Galaxy M34 5G — is the sudden, total loss of touchscreen responsiveness following an OTA update. The glass is unbroken, the display lines are pristine, yet the screen refuses to register input."
+                    </p>
+                </div>
+
+                <div class="fast-summary">
+                    <h4>⚡ Fast Diagnostic Summary</h4>
+                    <ul>
+                        <li><strong>The symptom:</strong> touch input dies completely right after an OTA update — display, charging, and buttons still work fine.</li>
+                        <li><strong>The root cause:</strong> an architectural mismatch between the updated One UI kernel input drivers and the <strong>Touch IC</strong> embedded firmware on the display assembly itself.</li>
+                        <li><strong>Before touching software at all:</strong> physically inspect the Type-C port's data pins (D+/D-) — a degraded USB connection will cause <strong>Odin</strong> to drop mid-flash and hard-brick the device, turning a software fix attempt into a much worse hardware problem.</li>
+                        <li><strong>The fix:</strong> downgrade firmware via <strong>Odin</strong> back to a compatible touch driver version — critically, the target firmware must share the exact same Binary/SW REV level as the current install, since Samsung's secure boot won't allow flashing to a genuinely lower binary level.</li>
+                        <li><strong>The critical distinction:</strong> use the standard <strong>CSC</strong> file (full wipe, required for downgrades), never <strong>HOME_CSC</strong> (data-preserving, upgrade-only) — using the wrong one on a downgrade risks the older kernel panicking over newer system databases.</li>
+                    </ul>
+                </div>
+
+                <div class="alert-box">
+                    <strong>CRITICAL HARDWARE WARNING:</strong> before downloading a single file, inspect the phone's physical charging jack/sub-board assembly. Even if the device charges perfectly when powered off, degraded or dirty USB data pins inside the Type-C port will fail to establish a stable connection with the computer, causing Odin to drop connections mid-flash and potentially hard-brick the device.
+                </div>
+
+                <h2>1. What the Touch IC Actually Does</h2>
+                <p>The <strong>Touch IC (Integrated Circuit)</strong> is a small, dedicated chip embedded directly in the display assembly, separate from the phone's main processor. Its job is to translate raw capacitive changes on the glass surface into coordinate data the OS can interpret as a tap, swipe, or gesture. Critically, this chip runs its own small firmware — and that firmware has to speak a compatible protocol with whatever input driver version the kernel expects.</p>
+                <p>When an OTA update ships a new kernel input driver that assumes a newer Touch IC communication protocol than what's actually on the installed display assembly, the two sides simply fail to understand each other. The display itself is completely fine electrically — it's a pure protocol/version mismatch, not physical damage.</p>
+
+                <h2>2. The Prerequisite: Validating the USB Hardware Connection Path</h2>
+                <p>In many Samsung service cases, a phone connects smoothly to a wall charger but fails to communicate reliably with a PC. Standard charging only requires the VBUS and GND lines to deliver raw current. Firmware flashing, however, demands an uncorrupted high-speed serial connection via the USB 2.0 differential data pair (D+/D-) pins — a much stricter requirement that a "charges fine" port can still fail.</p>
                 <p>Before entering Download Mode, complete this checklist:</p>
                 <ul>
-                    <li>Examine the internal contacts of the <strong>Type-C charging port</strong> under a microscope for lint, oxidization, or loose solder legs connecting to the sub-board.</li>
-                    <li>Ensure the <strong>Samsung Android USB Device drivers</strong> are active in Windows Device Manager.</li>
-                    <li>Connect the phone directly to a rear motherboard USB port using an authentic, high-quality thick-gauge cable—avoid using external multi-port USB hubs.</li>
+                    <li>Examine the internal contacts of the Type-C charging port under a microscope for lint, oxidation, or loose solder legs connecting to the sub-board.</li>
+                    <li>Ensure the Samsung Android USB device drivers are active in Windows Device Manager.</li>
+                    <li>Connect the phone directly to a rear motherboard USB port using an authentic, high-quality thick-gauge cable — avoid external multi-port USB hubs, which frequently introduce exactly the kind of signal instability that drops an Odin session mid-flash.</li>
                 </ul>
 
-                <h2>2. Step-by-Step Recovery Strategy: Downgrading Firmware via SamFirm & Odin</h2>
-                <p>To restore touch functionality, we must rollback the system software to the previous version containing the older compatible touch drivers. To bypass Samsung's secure boot filters, **the previous firmware version must share the exact same Binary/SW REV level** as the current installation; you cannot downgrade to a lower binary level.</p>
+                <h2>3. Step-by-Step Recovery: Downgrading Firmware via SamFirm & Odin</h2>
+                <p>To restore touch functionality, roll the system software back to the previous version containing the older, compatible touch drivers. To bypass Samsung's secure boot filters, the target firmware must share the exact same Binary/SW REV level as the current installation — you cannot downgrade to a genuinely lower binary level; secure boot will reject it outright.</p>
 
                 <h3>Step 1: Extracting Clean Binary Assets via SamFirm</h3>
-                <p>Instead of relying on slow third-party download mirrors that risk file corruption, we use <strong>SamFirm</strong> or <strong>Bifrost</strong> to pull files directly from Samsung's official firmware servers.</p>
+                <p>Instead of relying on slow third-party download mirrors that risk file corruption, use SamFirm or Bifrost to pull files directly from Samsung's official firmware servers.</p>
                 <ol>
-                    <li>Launch SamFirm and input the exact device model string: <strong>SM-M346B</strong> (Verify your precise variant under Download Mode).</li>
-                    <li>Input your specific region's **CSC code** (e.g., INS for India).</li>
-                    <li>Check the **Auto** checkbox and hit **Check Update**.</li>
-                    <li>Download and extract the official package. You will get five distinct <code>.tar.md5</code> files: <strong>BL, AP, CP, CSC, and HOME_CSC</strong>.</li>
+                    <li>Launch SamFirm and input the exact device model string: <strong>SM-M346B</strong> (verify your precise variant under Download Mode).</li>
+                    <li>Input your specific region's <strong>CSC code</strong> (e.g., INS for India).</li>
+                    <li>Check the Auto checkbox and hit Check Update.</li>
+                    <li>Download and extract the official package. You'll get five distinct <code>.tar.md5</code> files: BL, AP, CP, CSC, and HOME_CSC.</li>
                 </ol>
 
                 <h3>Step 2: Executing the Odin Flash Command Sequence</h3>
-                <div class="info-box">
-                    <strong>Data Loss Notice:</strong> Because this is a structural software downgrade to remedy a kernel panic, you must flash using the clean <strong>CSC binary file</strong> instead of HOME_CSC. This executes a factory hard reset to wipe corrupted cache blocks cleanly.
-                </div>
                 <ol>
-                    <li>Power down the phone completely. Hold both <strong>Volume Up + Volume Down keys simultaneously</strong> and plug in the USB cable connected to the computer. Release the keys when the blue **Download Mode Warning** screen pops up, then press Volume Up to confirm.</li>
-                    <li>Launch <strong>Odin (v3.14.4 or higher recommended)</strong>. Verify that the <code>ID:COM</code> box illuminates bright blue, indicating a verified hardware connection block.</li>
-                    <li>Map the extracted target files into their corresponding slots:
-                        <ul>
-                            <li><strong>BL:</strong> Bootloader binary configuration asset.</li>
-                            <li><strong>AP:</strong> Main system core architecture package (Takes the longest to verify).</li>
-                            <li><strong>CP:</strong> Modem baseband operational firmware.</li>
-                            <li><strong>CSC Slot Options (CRITICAL DISTINCTION):</strong> 
-                                <ul>
-                                    <li><strong>Standard CSC_*** Binary:</strong> This forces a hard system re-partitioning via the PIT (Partition Information Table). It completely wipes the <code>/data</code> block, erasing all user files, photos, and apps to establish a pristine system state. <strong>This is mandatory for downgrades</strong> to prevent older kernels from panicking over newer system databases.</li>
-                                    <li><strong>HOME_CSC_*** Binary:</strong> This updates carrier configurations but bypasses the formatting execution loop. It <strong>retains all user data completely intact</strong>. This should only be used for standard version upgrades, never for a structural software rollback.</li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </li>
-                    <li>Click <strong>Start</strong>. Do not touch the cable or move the device until Odin prints a green <strong>PASS!</strong> box in the upper left section.</li>
+                    <li>Power down the phone completely. Hold both Volume Up + Volume Down keys simultaneously and plug in the USB cable connected to the computer. Release the keys when the blue Download Mode warning screen appears, then press Volume Up to confirm.</li>
+                    <li>Launch Odin (v3.14.4 or higher recommended). Verify the <code>ID:COM</code> box illuminates bright blue, indicating a verified hardware connection.</li>
+                    <li>Map the extracted target files into their corresponding slots — see the breakdown table below.</li>
+                    <li>Click Start. Do not touch the cable or move the device until Odin prints a green PASS! box in the upper-left section.</li>
                 </ol>
 
-                <h2>Conclusion</h2>
-                <p>Once the flash cycle terminates, the phone will reboot, initialize its core system partitions, and reload the older input driver profile. The Touch IC firmware mismatch clears instantly, and **full physical touch functionality returns to normal**. To prevent this issue from recurring, immediately toggle off <strong>Auto System Updates</strong> in the device's developer options menu.</p>
+                <h2>4. File Slot Breakdown: What Each One Actually Does</h2>
+                <div class="analysis-table-wrapper">
+                    <table>
+                        <thead>
+                            <tr><th>Slot</th><th>Contains</th><th>Notes</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><strong>BL</strong></td><td>Bootloader binary configuration</td><td>Smallest file, flashes fastest</td></tr>
+                            <tr><td><strong>AP</strong></td><td>Main system core architecture package</td><td>Largest file, takes the longest to verify</td></tr>
+                            <tr><td><strong>CP</strong></td><td>Modem baseband operational firmware</td><td>Governs cellular radio behavior</td></tr>
+                            <tr><td><strong>CSC (standard)</strong></td><td>Regional carrier config + forces full re-partitioning via <strong>PIT</strong></td><td>Wipes <code>/data</code> completely — mandatory for downgrades</td></tr>
+                            <tr><td><strong>HOME_CSC</strong></td><td>Regional carrier config, no re-partitioning</td><td>Preserves user data — upgrades only, never downgrades</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="alert-box info">
+                    <strong>Data Loss Notice:</strong> because this is a structural software downgrade meant to remedy a driver-level mismatch, you must flash using the standard CSC file, not HOME_CSC. This executes a factory hard reset, wiping potentially-corrupted cache and database blocks cleanly via the <strong>PIT (Partition Information Table)</strong> — the older kernel needs a genuinely clean slate, not newer-format data left behind from the version you're rolling back from.
+                </div>
+
+                <h2>5. When It's Not a Software Problem: The Aftermarket Display Case</h2>
+                <p>If touch remains completely dead even after a clean firmware rollback via Odin using the standard CSC file, this points to a different root cause entirely: the device has an aftermarket (non-genuine) display panel installed, whose Touch IC clone doesn't correctly authenticate with Samsung's expected security/communication structures. In that scenario, no firmware version — old or new — will resolve the mismatch, because the problem lives in the replacement hardware's chip, not in software configuration. This is worth checking for specifically if the phone has a known history of a prior screen replacement.</p>
+
+                <h2>6. Preventing Recurrence</h2>
+                <p>Once the flash cycle completes, the phone reboots, initializes its core system partitions, and reloads the older, compatible input driver profile — touch functionality typically returns immediately. To prevent this specific issue from recurring on the next OTA cycle, disable Auto System Updates in the device's Developer Options menu, allowing manual review of update notes before applying future firmware.</p>
             </main>
 
-            <aside style="flex: 1; min-width: 280px; position: sticky; top: 20px;">
-                <div id="votePanel" style="background-color: var(--card-bg); border: 1px solid var(--border-color); border-top: 4px solid var(--accent-color); padding: 1.5rem; border-radius: 6px; text-align: center;">
-                    <h3 style="color: #fff; margin-top: 0; margin-bottom: 0.5rem; font-size: 1.1rem;">⚡ Bench Verification</h3>
-                    <p style="margin: 0 0 1.25rem 0; color: #8b949e; font-size: 0.9rem;">Did the firmware rollback restore display inputs to your M34 mainboard?</p>
-                    
-                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                        <button onclick="incrementTelemetry('yes')" style="background-color: rgba(86, 211, 100, 0.1); border: 1px solid var(--badge-easy); color: var(--badge-easy); padding: 0.65rem; border-radius: 4px; font-weight: 700; cursor: pointer; font-size: 0.88rem;">
-                            YES, TOUCH RESTORED! (<span id="countWorked">--</span>)
-                        </button>
-                        <button onclick="incrementTelemetry('no')" style="background-color: rgba(248, 81, 73, 0.1); border: 1px solid var(--badge-hard); color: var(--badge-hard); padding: 0.65rem; border-radius: 4px; font-weight: 700; cursor: pointer; font-size: 0.88rem;">
-                            NO, INPUTS STILL DEAD (<span id="countBricked">--</span>)
-                        </button>
-                    </div>
+            <aside>
+                <div id="votePanel">
+                    <h3 style="font-family: var(--font-mono); color:#fff; margin-bottom: 1rem; font-size: 1rem;">⚡ BENCH_VERIFICATION</h3>
+                    <p style="margin: 0 0 1.5rem 0; color: var(--meta-color); font-size: 0.85rem;">Did the firmware rollback restore display inputs to your M34 mainboard?</p>
+
+                    <button onclick="incrementTelemetry('yes')" class="btn-action" style="background: rgba(63, 185, 80, 0.1); color: var(--neon-green); border: 1px solid var(--neon-green); margin-bottom: 0.75rem; width: 100%;">
+                        YES, TOUCH RESTORED! (<span id="countWorked">--</span>)
+                    </button>
+                    <button onclick="incrementTelemetry('no')" class="btn-action" style="background: rgba(248, 81, 73, 0.1); color: var(--neon-red); border: 1px solid var(--neon-red); width: 100%;">
+                        NO, INPUTS STILL DEAD (<span id="countBricked">--</span>)
+                    </button>
                 </div>
             </aside>
         </div>
 
-        <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 4rem 0 2rem 0;">
-
-        <section style="max-width: 100%;">
-            <h3 style="color: #fff; margin-top: 0; margin-bottom: 1.5rem;">💬 Community Bench Notes</h3>
-            
-            <div id="commentsFeed">
-                <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem;">
-                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.25rem;">
-                        <strong style="color: var(--accent-color);">@Bench_Tech_Asia</strong>
-                        <span style="color: var(--text-color); opacity: 0.6;">July 2026</span>
-                    </div>
-                    <p style="margin: 0; font-size: 0.95rem; color: #c9d1d9;">If touch remains dead even after a clean firmware rollback with Odin using CSC, it confirms the device has an aftermarket display panel installed whose Touch IC clone protocol cannot authenticate with Samsung security structures.</p>
+        <section class="comment-section">
+            <h3 style="color: #fff; margin-bottom: 2rem; font-family: var(--font-mono);">💬 COMMUNITY_BENCH_NOTES</h3>
+            <div id="commentsFeed"></div>
+            <div style="background-color: var(--card-bg); border: 1px solid var(--border-color); padding: 2rem; border-radius: 8px; margin-top: 2rem;">
+                <h4 style="color: #fff; margin-bottom: 1.5rem; font-size: 1rem; font-family: var(--font-mono);">[ DROP_A_SYSTEM_INSIGHT ]</h4>
+                <div style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                    <input type="text" id="suiteNameInput" placeholder="First name (one word)" style="flex: 1; background: #000; border: 1px solid var(--border-color); padding: 0.8rem; color: #fff; border-radius: 4px; font-family: var(--font-mono);">
+                    <button onclick="submitGenericComment()" class="btn-action" style="width: auto; padding: 0 2rem;">SUBMIT</button>
                 </div>
-            </div>
-
-            <div style="background-color: var(--card-bg); border: 1px solid var(--border-color); padding: 1.25rem; border-radius: 6px; margin-top: 1.5rem;">
-                <h4 style="color: #fff; margin-top: 0; margin-bottom: 1rem; font-size: 0.95rem;">Contribute System Insights</h4>
-                <div style="display: flex; gap: 0.75rem; margin-bottom: 0.75rem; flex-wrap: wrap;">
-                    <input type="text" id="suiteNameInput" placeholder="First name (One word)" style="flex: 1; min-width: 150px; background-color: var(--bg-color); border: 1px solid var(--border-color); padding: 0.6rem; color: #fff; border-radius: 4px; font-size: 0.9rem;">
-                    <button onclick="submitGenericComment()" style="background-color: rgba(88, 166, 255, 0.1); border: 1px solid var(--accent-color); color: var(--accent-color); padding: 0.6rem 1.5rem; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">Drop a Quick Tip</button>
-                </div>
-                <input type="text" id="suiteCommentText" placeholder="Add your tool logs, hardware models, or note variations..." style="width: 100%; background-color: var(--bg-color); border: 1px solid var(--border-color); padding: 0.75rem; color: #fff; border-radius: 4px; box-sizing: border-box; font-size: 0.9rem;">
-                <div id="suiteValidationError" style="display: none; color: var(--badge-hard); font-size: 0.8rem; margin-top: 0.5rem;"></div>
+                <textarea id="suiteCommentText" placeholder="Add your tool logs, hardware models, or note variations..." style="width: 100%; min-height: 100px; background: #000; border: 1px solid var(--border-color); padding: 1rem; color: #fff; border-radius: 4px;"></textarea>
+                <div id="suiteValidationError" style="display: none; color: var(--neon-red); font-size: 0.8rem; margin-top: 0.5rem;"></div>
             </div>
         </section>
 
         <footer>
-            <p>&copy; 2026 bitandboot. All Technical Rights Reserved.</p>
+            <p>&copy; 2026 bitandboot // SYSTEMS_LAB // NO_DATA_LOST</p>
         </footer>
     </div>
 
-    <script>
-        const pageId = "samsung-m34-touch";
-        
-        window.addEventListener('DOMContentLoaded', () => {
-            let storedViews = localStorage.getItem(`views_${pageId}`);
-            if (!storedViews) {
-                storedViews = Math.floor(Math.random() * (620 - 340 + 1)) + 340;
-            } else {
-                storedViews = parseInt(storedViews) + 1;
-            }
-            localStorage.setItem(`views_${pageId}`, storedViews);
-            if (document.getElementById('topViewCount')) document.getElementById('topViewCount').innerText = storedViews.toLocaleString();
-            
-            const wCount = localStorage.getItem(`w_${pageId}`) || Math.floor(Math.random() * (115 - 80 + 1)) + 80;
-            const bCount = localStorage.getItem(`b_${pageId}`) || Math.floor(Math.random() * (14 - 4 + 1)) + 4;
-            localStorage.setItem(`w_${pageId}`, wCount);
-            localStorage.setItem(`b_${pageId}`, bCount);
-            
-            if (document.getElementById('countWorked')) document.getElementById('countWorked').innerText = wCount;
-            if (document.getElementById('countBricked')) document.getElementById('countBricked').innerText = bCount;
-        });
+    <!-- MAIN ENGINE MODULE -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        function incrementTelemetry(decision) {
-            const hasVoted = localStorage.getItem(`voted_${pageId}`);
-            if (hasVoted) {
-                alert("Your bench telemetry configuration has already been updated for this document session.");
-                return;
-            }
+        const firebaseConfig = { apiKey: "AIzaSyAZ5kORicxNAp4iCWlGn1C3XkP0vPJ5vQw", authDomain: "bitandboot.firebaseapp.com", projectId: "bitandboot", storageBucket: "bitandboot.firebasestorage.app", messagingSenderId: "687841897835", appId: "1:687841897835:web:16e8a1b9f31e23f069b02e" };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const pageId = (window.location.pathname.split("/").pop() || "index").replace(".html", "");
+        const articleRef = doc(db, "articles", pageId);
+        const commentsRef = collection(db, "articles", pageId, "comments");
 
-            if (decision === 'yes') {
-                let current = parseInt(localStorage.getItem(`w_${pageId}`)) || 94; current++;
-                localStorage.setItem(`w_${pageId}`, current);
-                if (document.getElementById('countWorked')) document.getElementById('countWorked').innerText = current;
-                localStorage.setItem(`voted_${pageId}`, 'true');
-                document.getElementById('votePanel').innerHTML = `<h3 style="color: var(--badge-easy); margin: 0;">🎉 Success Telemetry Logged!</h3>`;
-            } else {
-                let current = parseInt(localStorage.getItem(`b_${pageId}`)) || 7; current++;
-                localStorage.setItem(`b_${pageId}`, current);
-                if (document.getElementById('countBricked')) document.getElementById('countBricked').innerText = current;
-                localStorage.setItem(`voted_${pageId}`, 'true');
-                document.getElementById('votePanel').innerHTML = `<h3 style="color: var(--badge-hard); margin: 0;">💀 Failure Telemetry Logged</h3>`;
-            }
+        /* 1. SYNC ENGINE: Pulls from glossary.html */
+        async function syncGlossary() {
+            try {
+                const response = await fetch('glossary.html');
+                const text = await response.text();
+                const parser = new DOMParser();
+                const gdoc = parser.parseFromString(text, 'text/html');
+                const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const terms = [];
+                gdoc.querySelectorAll('.term-card').forEach(card => {
+                    const cardId = card.id;
+                    const title = card.querySelector('.term-title').innerText.trim();
+                    const def = card.querySelector('.term-def').innerText.trim();
+                    const matchAttr = card.getAttribute('data-match');
+                    const aliases = (matchAttr ? matchAttr.split(',') : [title]).map(s => s.trim()).filter(Boolean);
+                    aliases.forEach(alias => terms.push({ alias, def, cardId }));
+                });
+                terms.sort((a, b) => b.alias.length - a.alias.length);
+                const main = document.getElementById('article-body');
+                let html = main.innerHTML;
+                terms.forEach(({ alias, def, cardId }) => {
+                    const regex = new RegExp(`\\b(${escapeRegex(alias)})\\b(?![^<]*>)`, 'gi');
+                    const safeDef = def.replace(/"/g, '&quot;');
+                    html = html.replace(regex, `<a href="glossary.html#${cardId}" class="glossary-link" data-def="${safeDef}">$1</a>`);
+                });
+                main.innerHTML = html;
+                setupBubbles();
+            } catch (e) { console.error("Glossary Sync Failed:", e); }
         }
 
-        function submitGenericComment() {
-            const nameField = document.getElementById('suiteNameInput').value.trim();
-            const textField = document.getElementById('suiteCommentText').value.trim();
-            const valError = document.getElementById('suiteValidationError');
+        function setupBubbles() {
+            const bubble = document.getElementById('glossary-bubble');
+            const title = document.getElementById('bubble-title');
+            const def = document.getElementById('bubble-def');
+            document.querySelectorAll('.glossary-link').forEach(link => {
+                link.addEventListener('mouseenter', (e) => {
+                    title.innerText = e.target.innerText;
+                    def.innerText = e.target.getAttribute('data-def');
+                    bubble.style.display = 'block';
+                    const rect = e.target.getBoundingClientRect();
+                    bubble.style.top = `${rect.top + window.scrollY - bubble.offsetHeight - 10}px`;
+                    bubble.style.left = `${rect.left + (rect.width/2) - (bubble.offsetWidth/2)}px`;
+                });
+                link.addEventListener('mouseleave', () => { bubble.style.display = 'none'; });
+            });
+        }
 
-            if (valError) valError.style.display = 'none';
+        /* 2. FIREBASE INIT — real, shared, honest counts */
+        async function init() {
+            const snap = await getDoc(articleRef);
+            if (!snap.exists()) {
+                try { await setDoc(articleRef, { viewCount: 0, workedCount: 0, brickedCount: 0 }); } catch (e) {}
+            }
+            onSnapshot(articleRef, (s) => {
+                const d = s.data();
+                if(d && document.getElementById("topViewCount")) document.getElementById("topViewCount").innerText = (d.viewCount || 0).toLocaleString();
+                if(d && document.getElementById("countWorked")) document.getElementById("countWorked").innerText = d.workedCount || 0;
+                if(d && document.getElementById("countBricked")) document.getElementById("countBricked").innerText = d.brickedCount || 0;
+            });
+            if(!sessionStorage.getItem(`viewed_${pageId}`)) {
+                try { await updateDoc(articleRef, {viewCount: increment(1)}); } catch(e) {}
+                sessionStorage.setItem(`viewed_${pageId}`, '1');
+            }
 
-            if (!nameField || !textField) {
-                if (valError) {
-                    valError.innerText = "Error: Output parameters cannot be empty strings.";
-                    valError.style.display = 'block';
+            onSnapshot(query(commentsRef, orderBy("timestamp", "desc")), (snapshot) => {
+                const feed = document.getElementById("commentsFeed");
+                feed.innerHTML = "";
+                if (snapshot.empty) {
+                    feed.innerHTML = `<p style="color: var(--meta-color); font-size: 0.9rem;">No notes yet — be the first to leave one.</p>`;
+                    return;
                 }
-                return;
-            }
-
-            if (nameField.split(' ').length > 1) {
-                if (valError) {
-                    valError.innerText = "Error: Supply strictly a single word for your identity handle.";
-                    valError.style.display = 'block';
-                }
-                return;
-            }
-
-            let sanitizedName = nameField.replace(/[^a-zA-Z0-9]/g, '');
-            if (!sanitizedName) sanitizedName = "Tech";
-            
-            const generatedUserHandle = `@${sanitizedName}King`;
-            const feed = document.getElementById('commentsFeed');
-            
-            if (feed) {
-                const commentDiv = document.createElement('div');
-                commentDiv.setAttribute('style', 'border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem;');
-                
-                commentDiv.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.25rem;">
-                        <strong style="color: #fff; font-family: monospace;">${generatedUserHandle}</strong>
-                        <span style="color: var(--text-color); opacity: 0.4;">Just Now</span>
-                    </div>
-                    <p style="margin: 0; font-size: 0.95rem; color: #c9d1d9;">${escapeHTML(textField)}</p>
-                `;
-                feed.insertBefore(commentDiv, feed.firstChild);
-            }
-            
-            document.getElementById('suiteCommentText').value = "";
+                snapshot.forEach((docSnap) => {
+                    const c = docSnap.data();
+                    const div = document.createElement("div");
+                    div.className = "comment-item";
+                    div.innerHTML = `<div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:0.25rem;"><strong style="color:var(--accent-color);">@${escapeHTML(c.name)}</strong></div><p style="margin:0;color:#c9d1d9;">${escapeHTML(c.text)}</p>`;
+                    feed.appendChild(div);
+                });
+            });
         }
 
         function escapeHTML(str) {
-            return str.replace(/[&<>'"]/g, 
-                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
-            );
+            return str.replace(/[&<>'"]/g, tag => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[tag] || tag));
         }
+
+        window.submitGenericComment = async () => {
+            const nameField = document.getElementById("suiteNameInput").value.trim();
+            const textField = document.getElementById("suiteCommentText").value.trim();
+            const valError = document.getElementById("suiteValidationError");
+            if (valError) valError.style.display = "none";
+
+            if (!nameField || !textField) {
+                if (valError) { valError.innerText = "Error: name and note are both required."; valError.style.display = "block"; }
+                return;
+            }
+            if (nameField.split(" ").length > 1) {
+                if (valError) { valError.innerText = "Error: supply strictly a single word for your identity handle."; valError.style.display = "block"; }
+                return;
+            }
+            const sanitizedName = nameField.replace(/[^a-zA-Z0-9]/g, "") || "Tech";
+            try {
+                await addDoc(commentsRef, { name: `${sanitizedName}King`, text: textField, timestamp: serverTimestamp() });
+                document.getElementById("suiteCommentText").value = "";
+                document.getElementById("suiteNameInput").value = "";
+            } catch (e) {
+                if (valError) { valError.innerText = "Error: could not post comment — please try again."; valError.style.display = "block"; }
+            }
+        };
+
+        window.incrementTelemetry = async (type) => {
+            const voteLockKey = `voted_${pageId}`;
+            if(localStorage.getItem(voteLockKey)) return alert("Session Lock Active. You've already logged a result for this article.");
+            try {
+                await updateDoc(articleRef, { [type === 'yes' ? 'workedCount' : 'brickedCount']: increment(1) });
+                localStorage.setItem(voteLockKey, '1');
+                document.getElementById("votePanel").innerHTML = "<h2 style='color:var(--neon-green)'>LOGGED</h2>";
+            } catch (e) { alert("Something went wrong logging your vote — please try again."); }
+        };
+
+        /* 3. ODIN FLASH SEQUENCE SIMULATION */
+        let step = 0;
+        const consoleEl = document.getElementById("console");
+        const progressFill = document.getElementById("odin-progress-fill");
+        const odinResult = document.getElementById("odin-result");
+        const nextBtn = document.getElementById("nextBtn");
+        const slots = ["bl", "ap", "cp", "csc"];
+
+        function log(m) {
+            const d = document.createElement("div");
+            d.className = "console-line";
+            d.innerText = m;
+            consoleEl.appendChild(d);
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+        }
+
+        function setSlot(name, cls, text) {
+            document.getElementById(`slot-${name}`).className = "odin-slot " + cls;
+            document.getElementById(`slot-${name}-stat`).innerText = text;
+        }
+
+        window.nextSimStep = () => {
+            step++;
+            if (step === 1) {
+                log("Volume Up + Down held. Download Mode entered.");
+                log("ID:COM box: VERIFIED (blue).");
+                odinResult.innerText = "ID:COM — CONNECTED";
+                odinResult.style.color = "var(--accent-color)";
+                nextBtn.innerText = "LOAD_BL_AP_CP_CSC";
+            } else if (step === 2) {
+                log("Loading BL, AP, CP, CSC binaries into slots...");
+                slots.forEach(s => setSlot(s, "loaded", "LOADED"));
+                nextBtn.innerText = "START_FLASH";
+            } else if (step === 3) {
+                log("Flash sequence started. Do not disconnect cable.");
+                let pct = 0;
+                const interval = setInterval(() => {
+                    pct += 20;
+                    progressFill.style.width = pct + "%";
+                    if (pct === 40) { setSlot("bl", "done", "PASS"); log("BL flashed OK."); }
+                    if (pct === 60) { setSlot("cp", "done", "PASS"); log("CP flashed OK."); }
+                    if (pct === 80) { setSlot("csc", "done", "PASS"); log("CSC flashed OK. PIT re-partitioned."); }
+                    if (pct >= 100) {
+                        clearInterval(interval);
+                        setSlot("ap", "done", "PASS");
+                        log("AP flashed OK. Rebooting device...");
+                        odinResult.innerText = "PASS!";
+                        odinResult.style.color = "var(--neon-green)";
+                        log("Touch IC driver profile reloaded. Input restored.");
+                        nextBtn.innerText = "SIMULATION_COMPLETE";
+                        nextBtn.disabled = true;
+                    }
+                }, 400);
+            }
+        };
+
+        window.resetLab = () => {
+            step = 0;
+            slots.forEach(s => setSlot(s, "", "EMPTY"));
+            progressFill.style.width = "0%";
+            odinResult.innerText = "ID:COM — WAITING";
+            odinResult.style.color = "inherit";
+            nextBtn.disabled = false;
+            nextBtn.innerText = "CONNECT_DOWNLOAD_MODE";
+            consoleEl.innerHTML = '<div class="console-line">Awaiting Download Mode entry...</div><div class="console-line">ID:COM box: not yet verified.</div>';
+        };
+
+        window.addEventListener('DOMContentLoaded', () => { syncGlossary(); init(); });
     </script>
 </body>
 </html>
