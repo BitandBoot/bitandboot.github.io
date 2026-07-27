@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Why USB Enumeration Looks Like Magic | bitandboot</title>
+    <meta name="description" content="Following the invisible conversation that begins the moment a USB device is plugged in — from power to enumeration to a working device, in a fraction of a second.">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <!-- Professional Engineering Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #05070a;
+            --text-color: #c9d1d9;
+            --accent-color: #58a6ff;
+            --neon-green: #3fb950;
+            --neon-red: #f85149;
+            --card-bg: #0d1117;
+            --border-color: #30363d;
+            --terminal-bg: #010409;
+            --meta-color: #8b949e;
+            --font-mono: 'Roboto', sans-serif;
+            --font-sans: 'Inter', sans-serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: radial-gradient(#161b22 0.5px, transparent 0.5px);
+            background-size: 30px 30px;
+            color: var(--text-color);
+            font-family: var(--font-sans);
+            line-height: 1.6;
+            padding: 0 1.5rem;
+        }
+
+        .container { max-width: 1100px; margin: 0 auto; }
+
+        header { padding: 4rem 0 2rem 0; border-bottom: 1px solid var(--border-color); margin-bottom: 3rem; }
+        .nav-back { font-family: var(--font-mono); color: var(--accent-color); text-decoration: none; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; display: inline-block; margin-bottom: 1rem; }
+        h1 { font-weight: 800; font-size: 2.7rem; color: #fff; line-height: 1.15; letter-spacing: -1.5px; margin-bottom: 0.75rem; }
+        .subtitle { font-size: 1.15rem; color: var(--meta-color); font-style: italic; margin-bottom: 1.5rem; }
+        .meta { font-family: var(--font-mono); font-size: 0.75rem; color: var(--meta-color); display: flex; gap: 1.5rem; text-transform: uppercase; flex-wrap: wrap; }
+
+        .glossary-link { color: #fff; border-bottom: 1px dashed var(--accent-color); cursor: help; font-weight: 700; text-decoration: none; }
+        #glossary-bubble { position: absolute; z-index: 1000; width: 280px; background: #161b22; border: 1px solid var(--accent-color); border-radius: 8px; padding: 1rem; font-size: 0.85rem; box-shadow: 0 10px 40px rgba(0,0,0,0.8); display: none; pointer-events: none; }
+        #glossary-bubble b { font-family: var(--font-mono); color: var(--accent-color); display: block; margin-bottom: 5px; }
+
+        #workbench-mainframe { background: var(--terminal-bg); border: 2px solid var(--border-color); border-radius: 12px; margin-bottom: 4rem; position: relative; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        #workbench-mainframe::before { content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03)); z-index: 10; background-size: 100% 3px, 3px 100%; pointer-events: none; }
+        .lab-header { background: #161b22; padding: 0.75rem 1.5rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        .lab-title { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent-color); }
+        .lab-content { display: grid; grid-template-columns: 300px 1fr; height: 460px; }
+        .console-log { background: #000; border-right: 1px solid var(--border-color); padding: 1rem; font-family: var(--font-mono); font-size: 0.7rem; color: var(--neon-green); overflow-y: auto; }
+        .console-line { margin-bottom: 4px; opacity: 0.8; }
+        .console-line::before { content: "> "; color: var(--accent-color); }
+
+        .visualizer { position: relative; display: flex; padding: 1.5rem; background: radial-gradient(circle at center, #0d1117 0%, #010409 100%); }
+        .dialogue-col { flex: 1; display: flex; flex-direction: column; }
+        .dialogue-col.host { align-items: flex-start; }
+        .dialogue-col.device { align-items: flex-end; }
+        .dialogue-header { font-family: var(--font-mono); font-size: 0.7rem; color: var(--meta-color); text-transform: uppercase; margin-bottom: 1rem; text-align: center; width: 100%; }
+        .dialogue-divider { width: 1px; background: var(--border-color); margin: 0 0.5rem; }
+        .dialogue-bubble {
+            max-width: 90%; background: #0d1117; border: 1px solid var(--border-color); border-radius: 8px;
+            padding: 0.6rem 0.9rem; font-family: var(--font-mono); font-size: 0.72rem; color: var(--meta-color);
+            margin-bottom: 0.6rem; opacity: 0.3; transition: 0.4s;
+        }
+        .dialogue-bubble.active { opacity: 1; border-color: var(--accent-color); color: #fff; box-shadow: 0 0 10px rgba(88,166,255,0.2); }
+        .lab-footer { padding: 1.25rem; background: #0d1117; border-top: 1px solid var(--border-color); display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+
+        .article-layout { display: flex; gap: 2.5rem; align-items: flex-start; flex-wrap: wrap; }
+        main { flex: 2.5; min-width: 320px; font-size: 1.1rem; line-height: 1.8; color: #adbac7; }
+        .workbench-note { background-color: #0d1117; border: 1px solid var(--border-color); border-left: 4px solid var(--accent-color); padding: 1.5rem; border-radius: 6px; margin-bottom: 2rem; }
+
+        .fast-summary { background-color: #0d1117; border: 1px solid var(--accent-color); border-radius: 8px; padding: 1.75rem; margin-bottom: 3rem; box-shadow: 0 0 25px rgba(88, 166, 255, 0.08); }
+        .fast-summary h4 { font-family: var(--font-mono); color: var(--accent-color); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 1rem; }
+        .fast-summary ul { list-style: none; padding: 0; margin: 0; }
+        .fast-summary li { padding: 0.6rem 0; border-bottom: 1px solid #1f242c; font-size: 0.98rem; color: #c9d1d9; }
+        .fast-summary li:last-child { border-bottom: none; }
+        .fast-summary li::before { content: "▸ "; color: var(--accent-color); }
+
+        h2 { color: #fff; font-size: 1.8rem; margin: 3rem 0 1.25rem 0; font-family: var(--font-mono); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
+        h3 { color: #fff; font-size: 1.3rem; margin: 2rem 0 1rem 0; }
+        p { margin-bottom: 1.5rem; }
+        ul { margin-bottom: 1.5rem; padding-left: 1.5rem; }
+        li { margin-bottom: 0.75rem; }
+        b, strong { color: #fff; }
+        code { font-family: var(--font-mono); font-size: 0.9rem; color: #ff7b72; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; }
+        .stage-diagram { font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent-color); background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; margin: 2rem 0; text-align: center; line-height: 2; }
+        .stage-diagram .arrow { color: var(--meta-color); display: block; }
+        .alert-box { background-color: rgba(88, 166, 255, 0.1); border-left: 4px solid var(--accent-color); padding: 1.25rem; border-radius: 4px; margin: 2rem 0; }
+
+        aside { flex: 1; min-width: 280px; position: sticky; top: 20px; }
+        #votePanel { background-color: var(--card-bg); border: 1px solid var(--border-color); border-top: 4px solid var(--accent-color); padding: 2rem; border-radius: 8px; text-align: center; }
+        .btn-action { background: var(--accent-color); color: #fff; border: none; padding: 0.8rem 1.5rem; font-family: var(--font-mono); font-weight: bold; border-radius: 4px; cursor: pointer; transition: 0.2s; }
+        .btn-action:hover { filter: brightness(1.2); }
+
+        .comment-section { margin-top: 5rem; border-top: 1px solid var(--border-color); padding-top: 3rem; }
+        .comment-item { border-bottom: 1px solid var(--border-color); padding-bottom: 1.5rem; margin-bottom: 1.5rem; }
+        footer { text-align: center; padding: 5rem 0 2rem 0; color: #444; font-family: var(--font-mono); font-size: 0.8rem; }
+
+        @media (max-width: 768px) {
+            .lab-content { grid-template-columns: 1fr; height: auto; }
+            .console-log { display: none; }
+            h1 { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="glossary-bubble"><b id="bubble-title">TERM</b><p id="bubble-def">Loading definition...</p></div>
+
+    <div class="container">
+        <header>
+            <a href="index.html" class="nav-back">// ROOT_ACCESS / RETURN_TO_LOBBY</a>
+            <h1>Why USB Enumeration Looks Like Magic</h1>
+            <p class="subtitle">Following the invisible conversation that begins the moment a USB device is plugged in</p>
+            <div class="meta">
+                <span>[ DATE: JULY_2026 ]</span> |
+                <span>[ CATEGORY: LOW_LEVEL_ARCHITECTURE ]</span> |
+                <span style="color: var(--accent-color);">[ VIEWS: <span id="topViewCount">--</span> ]</span>
+            </div>
+        </header>
+
+        <div id="workbench-mainframe">
+            <div class="lab-header">
+                <span class="lab-title">USB_ENUMERATION_TRACER v1.00</span>
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <div style="width:8px; height:8px; border-radius:50%; background:var(--neon-green); box-shadow:0 0 8px var(--neon-green);"></div>
+                    <span style="font-family:var(--font-mono); font-size:0.6rem; color:var(--neon-green);">BUS_MONITOR_ACTIVE</span>
+                </div>
+            </div>
+
+            <div class="lab-content">
+                <div class="console-log" id="console">
+                    <div class="console-line">Device plugged in. VBUS detected.</div>
+                    <div class="console-line">Neither side knows the other yet.</div>
+                </div>
+
+                <div class="visualizer">
+                    <div class="dialogue-col host">
+                        <div class="dialogue-header">HOST_PC</div>
+                        <div class="dialogue-bubble" id="h1">Power applied to bus →</div>
+                        <div class="dialogue-bubble" id="h2">Bus reset. Who are you? →</div>
+                        <div class="dialogue-bubble" id="h3">Here's your address (5) →</div>
+                        <div class="dialogue-bubble" id="h4">Loading HID driver...</div>
+                        <div class="dialogue-bubble" id="h5">Configuring endpoints →</div>
+                        <div class="dialogue-bubble" id="h6">Ready? →</div>
+                    </div>
+                    <div class="dialogue-divider"></div>
+                    <div class="dialogue-col device">
+                        <div class="dialogue-header">USB_DEVICE</div>
+                        <div class="dialogue-bubble" id="d1">← Waking up...</div>
+                        <div class="dialogue-bubble" id="d2">← VID: 046D, PID: C52B</div>
+                        <div class="dialogue-bubble" id="d3">← Address accepted</div>
+                        <div class="dialogue-bubble" id="d4">← Class: HID (mouse)</div>
+                        <div class="dialogue-bubble" id="d5">← Endpoints active</div>
+                        <div class="dialogue-bubble" id="d6">← Ready.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lab-footer">
+                <button class="btn-action" id="nextBtn" onclick="nextSimStep()" style="width: auto;">ADVANCE_CONVERSATION</button>
+                <button onclick="resetLab()" style="background:transparent; border:1px solid var(--border-color); color:var(--meta-color); font-family:var(--font-mono); font-size:0.7rem; padding:0.5rem 1rem; cursor:pointer; border-radius:4px;">UNPLUG_DEVICE</button>
+            </div>
+        </div>
+
+        <div class="article-layout">
+            <main id="article-body">
+                <div class="workbench-note">
+                    <h4 style="color: #fff; margin: 0 0 0.5rem 0; font-size: 0.8rem; text-transform: uppercase; font-family: var(--font-mono);">🔬 Workbench Notes</h4>
+                    <p style="margin: 0; font-size: 0.95rem; color: var(--meta-color); font-style: italic;">
+                        You plug a mouse into your laptop. Less than a second later, the cursor moves. You plug in a keyboard — it immediately types. A flash drive appears as a new disk. None of these devices required you to install anything manually. How did the computer know what had just been connected?
+                    </p>
+                </div>
+
+                <div class="fast-summary">
+                    <h4>⚡ Fast Diagnostic Summary</h4>
+                    <ul>
+                        <li><strong>The illusion:</strong> USB devices seem to "just work" instantly the moment you plug them in. In reality, a full structured conversation happens first — it just finishes before your hand leaves the connector.</li>
+                        <li><strong>The core insight:</strong> plugging in a USB device starts a conversation, not an automatic connection — power, identification, addressing, driver matching, and configuration all happen in sequence.</li>
+                        <li><strong>The first reveal:</strong> newly connected devices don't have a unique address on the bus at all — the host assigns one. This is exactly why USB is described as host-centric: the host controls the entire conversation.</li>
+                        <li><strong>Where "Installing device..." actually comes from:</strong> the OS checks whether it already has a built-in driver for the device's declared class (HID, Mass Storage, Audio, Video) — only reaching for a vendor-specific driver if nothing built-in matches.</li>
+                        <li><strong>The satisfying symmetry:</strong> unplugging runs this whole process in reverse — the host detects removal, notifies drivers, and cleanly releases every resource that was allocated during enumeration.</li>
+                    </ul>
+                </div>
+
+                <p>Imagine walking into a secure office building. Before you're allowed inside, reception asks several questions: who are you, why are you here, what access do you need? Only after answering do they issue a badge and let you in.</p>
+                <p>USB devices go through a remarkably similar process. The moment you plug one into a computer, neither side knows much about the other. The computer doesn't know whether you've connected a keyboard, a webcam, a phone, or something it's never seen before. The device doesn't know what operating system it's talking to. Before anything useful can happen, they must introduce themselves, agree on how they'll communicate, and assign the resources needed for that connection — a conversation that usually finishes before your hand leaves the connector.</p>
+
+                <h2>1. Power Comes Before Communication</h2>
+                <p>Nothing starts with data. It starts with electricity. The host detects that a device has been connected through changes on the USB lines and supplies power. The device begins waking up. Before identities, before drivers, before any communication at all, it simply powers on.</p>
+
+                <h2>2. "Who Are You?" — Enumeration</h2>
+                <p>This is <strong>USB enumeration</strong>. The host resets the device, then begins asking questions — requesting descriptors like Vendor ID (<strong>VID</strong>), Product ID (<strong>PID</strong>), USB version, device class, manufacturer, and product name. The device essentially hands over its résumé, and this exchange is the foundation everything downstream depends on.</p>
+
+                <h2>3. Every Device Gets an Address</h2>
+                <p>When first connected, USB devices don't have a unique address on that bus at all. The host assigns one. Only then can multiple USB devices coexist on the same bus without talking over each other. This is exactly why USB is described as host-centric — the host controls the entire conversation from start to finish.</p>
+
+                <h2>4. Finding the Right Driver</h2>
+                <p>The operating system now asks: do I already know how to talk to this? If the device declares itself as <strong>HID</strong> (keyboard/mouse), Mass Storage, Audio, Video, or CDC, the OS often loads a built-in driver automatically. Otherwise, a vendor-specific driver may be needed — and this is exactly where the familiar "Installing device..." notification actually comes from.</p>
+
+                <h2>5. Configuring the Device</h2>
+                <p>Discovery alone isn't enough. The host chooses a configuration, endpoints are established, interfaces become active, and communication channels are created. Only now is the device genuinely ready for use.</p>
+
+                <h2>6. The Application Finally Sees It</h2>
+                <p>The browser sees a webcam. The file manager sees a drive. The game sees a controller. The user sees a notification. But by this point, almost all of the interesting work has already happened invisibly. Just like <a href="touchscreen-input-pipeline-explained.html">the touchscreen stack we traced separately</a>, the application sits at the very end of a much longer pipeline — it's simply the last stage to find out, not the first.</p>
+
+                <h2>7. What Happens When You Unplug It?</h2>
+                <p>A satisfying ending most explanations skip entirely. The host detects removal, drivers are notified, applications lose access, and resources are cleanly released. The conversation that began with "who are you?" ends just as cleanly as it started.</p>
+
+                <h2>8. The Full Pipeline, and the Conversation Behind It</h2>
+                <div class="stage-diagram">
+                    USB Device Plugged In
+                    <span class="arrow">↓</span>
+                    Power Applied
+                    <span class="arrow">↓</span>
+                    Bus Reset
+                    <span class="arrow">↓</span>
+                    Enumeration
+                    <span class="arrow">↓</span>
+                    Assign USB Address
+                    <span class="arrow">↓</span>
+                    Load Driver
+                    <span class="arrow">↓</span>
+                    Configure Device
+                    <span class="arrow">↓</span>
+                    Application Can Use Device
+                </div>
+                <p>Seen as a dialogue instead of a flowchart, the same sequence reads almost like small talk: <em>Power. Who are you? VID/PID. Here's your address. Ready? Ready.</em> — six short exchanges standing between a device being plugged in and it being fully usable.</p>
+
+                <h2>9. Common Myths</h2>
+                <ul>
+                    <li><strong>"USB devices simply 'turn on' when plugged in."</strong> Reality: they go through a standardized discovery and configuration process before becoming usable at all.</li>
+                    <li><strong>"The device tells the computer what driver to install."</strong> Reality: the device identifies itself via descriptors, but the operating system decides which driver best matches that information.</li>
+                    <li><strong>"All USB communication is peer-to-peer."</strong> Reality: standard USB is host-controlled — devices respond when the host initiates communication, not the other way around.</li>
+                    <li><strong>"The USB connector is just a cable."</strong> Reality: it provides power, signaling, device discovery, addressing, and structured communication through a fully defined protocol.</li>
+                </ul>
+
+                <div class="alert-box">
+                    <strong>Diagnostic mindset:</strong> understanding enumeration explains real everyday problems — why reconnecting a USB device sometimes fixes it, why a faulty cable may provide power but no data, why some devices briefly disconnect during driver installation, why cheap USB hubs can cause intermittent detection issues, and why "Unknown USB Device" errors occur specifically when enumeration fails partway through. Instead of thinking "my mouse isn't working," the more useful question becomes: where did the conversation break down?
+                </div>
+
+                <h2>10. The Bigger Lesson</h2>
+                <p>USB feels magical because decades of engineering compressed a complex negotiation into a fraction of a second. Every time you connect a device, your computer doesn't just notice new hardware — it starts a structured conversation, assigns an identity, chooses a way to communicate, and builds the software pathways that make the device usable. By the time your cursor moves or your files appear, the invisible work is already finished.</p>
+                <p>Once you understand enumeration, plugging in a USB device no longer feels like magic. It feels like watching two computers introduce themselves, agree on the rules, and get to work — all before you can blink.</p>
+            </main>
+
+            <aside>
+                <div id="votePanel">
+                    <h3 style="font-family: var(--font-mono); color:#fff; margin-bottom: 1rem; font-size: 1rem;">⚡ BENCH_VERIFICATION</h3>
+                    <p style="margin: 0 0 1.5rem 0; color: var(--meta-color); font-size: 0.85rem;">Did watching the conversation change how "instant" USB feels to you?</p>
+                    <button onclick="incrementTelemetry('yes')" class="btn-action" style="background: rgba(63, 185, 80, 0.1); color: var(--neon-green); border: 1px solid var(--neon-green); margin-bottom: 0.75rem; width: 100%;">
+                        YES, MAKES SENSE NOW! (<span id="countWorked">--</span>)
+                    </button>
+                    <button onclick="incrementTelemetry('no')" class="btn-action" style="background: rgba(248, 81, 73, 0.1); color: var(--neon-red); border: 1px solid var(--neon-red); width: 100%;">
+                        NO, STILL CONFUSING (<span id="countBricked">--</span>)
+                    </button>
+                </div>
+            </aside>
+        </div>
+
+        <section class="comment-section">
+            <h3 style="color: #fff; margin-bottom: 2rem; font-family: var(--font-mono);">💬 COMMUNITY_BENCH_NOTES</h3>
+            <div id="commentsFeed"></div>
+            <div style="background-color: var(--card-bg); border: 1px solid var(--border-color); padding: 2rem; border-radius: 8px; margin-top: 2rem;">
+                <h4 style="color: #fff; margin-bottom: 1.5rem; font-size: 1rem; font-family: var(--font-mono);">[ DROP_A_SYSTEM_INSIGHT ]</h4>
+                <div style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                    <input type="text" id="suiteNameInput" placeholder="First name (one word)" style="flex: 1; background: #000; border: 1px solid var(--border-color); padding: 0.8rem; color: #fff; border-radius: 4px; font-family: var(--font-mono);">
+                    <button onclick="submitGenericComment()" class="btn-action" style="width: auto; padding: 0 2rem;">SUBMIT</button>
+                </div>
+                <textarea id="suiteCommentText" placeholder="Weird 'Unknown USB Device' war stories, or a stage you want explained deeper..." style="width: 100%; min-height: 100px; background: #000; border: 1px solid var(--border-color); padding: 1rem; color: #fff; border-radius: 4px;"></textarea>
+                <div id="suiteValidationError" style="display: none; color: var(--neon-red); font-size: 0.8rem; margin-top: 0.5rem;"></div>
+            </div>
+        </section>
+
+        <footer>
+            <p>&copy; 2026 bitandboot // SYSTEMS_LAB // NO_DATA_LOST</p>
+        </footer>
+    </div>
+
+    <!-- MAIN ENGINE MODULE -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        const firebaseConfig = { apiKey: "AIzaSyAZ5kORicxNAp4iCWlGn1C3XkP0vPJ5vQw", authDomain: "bitandboot.firebaseapp.com", projectId: "bitandboot", storageBucket: "bitandboot.firebasestorage.app", messagingSenderId: "687841897835", appId: "1:687841897835:web:16e8a1b9f31e23f069b02e" };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const pageId = (window.location.pathname.split("/").pop() || "index").replace(".html", "");
+        const articleRef = doc(db, "articles", pageId);
+        const commentsRef = collection(db, "articles", pageId, "comments");
+
+        async function syncGlossary() {
+            try {
+                const response = await fetch('glossary.html');
+                const text = await response.text();
+                const parser = new DOMParser();
+                const gdoc = parser.parseFromString(text, 'text/html');
+                const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const terms = [];
+                gdoc.querySelectorAll('.term-card').forEach(card => {
+                    const cardId = card.id;
+                    const title = card.querySelector('.term-title').innerText.trim();
+                    const def = card.querySelector('.term-def').innerText.trim();
+                    const matchAttr = card.getAttribute('data-match');
+                    const aliases = (matchAttr ? matchAttr.split(',') : [title]).map(s => s.trim()).filter(Boolean);
+                    aliases.forEach(alias => terms.push({ alias, def, cardId }));
+                });
+                terms.sort((a, b) => b.alias.length - a.alias.length);
+                const main = document.getElementById('article-body');
+                let html = main.innerHTML;
+                terms.forEach(({ alias, def, cardId }) => {
+                    const regex = new RegExp(`\\b(${escapeRegex(alias)})\\b(?![^<]*>)`, 'gi');
+                    const safeDef = def.replace(/"/g, '&quot;');
+                    html = html.replace(regex, `<a href="glossary.html#${cardId}" class="glossary-link" data-def="${safeDef}">$1</a>`);
+                });
+                main.innerHTML = html;
+                setupBubbles();
+            } catch (e) { console.error("Glossary Sync Failed:", e); }
+        }
+
+        function setupBubbles() {
+            const bubble = document.getElementById('glossary-bubble');
+            const title = document.getElementById('bubble-title');
+            const def = document.getElementById('bubble-def');
+            document.querySelectorAll('.glossary-link').forEach(link => {
+                link.addEventListener('mouseenter', (e) => {
+                    title.innerText = e.target.innerText;
+                    def.innerText = e.target.getAttribute('data-def');
+                    bubble.style.display = 'block';
+                    const rect = e.target.getBoundingClientRect();
+                    bubble.style.top = `${rect.top + window.scrollY - bubble.offsetHeight - 10}px`;
+                    bubble.style.left = `${rect.left + (rect.width/2) - (bubble.offsetWidth/2)}px`;
+                });
+                link.addEventListener('mouseleave', () => { bubble.style.display = 'none'; });
+            });
+        }
+
+        async function init() {
+            const snap = await getDoc(articleRef);
+            if (!snap.exists()) { try { await setDoc(articleRef, { viewCount: 0, workedCount: 0, brickedCount: 0 }); } catch (e) {} }
+            onSnapshot(articleRef, (s) => {
+                const d = s.data();
+                if(d && document.getElementById("topViewCount")) document.getElementById("topViewCount").innerText = (d.viewCount || 0).toLocaleString();
+                if(d && document.getElementById("countWorked")) document.getElementById("countWorked").innerText = d.workedCount || 0;
+                if(d && document.getElementById("countBricked")) document.getElementById("countBricked").innerText = d.brickedCount || 0;
+            });
+            if(!sessionStorage.getItem(`viewed_${pageId}`)) { try { await updateDoc(articleRef, {viewCount: increment(1)}); } catch(e) {} sessionStorage.setItem(`viewed_${pageId}`, '1'); }
+
+            onSnapshot(query(commentsRef, orderBy("timestamp", "desc")), (snapshot) => {
+                const feed = document.getElementById("commentsFeed");
+                feed.innerHTML = "";
+                if (snapshot.empty) { feed.innerHTML = `<p style="color: var(--meta-color); font-size: 0.9rem;">No notes yet — be the first to leave one.</p>`; return; }
+                snapshot.forEach((docSnap) => {
+                    const c = docSnap.data();
+                    const div = document.createElement("div");
+                    div.className = "comment-item";
+                    div.innerHTML = `<div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:0.25rem;"><strong style="color:var(--accent-color);">@${escapeHTML(c.name)}</strong></div><p style="margin:0;color:#c9d1d9;">${escapeHTML(c.text)}</p>`;
+                    feed.appendChild(div);
+                });
+            });
+        }
+
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, tag => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[tag] || tag));
+        }
+
+        window.submitGenericComment = async () => {
+            const nameField = document.getElementById("suiteNameInput").value.trim();
+            const textField = document.getElementById("suiteCommentText").value.trim();
+            const valError = document.getElementById("suiteValidationError");
+            if (valError) valError.style.display = "none";
+            if (!nameField || !textField) { if (valError) { valError.innerText = "Error: name and note are both required."; valError.style.display = "block"; } return; }
+            if (nameField.split(" ").length > 1) { if (valError) { valError.innerText = "Error: supply strictly a single word for your identity handle."; valError.style.display = "block"; } return; }
+            const sanitizedName = nameField.replace(/[^a-zA-Z0-9]/g, "") || "Tech";
+            try {
+                await addDoc(commentsRef, { name: `${sanitizedName}King`, text: textField, timestamp: serverTimestamp() });
+                document.getElementById("suiteCommentText").value = "";
+                document.getElementById("suiteNameInput").value = "";
+            } catch (e) { if (valError) { valError.innerText = "Error: could not post comment — please try again."; valError.style.display = "block"; } }
+        };
+
+        window.incrementTelemetry = async (type) => {
+            const voteLockKey = `voted_${pageId}`;
+            if(localStorage.getItem(voteLockKey)) return alert("Session Lock Active. You've already logged a result for this article.");
+            try {
+                await updateDoc(articleRef, { [type === 'yes' ? 'workedCount' : 'brickedCount']: increment(1) });
+                localStorage.setItem(voteLockKey, '1');
+                document.getElementById("votePanel").innerHTML = "<h2 style='color:var(--neon-green)'>LOGGED</h2>";
+            } catch (e) { alert("Something went wrong logging your vote — please try again."); }
+        };
+
+        /* USB ENUMERATION DIALOGUE SIMULATION */
+        let step = 0;
+        const consoleEl = document.getElementById("console");
+        const pairs = [
+            { h: 'h1', d: 'd1', log: 'VBUS applied. Device beginning wake-up sequence...' },
+            { h: 'h2', d: 'd2', log: 'Bus reset issued. Device descriptor requested and returned.' },
+            { h: 'h3', d: 'd3', log: 'Host assigns unique bus address. Device accepts.' },
+            { h: 'h4', d: 'd4', log: 'OS matches device class to built-in HID driver.' },
+            { h: 'h5', d: 'd5', log: 'Configuration selected. Endpoints opened.' },
+            { h: 'h6', d: 'd6', log: 'Enumeration complete. Device fully usable.' }
+        ];
+        const nextBtn = document.getElementById("nextBtn");
+
+        function log(m) { const d = document.createElement("div"); d.className = "console-line"; d.innerText = m; consoleEl.appendChild(d); consoleEl.scrollTop = consoleEl.scrollHeight; }
+
+        window.nextSimStep = () => {
+            if (step >= pairs.length) return;
+            const pair = pairs[step];
+            document.getElementById(pair.h).classList.add('active');
+            document.getElementById(pair.d).classList.add('active');
+            log(pair.log);
+            step++;
+            if (step >= pairs.length) { nextBtn.innerText = "ENUMERATION_COMPLETE"; nextBtn.disabled = true; }
+            else { nextBtn.innerText = `ADVANCE_STEP_${step + 1}`; }
+        };
+
+        window.resetLab = () => {
+            step = 0;
+            pairs.forEach(p => { document.getElementById(p.h).classList.remove('active'); document.getElementById(p.d).classList.remove('active'); });
+            nextBtn.disabled = false;
+            nextBtn.innerText = "ADVANCE_CONVERSATION";
+            consoleEl.innerHTML = '<div class="console-line">Device plugged in. VBUS detected.</div><div class="console-line">Neither side knows the other yet.</div>';
+        };
+
+        window.addEventListener('DOMContentLoaded', () => { syncGlossary(); init(); });
+    </script>
+
+    <!-- ============================================================ -->
+    <!-- BITANDBOOT SYSTEM_DIRECTORY — cross-site navigation component -->
+    <!-- Paste this entire block (unchanged) into every article,      -->
+    <!-- right before </body>. It self-installs: no header edits.     -->
+    <!-- ============================================================ -->
+    <style>
+        .bb-nav-trigger { font-family: var(--font-mono, monospace); font-size: 0.72rem; color: var(--accent-color, #58a6ff); background: rgba(88,166,255,0.08); border: 1px solid var(--accent-color, #58a6ff); border-radius: 20px; padding: 0.4rem 0.9rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem; margin-left: 0.75rem; letter-spacing: 0.5px; text-transform: uppercase; transition: 0.2s; vertical-align: middle; }
+        .bb-nav-trigger:hover { background: rgba(88,166,255,0.18); }
+        .bb-nav-trigger .bb-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--neon-green, #3fb950); box-shadow: 0 0 6px var(--neon-green, #3fb950); animation: bb-pulse 1.8s infinite ease-in-out; }
+        @keyframes bb-pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+        .bb-nav-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.65); backdrop-filter: blur(3px); z-index: 3000; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+        .bb-nav-overlay.open { opacity: 1; pointer-events: auto; }
+        .bb-nav-drawer { position: fixed; top: 0; right: 0; bottom: 0; width: 400px; max-width: 92vw; background: var(--terminal-bg, #010409); border-left: 2px solid var(--border-color, #30363d); z-index: 3001; transform: translateX(100%); transition: transform 0.3s cubic-bezier(.4,0,.2,1); display: flex; flex-direction: column; box-shadow: -20px 0 50px rgba(0,0,0,0.6); }
+        .bb-nav-drawer.open { transform: translateX(0); }
+        .bb-nav-head { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-color, #30363d); display: flex; justify-content: space-between; align-items: center; background: var(--card-bg, #0d1117); }
+        .bb-nav-head-title { font-family: var(--font-mono, monospace); font-size: 0.75rem; color: var(--accent-color, #58a6ff); letter-spacing: 1px; }
+        .bb-nav-close { background: none; border: none; color: var(--meta-color, #8b949e); font-size: 1.3rem; cursor: pointer; line-height: 1; padding: 0.25rem; }
+        .bb-nav-close:hover { color: var(--neon-red, #f85149); }
+        .bb-nav-search-wrap { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-color, #30363d); }
+        .bb-nav-search { width: 100%; background: #000; border: 1px solid var(--border-color, #30363d); color: #fff; padding: 0.7rem 0.9rem; border-radius: 6px; font-family: var(--font-mono, monospace); font-size: 0.85rem; outline: none; }
+        .bb-nav-search:focus { border-color: var(--accent-color, #58a6ff); }
+        .bb-nav-hint { font-family: var(--font-mono, monospace); font-size: 0.65rem; color: var(--meta-color, #8b949e); margin-top: 0.5rem; }
+        .bb-nav-pinned { display: flex; gap: 0.6rem; padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-color, #30363d); flex-wrap: wrap; }
+        .bb-nav-pin { flex: 1; min-width: 140px; text-align: center; font-family: var(--font-mono, monospace); font-size: 0.7rem; text-decoration: none; color: var(--accent-color, #58a6ff); border: 1px solid var(--accent-color, #58a6ff); border-radius: 6px; padding: 0.6rem 0.5rem; transition: 0.2s; }
+        .bb-nav-pin:hover { background: rgba(88,166,255,0.1); }
+        .bb-nav-list { flex: 1; overflow-y: auto; padding: 0.5rem 0 2rem 0; }
+        .bb-nav-cat-label { font-family: var(--font-mono, monospace); font-size: 0.68rem; color: var(--neon-green, #3fb950); text-transform: uppercase; letter-spacing: 1px; padding: 1rem 1.5rem 0.5rem 1.5rem; }
+        .bb-nav-item { display: block; padding: 0.7rem 1.5rem; text-decoration: none; border-left: 2px solid transparent; transition: 0.15s; }
+        .bb-nav-item:hover { background: rgba(88,166,255,0.06); border-left-color: var(--accent-color, #58a6ff); }
+        .bb-nav-item-title { color: #fff; font-size: 0.88rem; font-weight: 600; display: block; margin-bottom: 0.15rem; }
+        .bb-nav-item-desc { color: var(--meta-color, #8b949e); font-size: 0.75rem; display: block; }
+        .bb-nav-item.bb-current { border-left-color: var(--neon-green, #3fb950); background: rgba(63,185,80,0.06); cursor: default; }
+        .bb-nav-item.bb-current .bb-nav-item-title::after { content: " ◉ VIEWING NOW"; color: var(--neon-green, #3fb950); font-family: var(--font-mono, monospace); font-size: 0.65rem; font-weight: 400; }
+        .bb-nav-empty { padding: 2rem 1.5rem; text-align: center; color: var(--meta-color, #8b949e); font-family: var(--font-mono, monospace); font-size: 0.8rem; }
+        @media (max-width: 480px) { .bb-nav-trigger span.bb-label { display: none; } }
+    </style>
+
+    <div class="bb-nav-overlay" id="bbNavOverlay"></div>
+    <div class="bb-nav-drawer" id="bbNavDrawer">
+        <div class="bb-nav-head">
+            <span class="bb-nav-head-title">// SYSTEM_DIRECTORY</span>
+            <button class="bb-nav-close" id="bbNavClose" aria-label="Close">×</button>
+        </div>
+        <div class="bb-nav-search-wrap">
+            <input type="text" id="bbNavSearch" class="bb-nav-search" placeholder="Search all articles...">
+            <div class="bb-nav-hint">Press <strong>/</strong> to search &nbsp;·&nbsp; <strong>Esc</strong> to close</div>
+        </div>
+        <div class="bb-nav-pinned">
+            <a href="index.html" class="bb-nav-pin">🏠 System Lobby</a>
+            <a href="glossary.html" class="bb-nav-pin">📖 Glossary</a>
+        </div>
+        <div class="bb-nav-list" id="bbNavList"><div class="bb-nav-empty">Loading directory...</div></div>
+    </div>
+
+    <script>
+    (function () {
+        const CACHE_KEY = 'bb_directory_cache_v1';
+        const drawer = document.getElementById('bbNavDrawer');
+        const overlay = document.getElementById('bbNavOverlay');
+        const listEl = document.getElementById('bbNavList');
+        const searchEl = document.getElementById('bbNavSearch');
+        const closeBtn = document.getElementById('bbNavClose');
+        const currentPage = (window.location.pathname.split('/').pop() || 'index.html');
+        let directory = [];
+
+        const navBack = document.querySelector('.nav-back');
+        if (navBack) {
+            const trigger = document.createElement('button');
+            trigger.className = 'bb-nav-trigger';
+            trigger.id = 'bbNavTrigger';
+            trigger.innerHTML = '<span class="bb-dot"></span><span class="bb-label">System Directory</span>';
+            navBack.insertAdjacentElement('afterend', trigger);
+            trigger.addEventListener('click', openDrawer);
+        }
+
+        function openDrawer() { overlay.classList.add('open'); drawer.classList.add('open'); if (directory.length === 0) loadDirectory(); setTimeout(() => searchEl.focus(), 300); }
+        function closeDrawer() { overlay.classList.remove('open'); drawer.classList.remove('open'); }
+        overlay.addEventListener('click', closeDrawer);
+        closeBtn.addEventListener('click', closeDrawer);
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeDrawer();
+            if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') { e.preventDefault(); openDrawer(); }
+        });
+
+        async function loadDirectory() {
+            try {
+                const cached = sessionStorage.getItem(CACHE_KEY);
+                if (cached) { directory = JSON.parse(cached); renderList(directory); return; }
+                const res = await fetch('index.html');
+                const text = await res.text();
+                const doc = new DOMParser().parseFromString(text, 'text/html');
+                const cats = [];
+                doc.querySelectorAll('.category-section').forEach(section => {
+                    const titleEl = section.querySelector('.category-title');
+                    let catName = 'Uncategorized';
+                    if (titleEl) { const clone = titleEl.cloneNode(true); const idx = clone.querySelector('.cat-index'); if (idx) idx.remove(); catName = clone.textContent.trim(); }
+                    const items = [];
+                    section.querySelectorAll('.card-wrapper').forEach(a => {
+                        const href = a.getAttribute('href');
+                        const h3 = a.querySelector('h3');
+                        const p = a.querySelector('p');
+                        if (href) items.push({ href, title: h3 ? h3.textContent.trim() : href, desc: p ? p.textContent.trim() : '' });
+                    });
+                    if (items.length) cats.push({ name: catName, items });
+                });
+                directory = cats;
+                sessionStorage.setItem(CACHE_KEY, JSON.stringify(cats));
+                renderList(directory);
+            } catch (e) { listEl.innerHTML = '<div class="bb-nav-empty">Directory sync failed. <a href="index.html" style="color:var(--accent-color,#58a6ff);">Return to lobby</a>.</div>'; }
+        }
+
+        function renderList(cats, query) {
+            const q = (query || '').trim().toLowerCase();
+            let html = ''; let resultCount = 0;
+            cats.forEach(cat => {
+                const filtered = q ? cat.items.filter(i => i.title.toLowerCase().includes(q) || i.desc.toLowerCase().includes(q)) : cat.items;
+                if (filtered.length === 0) return;
+                html += `<div class="bb-nav-cat-label">${cat.name}</div>`;
+                filtered.forEach(item => {
+                    const isCurrent = item.href === currentPage;
+                    resultCount += 1;
+                    html += `<a href="${isCurrent ? '#' : item.href}" class="bb-nav-item${isCurrent ? ' bb-current' : ''}" ${isCurrent ? 'onclick="return false;"' : ''}>
+                        <span class="bb-nav-item-title">${item.title}</span>
+                        <span class="bb-nav-item-desc">${item.desc}</span>
+                    </a>`;
+                });
+            });
+            listEl.innerHTML = resultCount ? html : '<div class="bb-nav-empty">No matching articles.</div>';
+        }
+
+        searchEl.addEventListener('input', () => renderList(directory, searchEl.value));
+    })();
+    </script>
+</body>
+</html>
