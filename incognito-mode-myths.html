@@ -602,5 +602,234 @@
 
         window.addEventListener('DOMContentLoaded', () => { syncGlossary(); init(); });
     </script>
+ <!-- ============================================================ -->
+    <style>
+        .bb-nav-trigger {
+            font-family: var(--font-mono, monospace);
+            font-size: 0.72rem;
+            color: var(--accent-color, #58a6ff);
+            background: rgba(88,166,255,0.08);
+            border: 1px solid var(--accent-color, #58a6ff);
+            border-radius: 20px;
+            padding: 0.4rem 0.9rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-left: 0.75rem;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            transition: 0.2s;
+            vertical-align: middle;
+        }
+        .bb-nav-trigger:hover { background: rgba(88,166,255,0.18); }
+        .bb-nav-trigger .bb-dot {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: var(--neon-green, #3fb950);
+            box-shadow: 0 0 6px var(--neon-green, #3fb950);
+            animation: bb-pulse 1.8s infinite ease-in-out;
+        }
+        @keyframes bb-pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+
+        .bb-nav-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.65);
+            backdrop-filter: blur(3px); z-index: 3000;
+            opacity: 0; pointer-events: none; transition: opacity 0.25s;
+        }
+        .bb-nav-overlay.open { opacity: 1; pointer-events: auto; }
+
+        .bb-nav-drawer {
+            position: fixed; top: 0; right: 0; bottom: 0; width: 400px; max-width: 92vw;
+            background: var(--terminal-bg, #010409);
+            border-left: 2px solid var(--border-color, #30363d);
+            z-index: 3001; transform: translateX(100%);
+            transition: transform 0.3s cubic-bezier(.4,0,.2,1);
+            display: flex; flex-direction: column;
+            box-shadow: -20px 0 50px rgba(0,0,0,0.6);
+        }
+        .bb-nav-drawer.open { transform: translateX(0); }
+
+        .bb-nav-head {
+            padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-color, #30363d);
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--card-bg, #0d1117);
+        }
+        .bb-nav-head-title { font-family: var(--font-mono, monospace); font-size: 0.75rem; color: var(--accent-color, #58a6ff); letter-spacing: 1px; }
+        .bb-nav-close { background: none; border: none; color: var(--meta-color, #8b949e); font-size: 1.3rem; cursor: pointer; line-height: 1; padding: 0.25rem; }
+        .bb-nav-close:hover { color: var(--neon-red, #f85149); }
+
+        .bb-nav-search-wrap { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-color, #30363d); }
+        .bb-nav-search {
+            width: 100%; background: #000; border: 1px solid var(--border-color, #30363d);
+            color: #fff; padding: 0.7rem 0.9rem; border-radius: 6px;
+            font-family: var(--font-mono, monospace); font-size: 0.85rem; outline: none;
+        }
+        .bb-nav-search:focus { border-color: var(--accent-color, #58a6ff); }
+        .bb-nav-hint { font-family: var(--font-mono, monospace); font-size: 0.65rem; color: var(--meta-color, #8b949e); margin-top: 0.5rem; }
+
+        .bb-nav-pinned { display: flex; gap: 0.6rem; padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-color, #30363d); flex-wrap: wrap; }
+        .bb-nav-pin {
+            flex: 1; min-width: 140px; text-align: center; font-family: var(--font-mono, monospace);
+            font-size: 0.7rem; text-decoration: none; color: var(--accent-color, #58a6ff);
+            border: 1px solid var(--accent-color, #58a6ff); border-radius: 6px; padding: 0.6rem 0.5rem;
+            transition: 0.2s;
+        }
+        .bb-nav-pin:hover { background: rgba(88,166,255,0.1); }
+
+        .bb-nav-list { flex: 1; overflow-y: auto; padding: 0.5rem 0 2rem 0; }
+        .bb-nav-cat-label {
+            font-family: var(--font-mono, monospace); font-size: 0.68rem; color: var(--neon-green, #3fb950);
+            text-transform: uppercase; letter-spacing: 1px; padding: 1rem 1.5rem 0.5rem 1.5rem;
+        }
+        .bb-nav-item {
+            display: block; padding: 0.7rem 1.5rem; text-decoration: none;
+            border-left: 2px solid transparent; transition: 0.15s;
+        }
+        .bb-nav-item:hover { background: rgba(88,166,255,0.06); border-left-color: var(--accent-color, #58a6ff); }
+        .bb-nav-item-title { color: #fff; font-size: 0.88rem; font-weight: 600; display: block; margin-bottom: 0.15rem; }
+        .bb-nav-item-desc { color: var(--meta-color, #8b949e); font-size: 0.75rem; display: block; }
+        .bb-nav-item.bb-current { border-left-color: var(--neon-green, #3fb950); background: rgba(63,185,80,0.06); cursor: default; }
+        .bb-nav-item.bb-current .bb-nav-item-title::after {
+            content: " ◉ VIEWING NOW"; color: var(--neon-green, #3fb950); font-family: var(--font-mono, monospace); font-size: 0.65rem; font-weight: 400;
+        }
+        .bb-nav-empty { padding: 2rem 1.5rem; text-align: center; color: var(--meta-color, #8b949e); font-family: var(--font-mono, monospace); font-size: 0.8rem; }
+
+        @media (max-width: 480px) {
+            .bb-nav-trigger span.bb-label { display: none; }
+        }
+    </style>
+
+    <div class="bb-nav-overlay" id="bbNavOverlay"></div>
+    <div class="bb-nav-drawer" id="bbNavDrawer">
+        <div class="bb-nav-head">
+            <span class="bb-nav-head-title">// SYSTEM_DIRECTORY</span>
+            <button class="bb-nav-close" id="bbNavClose" aria-label="Close">×</button>
+        </div>
+        <div class="bb-nav-search-wrap">
+            <input type="text" id="bbNavSearch" class="bb-nav-search" placeholder="Search all articles...">
+            <div class="bb-nav-hint">Press <strong>/</strong> to search &nbsp;·&nbsp; <strong>Esc</strong> to close</div>
+        </div>
+        <div class="bb-nav-pinned">
+            <a href="index.html" class="bb-nav-pin">🏠 System Lobby</a>
+            <a href="glossary.html" class="bb-nav-pin">📖 Glossary</a>
+        </div>
+        <div class="bb-nav-list" id="bbNavList">
+            <div class="bb-nav-empty">Loading directory...</div>
+        </div>
+    </div>
+
+    <script>
+    (function () {
+        const CACHE_KEY = 'bb_directory_cache_v1';
+        const drawer = document.getElementById('bbNavDrawer');
+        const overlay = document.getElementById('bbNavOverlay');
+        const listEl = document.getElementById('bbNavList');
+        const searchEl = document.getElementById('bbNavSearch');
+        const closeBtn = document.getElementById('bbNavClose');
+        const currentPage = (window.location.pathname.split('/').pop() || 'index.html');
+
+        let directory = [];
+
+        // Inject the trigger button right after the existing nav-back link
+        const navBack = document.querySelector('.nav-back');
+        if (navBack) {
+            const trigger = document.createElement('button');
+            trigger.className = 'bb-nav-trigger';
+            trigger.id = 'bbNavTrigger';
+            trigger.innerHTML = '<span class="bb-dot"></span><span class="bb-label">System Directory</span>';
+            navBack.insertAdjacentElement('afterend', trigger);
+            trigger.addEventListener('click', openDrawer);
+        }
+
+        function openDrawer() {
+            overlay.classList.add('open');
+            drawer.classList.add('open');
+            if (directory.length === 0) loadDirectory();
+            setTimeout(() => searchEl.focus(), 300);
+        }
+        function closeDrawer() {
+            overlay.classList.remove('open');
+            drawer.classList.remove('open');
+        }
+
+        overlay.addEventListener('click', closeDrawer);
+        closeBtn.addEventListener('click', closeDrawer);
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeDrawer();
+            if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+                e.preventDefault();
+                openDrawer();
+            }
+        });
+
+        async function loadDirectory() {
+            try {
+                const cached = sessionStorage.getItem(CACHE_KEY);
+                if (cached) {
+                    directory = JSON.parse(cached);
+                    renderList(directory);
+                    return;
+                }
+                const res = await fetch('index.html');
+                const text = await res.text();
+                const doc = new DOMParser().parseFromString(text, 'text/html');
+                const cats = [];
+                doc.querySelectorAll('.category-section').forEach(section => {
+                    const titleEl = section.querySelector('.category-title');
+                    let catName = 'Uncategorized';
+                    if (titleEl) {
+                        const clone = titleEl.cloneNode(true);
+                        const idx = clone.querySelector('.cat-index');
+                        if (idx) idx.remove();
+                        catName = clone.textContent.trim();
+                    }
+                    const items = [];
+                    section.querySelectorAll('.card-wrapper').forEach(a => {
+                        const href = a.getAttribute('href');
+                        const h3 = a.querySelector('h3');
+                        const p = a.querySelector('p');
+                        if (href) {
+                            items.push({
+                                href,
+                                title: h3 ? h3.textContent.trim() : href,
+                                desc: p ? p.textContent.trim() : ''
+                            });
+                        }
+                    });
+                    if (items.length) cats.push({ name: catName, items });
+                });
+                directory = cats;
+                sessionStorage.setItem(CACHE_KEY, JSON.stringify(cats));
+                renderList(directory);
+            } catch (e) {
+                listEl.innerHTML = '<div class="bb-nav-empty">Directory sync failed. <a href="index.html" style="color:var(--accent-color,#58a6ff);">Return to lobby</a>.</div>';
+            }
+        }
+
+        function renderList(cats, query) {
+            const q = (query || '').trim().toLowerCase();
+            let html = '';
+            let resultCount = 0;
+            cats.forEach(cat => {
+                const filtered = q
+                    ? cat.items.filter(i => i.title.toLowerCase().includes(q) || i.desc.toLowerCase().includes(q))
+                    : cat.items;
+                if (filtered.length === 0) return;
+                html += `<div class="bb-nav-cat-label">${cat.name}</div>`;
+                filtered.forEach(item => {
+                    const isCurrent = item.href === currentPage;
+                    resultCount += 1;
+                    html += `<a href="${isCurrent ? '#' : item.href}" class="bb-nav-item${isCurrent ? ' bb-current' : ''}" ${isCurrent ? 'onclick="return false;"' : ''}>
+                        <span class="bb-nav-item-title">${item.title}</span>
+                        <span class="bb-nav-item-desc">${item.desc}</span>
+                    </a>`;
+                });
+            });
+            listEl.innerHTML = resultCount ? html : '<div class="bb-nav-empty">No matching articles.</div>';
+        }
+
+        searchEl.addEventListener('input', () => renderList(directory, searchEl.value));
+    })();
+    </script>
 </body>
 </html>
