@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Why SSDs Slow Down When They Get Full | bitandboot</title>
+    <meta name="description" content="Following the hidden storage mechanics that make solid-state drives lose performance as free space disappears — Flash Translation Layer, garbage collection, and write amplification.">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #05070a; --text-color: #c9d1d9; --accent-color: #58a6ff;
+            --neon-green: #3fb950; --neon-red: #f85149; --card-bg: #0d1117;
+            --border-color: #30363d; --terminal-bg: #010409; --meta-color: #8b949e;
+            --font-mono: 'Roboto', sans-serif; --font-sans: 'Inter', sans-serif;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: var(--bg-color); background-image: radial-gradient(#161b22 0.5px, transparent 0.5px); background-size: 30px 30px; color: var(--text-color); font-family: var(--font-sans); line-height: 1.6; padding: 0 1.5rem; }
+        .container { max-width: 1100px; margin: 0 auto; }
+        header { padding: 4rem 0 2rem 0; border-bottom: 1px solid var(--border-color); margin-bottom: 3rem; }
+        .nav-back { font-family: var(--font-mono); color: var(--accent-color); text-decoration: none; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; display: inline-block; margin-bottom: 1rem; }
+        h1 { font-weight: 800; font-size: 2.7rem; color: #fff; line-height: 1.15; letter-spacing: -1.5px; margin-bottom: 0.75rem; }
+        .subtitle { font-size: 1.15rem; color: var(--meta-color); font-style: italic; margin-bottom: 1.5rem; }
+        .meta { font-family: var(--font-mono); font-size: 0.75rem; color: var(--meta-color); display: flex; gap: 1.5rem; text-transform: uppercase; flex-wrap: wrap; }
+        .glossary-link { color: #fff; border-bottom: 1px dashed var(--accent-color); cursor: help; font-weight: 700; text-decoration: none; }
+        #glossary-bubble { position: absolute; z-index: 1000; width: 280px; background: #161b22; border: 1px solid var(--accent-color); border-radius: 8px; padding: 1rem; font-size: 0.85rem; box-shadow: 0 10px 40px rgba(0,0,0,0.8); display: none; pointer-events: none; }
+        #glossary-bubble b { font-family: var(--font-mono); color: var(--accent-color); display: block; margin-bottom: 5px; }
+        #workbench-mainframe { background: var(--terminal-bg); border: 2px solid var(--border-color); border-radius: 12px; margin-bottom: 4rem; position: relative; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        #workbench-mainframe::before { content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03)); z-index: 10; background-size: 100% 3px, 3px 100%; pointer-events: none; }
+        .lab-header { background: #161b22; padding: 0.75rem 1.5rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        .lab-title { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent-color); }
+        .lab-content { display: grid; grid-template-columns: 300px 1fr; height: 460px; }
+        .console-log { background: #000; border-right: 1px solid var(--border-color); padding: 1rem; font-family: var(--font-mono); font-size: 0.7rem; color: var(--neon-green); overflow-y: auto; }
+        .console-line { margin-bottom: 4px; opacity: 0.8; }
+        .console-line::before { content: "> "; color: var(--accent-color); }
+        .visualizer { position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 1.25rem; gap: 0.75rem; background: radial-gradient(circle at center, #0d1117 0%, #010409 100%); }
+        .free-space-bar-track { width: 100%; max-width: 320px; height: 20px; background: #1f242c; border-radius: 4px; overflow: hidden; border: 1px solid var(--border-color); }
+        .free-space-bar-fill { height: 100%; transition: 0.5s; }
+        .free-space-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--meta-color); width: 100%; max-width: 320px; display: flex; justify-content: space-between; }
+        .op-list { width: 100%; max-width: 320px; display: flex; flex-direction: column; gap: 0.3rem; min-height: 130px; }
+        .op-chip { border: 1px solid var(--border-color); border-radius: 4px; padding: 0.4rem 0.7rem; font-family: var(--font-mono); font-size: 0.68rem; color: var(--meta-color); opacity: 0; transform: translateX(-10px); transition: 0.3s; }
+        .op-chip.show { opacity: 1; transform: translateX(0); border-color: var(--accent-color); color: #fff; }
+        .amp-readout { font-family: var(--font-mono); font-size: 0.9rem; color: var(--meta-color); text-align: center; width: 100%; max-width: 320px; padding-top: 0.5rem; border-top: 1px solid var(--border-color); }
+        .amp-readout .value { color: var(--neon-red); font-weight: bold; font-size: 1.1rem; }
+        .lab-footer { padding: 1.25rem; background: #0d1117; border-top: 1px solid var(--border-color); display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+        .article-layout { display: flex; gap: 2.5rem; align-items: flex-start; flex-wrap: wrap; }
+        main { flex: 2.5; min-width: 320px; font-size: 1.1rem; line-height: 1.8; color: #adbac7; }
+        .workbench-note { background-color: #0d1117; border: 1px solid var(--border-color); border-left: 4px solid var(--accent-color); padding: 1.5rem; border-radius: 6px; margin-bottom: 2rem; }
+        .fast-summary { background-color: #0d1117; border: 1px solid var(--accent-color); border-radius: 8px; padding: 1.75rem; margin-bottom: 3rem; box-shadow: 0 0 25px rgba(88, 166, 255, 0.08); }
+        .fast-summary h4 { font-family: var(--font-mono); color: var(--accent-color); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 1rem; }
+        .fast-summary ul { list-style: none; padding: 0; margin: 0; }
+        .fast-summary li { padding: 0.6rem 0; border-bottom: 1px solid #1f242c; font-size: 0.98rem; color: #c9d1d9; }
+        .fast-summary li:last-child { border-bottom: none; }
+        .fast-summary li::before { content: "▸ "; color: var(--accent-color); }
+        h2 { color: #fff; font-size: 1.8rem; margin: 3rem 0 1.25rem 0; font-family: var(--font-mono); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
+        h3 { color: #fff; font-size: 1.3rem; margin: 2rem 0 1rem 0; }
+        p { margin-bottom: 1.5rem; }
+        ul { margin-bottom: 1.5rem; padding-left: 1.5rem; }
+        li { margin-bottom: 0.75rem; }
+        b, strong { color: #fff; }
+        code { font-family: var(--font-mono); font-size: 0.9rem; color: #ff7b72; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; }
+        .stage-diagram { font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent-color); background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; margin: 2rem 0; text-align: center; line-height: 2; }
+        .stage-diagram .arrow { color: var(--meta-color); display: block; }
+        .alert-box { background-color: rgba(88, 166, 255, 0.1); border-left: 4px solid var(--accent-color); padding: 1.25rem; border-radius: 4px; margin: 2rem 0; }
+        .analysis-table-wrapper { overflow-x: auto; margin: 1.5rem 0; border: 1px solid var(--border-color); border-radius: 6px; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
+        th { background-color: var(--card-bg); color: #fff; padding: 12px; border-bottom: 1px solid var(--border-color); font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; }
+        td { padding: 12px; border-bottom: 1px solid var(--border-color); vertical-align: top; }
+        tr:last-child td { border-bottom: none; }
+        aside { flex: 1; min-width: 280px; position: sticky; top: 20px; }
+        #votePanel { background-color: var(--card-bg); border: 1px solid var(--border-color); border-top: 4px solid var(--accent-color); padding: 2rem; border-radius: 8px; text-align: center; }
+        .btn-action { background: var(--accent-color); color: #fff; border: none; padding: 0.8rem 1.5rem; font-family: var(--font-mono); font-weight: bold; border-radius: 4px; cursor: pointer; transition: 0.2s; }
+        .btn-action:hover { filter: brightness(1.2); }
+        .comment-section { margin-top: 5rem; border-top: 1px solid var(--border-color); padding-top: 3rem; }
+        .comment-item { border-bottom: 1px solid var(--border-color); padding-bottom: 1.5rem; margin-bottom: 1.5rem; }
+        footer { text-align: center; padding: 5rem 0 2rem 0; color: #444; font-family: var(--font-mono); font-size: 0.8rem; }
+        @media (max-width: 768px) { .lab-content { grid-template-columns: 1fr; height: auto; } .console-log { display: none; } h1 { font-size: 2rem; } }
+    </style>
+</head>
+<body>
+
+    <div id="glossary-bubble"><b id="bubble-title">TERM</b><p id="bubble-def">Loading definition...</p></div>
+
+    <div class="container">
+        <header>
+            <a href="index.html" class="nav-back">// ROOT_ACCESS / RETURN_TO_LOBBY</a>
+            <h1>Why SSDs Slow Down When They Get Full</h1>
+            <p class="subtitle">Why does a drive with no moving parts still get noticeably slower as it fills up?</p>
+            <div class="meta">
+                <span>[ DATE: JULY_2026 ]</span> |
+                <span>[ CATEGORY: LOW_LEVEL_ARCHITECTURE ]</span> |
+                <span style="color: var(--accent-color);">[ VIEWS: <span id="topViewCount">--</span> ]</span>
+            </div>
+        </header>
+
+        <div id="workbench-mainframe">
+            <div class="lab-header">
+                <span class="lab-title">WRITE_AMPLIFICATION_SIMULATOR v1.00</span>
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <div style="width:8px; height:8px; border-radius:50%; background:var(--neon-green); box-shadow:0 0 8px var(--neon-green);"></div>
+                    <span style="font-family:var(--font-mono); font-size:0.6rem; color:var(--neon-green);">FTL_MONITOR_ACTIVE</span>
+                </div>
+            </div>
+            <div class="lab-content">
+                <div class="console-log" id="console">
+                    <div class="console-line">Drive idle. Awaiting write request.</div>
+                </div>
+                <div class="visualizer">
+                    <div class="free-space-label"><span>FREE SPACE</span><span id="free-space-val">80%</span></div>
+                    <div class="free-space-bar-track"><div class="free-space-bar-fill" id="free-space-fill" style="width:80%; background:var(--neon-green);"></div></div>
+                    <div class="op-list" id="op-list"></div>
+                    <div class="amp-readout">Write Amplification: <span class="value" id="amp-val">1.0x</span></div>
+                </div>
+            </div>
+            <div class="lab-footer">
+                <button class="btn-action" id="nextBtn" onclick="writeOnEmpty()" style="width: auto;">WRITE_ON_ROOMY_DRIVE</button>
+                <button class="btn-action" onclick="writeOnFull()" style="width: auto; background: var(--neon-red);">WRITE_ON_NEARLY_FULL_DRIVE</button>
+                <button onclick="resetLab()" style="background:transparent; border:1px solid var(--border-color); color:var(--meta-color); font-family:var(--font-mono); font-size:0.7rem; padding:0.5rem 1rem; cursor:pointer; border-radius:4px;">RESET</button>
+            </div>
+        </div>
+
+        <div class="article-layout">
+            <main id="article-body">
+                <div class="workbench-note">
+                    <h4 style="color: #fff; margin: 0 0 0.5rem 0; font-size: 0.8rem; text-transform: uppercase; font-family: var(--font-mono);">🔬 Workbench Notes</h4>
+                    <p style="margin: 0; font-size: 0.95rem; color: var(--meta-color); font-style: italic;">
+                        A hard drive slows down because its mechanical parts have limits — that makes intuitive sense. But SSDs have no moving parts, no spinning disks, no read heads. So why do they become noticeably slower as they fill up? The slowdown isn't caused by the lack of storage itself. It's caused by the extra work required to create space.
+                    </p>
+                </div>
+
+                <div class="fast-summary">
+                    <h4>⚡ Fast Diagnostic Summary</h4>
+                    <ul>
+                        <li><strong>The problem:</strong> SSD performance often drops as available free space decreases — heavy write workloads can slow dramatically, especially on consumer drives.</li>
+                        <li><strong>The core insight:</strong> flash memory can't simply overwrite data like RAM. It writes in small pages but erases in much larger blocks — that mismatch is the root of everything else in this article.</li>
+                        <li><strong>The hidden layer:</strong> the <strong>Flash Translation Layer (FTL)</strong> constantly remaps where your data physically lives, moving it around without ever telling the operating system.</li>
+                        <li><strong>The real cost:</strong> as free space shrinks, every incoming write can trigger a cascade — moving valid data, erasing blocks, updating maps — turning one user write into many physical writes, a cost called <strong>write amplification</strong>.</li>
+                        <li><strong>What actually helps:</strong> keeping the drive off 100% capacity, ensuring TRIM is enabled, and understanding that garbage collection and wear leveling are working in the background specifically to keep this cost manageable.</li>
+                    </ul>
+                </div>
+
+                <p>Imagine trying to reorganize a library where every shelf is already full. You need to move one book, but before you can place it somewhere else, you first have to create empty space — which means moving another book, which requires moving another. A simple task suddenly becomes dozens of extra steps.</p>
+                <p>An SSD faces a surprisingly similar problem. Unlike a notebook, where you can erase and rewrite individual words, flash memory follows much stricter rules. Before new data can be written, old data often has to be moved, entire blocks erased, and internal maps updated. When plenty of free space exists, that work happens quietly in the background. When the drive becomes nearly full, finding room to work becomes much harder.</p>
+
+                <h2>1. Flash Memory Can't Rewrite Like RAM</h2>
+                <p>People imagine storage works like paper: erase, write, done. Flash memory doesn't work that way. It writes data in small units called pages, but it erases data in much larger units called blocks. That mismatch creates real work — you often can't overwrite data directly at all; you must erase an entire block before rewriting any part of it.</p>
+
+                <h2>2. The Hidden Librarian: Flash Translation Layer (FTL)</h2>
+                <p>Almost nobody knows this exists, yet it's one of the most important components inside an SSD. The operating system thinks it's writing to fixed logical addresses. The <strong>FTL</strong> secretly translates those requests into physical flash locations, constantly moving data around without ever telling the operating system it happened.</p>
+
+                <h2>3. Garbage Collection</h2>
+                <p>Deleting a file doesn't immediately create perfectly reusable space. Instead, the SSD marks old pages as invalid. Later, during <strong>garbage collection</strong>, it copies still-valid pages elsewhere, erases the now-empty old block, and returns that block to the pool of writable space. When lots of free blocks exist, this is easy. When very few remain, the SSD spends much more time cleaning before it can even begin writing your new data.</p>
+
+                <h2>4. Wear Leveling</h2>
+                <p>Another invisible system: flash cells wear out after a limited number of erase cycles, so the controller deliberately spreads writes across the entire drive. Sometimes data moves even when you didn't ask it to — not because performance demands it, but because longevity does.</p>
+
+                <h2>5. Why Full Drives Become Busy: Write Amplification</h2>
+                <p>This is where everything comes together. Imagine trying to solve a sliding puzzle with only one empty square — every move requires several others. A nearly full SSD behaves similarly. Every incoming write may trigger moving valid pages, erasing blocks, updating mappings, making wear-leveling decisions, and running garbage collection. The write you requested becomes many writes internally — a cost known as <strong>write amplification</strong>, and it's the hidden expense this entire article has been building toward.</p>
+
+                <div class="stage-diagram">
+                    You Write 1 File
+                    <span class="arrow">↓</span>
+                    SSD Internally: Move Old Data → Erase Block → Update Mapping → Write New Data
+                    <span class="arrow">↓</span>
+                    Result: 1 user write becomes multiple physical writes
+                </div>
+
+                <h2>6. The Role of TRIM</h2>
+                <p>A perfect transition. When you delete a file, the operating system tells the SSD "these pages are no longer needed" — that signal is <strong>TRIM</strong>. Without it, the SSD may keep treating deleted pages as potentially important, making garbage collection meaningfully less efficient. TRIM doesn't magically speed up writes by itself — it gives the controller better information to work with, which is exactly what makes its own housekeeping faster.</p>
+                <p>This connects directly to <a href="phantom-storage-space.html">our piece on why deleted files don't immediately free up space</a> — TRIM is the missing piece that eventually lets the SSD treat that "deleted but not yet reclaimed" data as genuinely available again.</p>
+
+                <h2>7. Why Some SSDs Slow Down More Than Others</h2>
+                <p>Not all SSDs are equal. Several factors shape how gracefully a drive handles getting full:</p>
+                <div class="analysis-table-wrapper">
+                    <table>
+                        <thead><tr><th>Factor</th><th>Why It Matters</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>DRAM cache vs. DRAM-less</strong></td><td>DRAM speeds up address mapping lookups significantly</td></tr>
+                            <tr><td><strong>SLC write cache</strong></td><td>A small fast buffer that absorbs bursts before slower NAND takes over</td></tr>
+                            <tr><td><strong>Controller quality</strong></td><td>Determines how efficiently garbage collection and wear leveling run</td></tr>
+                            <tr><td><strong>NAND type (SLC/MLC/TLC/QLC)</strong></td><td>Fewer bits per cell generally means faster, more durable, more expensive storage</td></tr>
+                            <tr><td><strong>Over-provisioning</strong></td><td>Reserved spare capacity the controller uses purely for this housekeeping</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p>"SSD" turns out to be a category, not a guarantee of identical behavior — two drives with the same advertised capacity can behave very differently once they're 90% full.</p>
+
+                <h2>8. Common Myths</h2>
+                <ul>
+                    <li><strong>"An SSD slows down simply because it has less free space."</strong> Reality: the slowdown comes from the additional internal work required to reorganize flash memory before new data can be written, not from the missing space itself.</li>
+                    <li><strong>"Deleting a file instantly creates free space."</strong> Reality: deleted data usually isn't erased immediately — the SSD reclaims that space later, through garbage collection.</li>
+                    <li><strong>"SSDs store files exactly where the operating system tells them to."</strong> Reality: the Flash Translation Layer continuously remaps logical addresses to different physical flash locations.</li>
+                    <li><strong>"Every SSD behaves the same when nearly full."</strong> Reality: controller design, firmware, NAND type, cache size, and over-provisioning all meaningfully influence performance.</li>
+                </ul>
+
+                <div class="alert-box">
+                    <strong>Practical advice:</strong> avoid keeping the drive perpetually near 100% capacity — leaving some free space gives the controller room to work efficiently. Ensure TRIM is enabled on supported operating systems (it usually is by default on modern Windows, macOS, and Linux). Don't obsess over manually defragmenting SSDs — modern operating systems already manage them appropriately, and manual defrag on an SSD does more harm than good. The goal isn't to "baby" the drive — it's to understand why it genuinely benefits from breathing room.
+                </div>
+
+                <h2>9. The Bigger Lesson</h2>
+                <p>One of the biggest misconceptions about SSDs is that they're simply faster hard drives. They're not. They're sophisticated computers managing millions or billions of flash cells, constantly moving data, balancing wear, reclaiming space, and maintaining the illusion of a simple disk.</p>
+                <p>When an SSD slows down, you're often seeing the cost of that illusion. The drive isn't just storing your files — it's quietly reorganizing itself so that future writes remain possible.</p>
+            </main>
+
+            <aside>
+                <div id="votePanel">
+                    <h3 style="font-family: var(--font-mono); color:#fff; margin-bottom: 1rem; font-size: 1rem;">⚡ BENCH_VERIFICATION</h3>
+                    <p style="margin: 0 0 1.5rem 0; color: var(--meta-color); font-size: 0.85rem;">Has freeing up space on a nearly-full SSD ever noticeably sped things back up for you?</p>
+                    <button onclick="incrementTelemetry('yes')" class="btn-action" style="background: rgba(63, 185, 80, 0.1); color: var(--neon-green); border: 1px solid var(--neon-green); margin-bottom: 0.75rem; width: 100%;">
+                        YES, MAKES SENSE NOW! (<span id="countWorked">--</span>)
+                    </button>
+                    <button onclick="incrementTelemetry('no')" class="btn-action" style="background: rgba(248, 81, 73, 0.1); color: var(--neon-red); border: 1px solid var(--neon-red); width: 100%;">
+                        NO, STILL CONFUSING (<span id="countBricked">--</span>)
+                    </button>
+                </div>
+            </aside>
+        </div>
+
+        <section class="comment-section">
+            <h3 style="color: #fff; margin-bottom: 2rem; font-family: var(--font-mono);">💬 COMMUNITY_BENCH_NOTES</h3>
+            <div id="commentsFeed"></div>
+            <div style="background-color: var(--card-bg); border: 1px solid var(--border-color); padding: 2rem; border-radius: 8px; margin-top: 2rem;">
+                <h4 style="color: #fff; margin-bottom: 1.5rem; font-size: 1rem; font-family: var(--font-mono);">[ DROP_A_SYSTEM_INSIGHT ]</h4>
+                <div style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                    <input type="text" id="suiteNameInput" placeholder="First name (one word)" style="flex: 1; background: #000; border: 1px solid var(--border-color); padding: 0.8rem; color: #fff; border-radius: 4px; font-family: var(--font-mono);">
+                    <button onclick="submitGenericComment()" class="btn-action" style="width: auto; padding: 0 2rem;">SUBMIT</button>
+                </div>
+                <textarea id="suiteCommentText" placeholder="SSD horror stories, benchmark numbers, or a factor you want explained deeper..." style="width: 100%; min-height: 100px; background: #000; border: 1px solid var(--border-color); padding: 1rem; color: #fff; border-radius: 4px;"></textarea>
+                <div id="suiteValidationError" style="display: none; color: var(--neon-red); font-size: 0.8rem; margin-top: 0.5rem;"></div>
+            </div>
+        </section>
+
+        <footer>
+            <p>&copy; 2026 bitandboot // SYSTEMS_LAB // NO_DATA_LOST</p>
+        </footer>
+    </div>
+
+    <!-- MAIN ENGINE MODULE -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        const firebaseConfig = { apiKey: "AIzaSyAZ5kORicxNAp4iCWlGn1C3XkP0vPJ5vQw", authDomain: "bitandboot.firebaseapp.com", projectId: "bitandboot", storageBucket: "bitandboot.firebasestorage.app", messagingSenderId: "687841897835", appId: "1:687841897835:web:16e8a1b9f31e23f069b02e" };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const pageId = (window.location.pathname.split("/").pop() || "index").replace(".html", "");
+        const articleRef = doc(db, "articles", pageId);
+        const commentsRef = collection(db, "articles", pageId, "comments");
+
+        async function syncGlossary() {
+            try {
+                const response = await fetch('glossary.html');
+                const text = await response.text();
+                const gdoc = new DOMParser().parseFromString(text, 'text/html');
+                const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const terms = [];
+                gdoc.querySelectorAll('.term-card').forEach(card => {
+                    const cardId = card.id;
+                    const title = card.querySelector('.term-title').innerText.trim();
+                    const def = card.querySelector('.term-def').innerText.trim();
+                    const matchAttr = card.getAttribute('data-match');
+                    const aliases = (matchAttr ? matchAttr.split(',') : [title]).map(s => s.trim()).filter(Boolean);
+                    aliases.forEach(alias => terms.push({ alias, def, cardId }));
+                });
+                terms.sort((a, b) => b.alias.length - a.alias.length);
+                const main = document.getElementById('article-body');
+                let html = main.innerHTML;
+                terms.forEach(({ alias, def, cardId }) => {
+                    const regex = new RegExp(`\\b(${escapeRegex(alias)})\\b(?![^<]*>)`, 'gi');
+                    const safeDef = def.replace(/"/g, '&quot;');
+                    html = html.replace(regex, `<a href="glossary.html#${cardId}" class="glossary-link" data-def="${safeDef}">$1</a>`);
+                });
+                main.innerHTML = html;
+                setupBubbles();
+            } catch (e) { console.error("Glossary Sync Failed:", e); }
+        }
+
+        function setupBubbles() {
+            const bubble = document.getElementById('glossary-bubble');
+            const title = document.getElementById('bubble-title');
+            const def = document.getElementById('bubble-def');
+            document.querySelectorAll('.glossary-link').forEach(link => {
+                link.addEventListener('mouseenter', (e) => {
+                    title.innerText = e.target.innerText;
+                    def.innerText = e.target.getAttribute('data-def');
+                    bubble.style.display = 'block';
+                    const rect = e.target.getBoundingClientRect();
+                    bubble.style.top = `${rect.top + window.scrollY - bubble.offsetHeight - 10}px`;
+                    bubble.style.left = `${rect.left + (rect.width/2) - (bubble.offsetWidth/2)}px`;
+                });
+                link.addEventListener('mouseleave', () => { bubble.style.display = 'none'; });
+            });
+        }
+
+        async function init() {
+            const snap = await getDoc(articleRef);
+            if (!snap.exists()) { try { await setDoc(articleRef, { viewCount: 0, workedCount: 0, brickedCount: 0 }); } catch (e) {} }
+            onSnapshot(articleRef, (s) => {
+                const d = s.data();
+                if(d && document.getElementById("topViewCount")) document.getElementById("topViewCount").innerText = (d.viewCount || 0).toLocaleString();
+                if(d && document.getElementById("countWorked")) document.getElementById("countWorked").innerText = d.workedCount || 0;
+                if(d && document.getElementById("countBricked")) document.getElementById("countBricked").innerText = d.brickedCount || 0;
+            });
+            if(!sessionStorage.getItem(`viewed_${pageId}`)) { try { await updateDoc(articleRef, {viewCount: increment(1)}); } catch(e) {} sessionStorage.setItem(`viewed_${pageId}`, '1'); }
+            onSnapshot(query(commentsRef, orderBy("timestamp", "desc")), (snapshot) => {
+                const feed = document.getElementById("commentsFeed");
+                feed.innerHTML = "";
+                if (snapshot.empty) { feed.innerHTML = `<p style="color: var(--meta-color); font-size: 0.9rem;">No notes yet — be the first to leave one.</p>`; return; }
+                snapshot.forEach((docSnap) => {
+                    const c = docSnap.data();
+                    const div = document.createElement("div");
+                    div.className = "comment-item";
+                    div.innerHTML = `<div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:0.25rem;"><strong style="color:var(--accent-color);">@${escapeHTML(c.name)}</strong></div><p style="margin:0;color:#c9d1d9;">${escapeHTML(c.text)}</p>`;
+                    feed.appendChild(div);
+                });
+            });
+        }
+
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, tag => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[tag] || tag));
+        }
+
+        window.submitGenericComment = async () => {
+            const nameField = document.getElementById("suiteNameInput").value.trim();
+            const textField = document.getElementById("suiteCommentText").value.trim();
+            const valError = document.getElementById("suiteValidationError");
+            if (valError) valError.style.display = "none";
+            if (!nameField || !textField) { if (valError) { valError.innerText = "Error: name and note are both required."; valError.style.display = "block"; } return; }
+            if (nameField.split(" ").length > 1) { if (valError) { valError.innerText = "Error: supply strictly a single word for your identity handle."; valError.style.display = "block"; } return; }
+            const sanitizedName = nameField.replace(/[^a-zA-Z0-9]/g, "") || "Tech";
+            try {
+                await addDoc(commentsRef, { name: `${sanitizedName}King`, text: textField, timestamp: serverTimestamp() });
+                document.getElementById("suiteCommentText").value = "";
+                document.getElementById("suiteNameInput").value = "";
+            } catch (e) { if (valError) { valError.innerText = "Error: could not post comment — please try again."; valError.style.display = "block"; } }
+        };
+
+        window.incrementTelemetry = async (type) => {
+            const voteLockKey = `voted_${pageId}`;
+            if(localStorage.getItem(voteLockKey)) return alert("Session Lock Active. You've already logged a result for this article.");
+            try {
+                await updateDoc(articleRef, { [type === 'yes' ? 'workedCount' : 'brickedCount']: increment(1) });
+                localStorage.setItem(voteLockKey, '1');
+                document.getElementById("votePanel").innerHTML = "<h2 style='color:var(--neon-green)'>LOGGED</h2>";
+            } catch (e) { alert("Something went wrong logging your vote — please try again."); }
+        };
+
+        /* WRITE AMPLIFICATION SIMULATION */
+        const consoleEl = document.getElementById("console");
+        const freeSpaceVal = document.getElementById("free-space-val");
+        const freeSpaceFill = document.getElementById("free-space-fill");
+        const opList = document.getElementById("op-list");
+        const ampVal = document.getElementById("amp-val");
+
+        function log(m) { const d = document.createElement("div"); d.className = "console-line"; d.innerText = m; consoleEl.appendChild(d); consoleEl.scrollTop = consoleEl.scrollHeight; }
+
+        window.writeOnEmpty = () => {
+            freeSpaceVal.innerText = "80%";
+            freeSpaceFill.style.width = "80%";
+            freeSpaceFill.style.background = "var(--neon-green)";
+            log("Writing to roomy drive (80% free)...");
+            opList.innerHTML = '<div class="op-chip show">Write directly to free block</div>';
+            log("Free block found instantly. No cleanup needed.");
+            ampVal.innerText = "1.1x";
+            ampVal.style.color = "var(--neon-green)";
+        };
+
+        window.writeOnFull = () => {
+            freeSpaceVal.innerText = "4%";
+            freeSpaceFill.style.width = "4%";
+            freeSpaceFill.style.background = "var(--neon-red)";
+            log("Writing to nearly-full drive (4% free)...");
+            const ops = [
+                "Scan for usable block: none free",
+                "Move valid pages out of target block",
+                "Erase old block",
+                "Update FTL address mapping",
+                "Wear-leveling check triggered",
+                "Finally: write new data"
+            ];
+            opList.innerHTML = "";
+            ops.forEach((op, i) => {
+                setTimeout(() => {
+                    const chip = document.createElement("div");
+                    chip.className = "op-chip";
+                    chip.innerText = op;
+                    opList.appendChild(chip);
+                    setTimeout(() => chip.classList.add('show'), 20);
+                    log(op + "...");
+                    if (i === ops.length - 1) {
+                        ampVal.innerText = "5.4x";
+                        ampVal.style.color = "var(--neon-red)";
+                        log("Result: 1 user write became 6 internal operations.");
+                    }
+                }, i * 350);
+            });
+        };
+
+        window.resetLab = () => {
+            freeSpaceVal.innerText = "80%";
+            freeSpaceFill.style.width = "80%";
+            freeSpaceFill.style.background = "var(--neon-green)";
+            opList.innerHTML = "";
+            ampVal.innerText = "1.0x";
+            ampVal.style.color = "var(--meta-color)";
+            consoleEl.innerHTML = '<div class="console-line">Drive idle. Awaiting write request.</div>';
+        };
+
+        window.addEventListener('DOMContentLoaded', () => { syncGlossary(); init(); });
+    </script>
+
+    <!-- ============================================================ -->
+    <!-- BITANDBOOT SYSTEM_DIRECTORY — cross-site navigation component -->
+    <!-- Paste this entire block (unchanged) into every article,      -->
+    <!-- right before </body>. It self-installs: no header edits.     -->
+    <!-- ============================================================ -->
+    <style>
+        .bb-nav-trigger { font-family: var(--font-mono, monospace); font-size: 0.72rem; color: var(--accent-color, #58a6ff); background: rgba(88,166,255,0.08); border: 1px solid var(--accent-color, #58a6ff); border-radius: 20px; padding: 0.4rem 0.9rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem; margin-left: 0.75rem; letter-spacing: 0.5px; text-transform: uppercase; transition: 0.2s; vertical-align: middle; }
+        .bb-nav-trigger:hover { background: rgba(88,166,255,0.18); }
+        .bb-nav-trigger .bb-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--neon-green, #3fb950); box-shadow: 0 0 6px var(--neon-green, #3fb950); animation: bb-pulse 1.8s infinite ease-in-out; }
+        @keyframes bb-pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+        .bb-nav-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.65); backdrop-filter: blur(3px); z-index: 3000; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+        .bb-nav-overlay.open { opacity: 1; pointer-events: auto; }
+        .bb-nav-drawer { position: fixed; top: 0; right: 0; bottom: 0; width: 400px; max-width: 92vw; background: var(--terminal-bg, #010409); border-left: 2px solid var(--border-color, #30363d); z-index: 3001; transform: translateX(100%); transition: transform 0.3s cubic-bezier(.4,0,.2,1); display: flex; flex-direction: column; box-shadow: -20px 0 50px rgba(0,0,0,0.6); }
+        .bb-nav-drawer.open { transform: translateX(0); }
+        .bb-nav-head { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-color, #30363d); display: flex; justify-content: space-between; align-items: center; background: var(--card-bg, #0d1117); }
+        .bb-nav-head-title { font-family: var(--font-mono, monospace); font-size: 0.75rem; color: var(--accent-color, #58a6ff); letter-spacing: 1px; }
+        .bb-nav-close { background: none; border: none; color: var(--meta-color, #8b949e); font-size: 1.3rem; cursor: pointer; line-height: 1; padding: 0.25rem; }
+        .bb-nav-close:hover { color: var(--neon-red, #f85149); }
+        .bb-nav-search-wrap { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-color, #30363d); }
+        .bb-nav-search { width: 100%; background: #000; border: 1px solid var(--border-color, #30363d); color: #fff; padding: 0.7rem 0.9rem; border-radius: 6px; font-family: var(--font-mono, monospace); font-size: 0.85rem; outline: none; }
+        .bb-nav-search:focus { border-color: var(--accent-color, #58a6ff); }
+        .bb-nav-hint { font-family: var(--font-mono, monospace); font-size: 0.65rem; color: var(--meta-color, #8b949e); margin-top: 0.5rem; }
+        .bb-nav-pinned { display: flex; gap: 0.6rem; padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-color, #30363d); flex-wrap: wrap; }
+        .bb-nav-pin { flex: 1; min-width: 140px; text-align: center; font-family: var(--font-mono, monospace); font-size: 0.7rem; text-decoration: none; color: var(--accent-color, #58a6ff); border: 1px solid var(--accent-color, #58a6ff); border-radius: 6px; padding: 0.6rem 0.5rem; transition: 0.2s; }
+        .bb-nav-pin:hover { background: rgba(88,166,255,0.1); }
+        .bb-nav-list { flex: 1; overflow-y: auto; padding: 0.5rem 0 2rem 0; }
+        .bb-nav-cat-label { font-family: var(--font-mono, monospace); font-size: 0.68rem; color: var(--neon-green, #3fb950); text-transform: uppercase; letter-spacing: 1px; padding: 1rem 1.5rem 0.5rem 1.5rem; }
+        .bb-nav-item { display: block; padding: 0.7rem 1.5rem; text-decoration: none; border-left: 2px solid transparent; transition: 0.15s; }
+        .bb-nav-item:hover { background: rgba(88,166,255,0.06); border-left-color: var(--accent-color, #58a6ff); }
+        .bb-nav-item-title { color: #fff; font-size: 0.88rem; font-weight: 600; display: block; margin-bottom: 0.15rem; }
+        .bb-nav-item-desc { color: var(--meta-color, #8b949e); font-size: 0.75rem; display: block; }
+        .bb-nav-item.bb-current { border-left-color: var(--neon-green, #3fb950); background: rgba(63,185,80,0.06); cursor: default; }
+        .bb-nav-item.bb-current .bb-nav-item-title::after { content: " ◉ VIEWING NOW"; color: var(--neon-green, #3fb950); font-family: var(--font-mono, monospace); font-size: 0.65rem; font-weight: 400; }
+        .bb-nav-empty { padding: 2rem 1.5rem; text-align: center; color: var(--meta-color, #8b949e); font-family: var(--font-mono, monospace); font-size: 0.8rem; }
+        @media (max-width: 480px) { .bb-nav-trigger span.bb-label { display: none; } }
+    </style>
+
+    <div class="bb-nav-overlay" id="bbNavOverlay"></div>
+    <div class="bb-nav-drawer" id="bbNavDrawer">
+        <div class="bb-nav-head">
+            <span class="bb-nav-head-title">// SYSTEM_DIRECTORY</span>
+            <button class="bb-nav-close" id="bbNavClose" aria-label="Close">×</button>
+        </div>
+        <div class="bb-nav-search-wrap">
+            <input type="text" id="bbNavSearch" class="bb-nav-search" placeholder="Search all articles...">
+            <div class="bb-nav-hint">Press <strong>/</strong> to search &nbsp;·&nbsp; <strong>Esc</strong> to close</div>
+        </div>
+        <div class="bb-nav-pinned">
+            <a href="index.html" class="bb-nav-pin">🏠 System Lobby</a>
+            <a href="glossary.html" class="bb-nav-pin">📖 Glossary</a>
+        </div>
+        <div class="bb-nav-list" id="bbNavList"><div class="bb-nav-empty">Loading directory...</div></div>
+    </div>
+
+    <script>
+    (function () {
+        const CACHE_KEY = 'bb_directory_cache_v1';
+        const drawer = document.getElementById('bbNavDrawer');
+        const overlay = document.getElementById('bbNavOverlay');
+        const listEl = document.getElementById('bbNavList');
+        const searchEl = document.getElementById('bbNavSearch');
+        const closeBtn = document.getElementById('bbNavClose');
+        const currentPage = (window.location.pathname.split('/').pop() || 'index.html');
+        let directory = [];
+
+        const navBack = document.querySelector('.nav-back');
+        if (navBack) {
+            const trigger = document.createElement('button');
+            trigger.className = 'bb-nav-trigger';
+            trigger.id = 'bbNavTrigger';
+            trigger.innerHTML = '<span class="bb-dot"></span><span class="bb-label">System Directory</span>';
+            navBack.insertAdjacentElement('afterend', trigger);
+            trigger.addEventListener('click', openDrawer);
+        }
+
+        function openDrawer() { overlay.classList.add('open'); drawer.classList.add('open'); if (directory.length === 0) loadDirectory(); setTimeout(() => searchEl.focus(), 300); }
+        function closeDrawer() { overlay.classList.remove('open'); drawer.classList.remove('open'); }
+        overlay.addEventListener('click', closeDrawer);
+        closeBtn.addEventListener('click', closeDrawer);
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeDrawer();
+            if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') { e.preventDefault(); openDrawer(); }
+        });
+
+        async function loadDirectory() {
+            try {
+                const cached = sessionStorage.getItem(CACHE_KEY);
+                if (cached) { directory = JSON.parse(cached); renderList(directory); return; }
+                const res = await fetch('index.html');
+                const text = await res.text();
+                const doc = new DOMParser().parseFromString(text, 'text/html');
+                const cats = [];
+                doc.querySelectorAll('.category-section').forEach(section => {
+                    const titleEl = section.querySelector('.category-title');
+                    let catName = 'Uncategorized';
+                    if (titleEl) { const clone = titleEl.cloneNode(true); const idx = clone.querySelector('.cat-index'); if (idx) idx.remove(); catName = clone.textContent.trim(); }
+                    const items = [];
+                    section.querySelectorAll('.card-wrapper').forEach(a => {
+                        const href = a.getAttribute('href');
+                        const h3 = a.querySelector('h3');
+                        const p = a.querySelector('p');
+                        if (href) items.push({ href, title: h3 ? h3.textContent.trim() : href, desc: p ? p.textContent.trim() : '' });
+                    });
+                    if (items.length) cats.push({ name: catName, items });
+                });
+                directory = cats;
+                sessionStorage.setItem(CACHE_KEY, JSON.stringify(cats));
+                renderList(directory);
+            } catch (e) { listEl.innerHTML = '<div class="bb-nav-empty">Directory sync failed. <a href="index.html" style="color:var(--accent-color,#58a6ff);">Return to lobby</a>.</div>'; }
+        }
+
+        function renderList(cats, query) {
+            const q = (query || '').trim().toLowerCase();
+            let html = ''; let resultCount = 0;
+            cats.forEach(cat => {
+                const filtered = q ? cat.items.filter(i => i.title.toLowerCase().includes(q) || i.desc.toLowerCase().includes(q)) : cat.items;
+                if (filtered.length === 0) return;
+                html += `<div class="bb-nav-cat-label">${cat.name}</div>`;
+                filtered.forEach(item => {
+                    const isCurrent = item.href === currentPage;
+                    resultCount += 1;
+                    html += `<a href="${isCurrent ? '#' : item.href}" class="bb-nav-item${isCurrent ? ' bb-current' : ''}" ${isCurrent ? 'onclick="return false;"' : ''}>
+                        <span class="bb-nav-item-title">${item.title}</span>
+                        <span class="bb-nav-item-desc">${item.desc}</span>
+                    </a>`;
+                });
+            });
+            listEl.innerHTML = resultCount ? html : '<div class="bb-nav-empty">No matching articles.</div>';
+        }
+
+        searchEl.addEventListener('input', () => renderList(directory, searchEl.value));
+    })();
+    </script>
+</body>
+</html>
