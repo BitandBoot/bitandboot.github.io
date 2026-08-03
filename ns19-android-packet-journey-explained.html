@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Journey of a Packet Inside Android | bitandboot</title>
+    <meta name="description" content="Where does your data actually go the instant you tap Send? Tracing a packet through Android's framework, kernel, protocol stack, drivers, and radio — before the internet is even involved.">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #05070a; --text-color: #c9d1d9; --accent-color: #58a6ff;
+            --neon-green: #3fb950; --neon-red: #f85149; --card-bg: #0d1117;
+            --border-color: #30363d; --terminal-bg: #010409; --meta-color: #8b949e;
+            --font-mono: 'Roboto', sans-serif; --font-sans: 'Inter', sans-serif;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: var(--bg-color); background-image: radial-gradient(#161b22 0.5px, transparent 0.5px); background-size: 30px 30px; color: var(--text-color); font-family: var(--font-sans); line-height: 1.6; padding: 0 1.5rem; }
+        .container { max-width: 1100px; margin: 0 auto; }
+        header { padding: 4rem 0 2rem 0; border-bottom: 1px solid var(--border-color); margin-bottom: 3rem; }
+        .nav-back { font-family: var(--font-mono); color: var(--accent-color); text-decoration: none; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; display: inline-block; margin-bottom: 1rem; }
+        h1 { font-weight: 800; font-size: 2.6rem; color: #fff; line-height: 1.15; letter-spacing: -1.5px; margin-bottom: 0.75rem; }
+        .subtitle { font-size: 1.15rem; color: var(--meta-color); font-style: italic; margin-bottom: 1.5rem; }
+        .meta { font-family: var(--font-mono); font-size: 0.75rem; color: var(--meta-color); display: flex; gap: 1.5rem; text-transform: uppercase; flex-wrap: wrap; }
+        .glossary-link { color: #fff; border-bottom: 1px dashed var(--accent-color); cursor: help; font-weight: 700; text-decoration: none; }
+        #glossary-bubble { position: absolute; z-index: 1000; width: 280px; background: #161b22; border: 1px solid var(--accent-color); border-radius: 8px; padding: 1rem; font-size: 0.85rem; box-shadow: 0 10px 40px rgba(0,0,0,0.8); display: none; pointer-events: none; }
+        #glossary-bubble b { font-family: var(--font-mono); color: var(--accent-color); display: block; margin-bottom: 5px; }
+        #workbench-mainframe { background: var(--terminal-bg); border: 2px solid var(--border-color); border-radius: 12px; margin-bottom: 4rem; position: relative; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        #workbench-mainframe::before { content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03)); z-index: 10; background-size: 100% 3px, 3px 100%; pointer-events: none; }
+        .lab-header { background: #161b22; padding: 0.75rem 1.5rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        .lab-title { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent-color); }
+        .lab-content { display: grid; grid-template-columns: 300px 1fr; height: 500px; }
+        .console-log { background: #000; border-right: 1px solid var(--border-color); padding: 1rem; font-family: var(--font-mono); font-size: 0.7rem; color: var(--neon-green); overflow-y: auto; }
+        .console-line { margin-bottom: 4px; opacity: 0.8; }
+        .console-line::before { content: "> "; color: var(--accent-color); }
+        .visualizer { position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 1.1rem; gap: 0.3rem; background: radial-gradient(circle at center, #0d1117 0%, #010409 100%); overflow-y: auto; }
+        .pipe-stage { width: 100%; max-width: 320px; padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid var(--border-color); background: #0d1117; font-family: var(--font-mono); font-size: 0.68rem; color: var(--meta-color); text-align: center; transition: 0.3s; }
+        .pipe-stage.active { border-color: var(--accent-color); color: #fff; box-shadow: 0 0 12px rgba(88,166,255,0.25); }
+        .pipe-stage.done { border-color: var(--neon-green); color: var(--neon-green); }
+        .pipe-arrow { color: var(--border-color); font-family: var(--font-mono); font-size: 0.8rem; }
+        .pipe-arrow.active { color: var(--accent-color); }
+        .lab-footer { padding: 1.25rem; background: #0d1117; border-top: 1px solid var(--border-color); display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+        .article-layout { display: flex; gap: 2.5rem; align-items: flex-start; flex-wrap: wrap; }
+        main { flex: 2.5; min-width: 320px; font-size: 1.1rem; line-height: 1.8; color: #adbac7; }
+        .workbench-note { background-color: #0d1117; border: 1px solid var(--border-color); border-left: 4px solid var(--accent-color); padding: 1.5rem; border-radius: 6px; margin-bottom: 2rem; }
+        .fast-summary { background-color: #0d1117; border: 1px solid var(--accent-color); border-radius: 8px; padding: 1.75rem; margin-bottom: 3rem; box-shadow: 0 0 25px rgba(88, 166, 255, 0.08); }
+        .fast-summary h4 { font-family: var(--font-mono); color: var(--accent-color); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 1rem; }
+        .fast-summary ul { list-style: none; padding: 0; margin: 0; }
+        .fast-summary li { padding: 0.6rem 0; border-bottom: 1px solid #1f242c; font-size: 0.98rem; color: #c9d1d9; }
+        .fast-summary li:last-child { border-bottom: none; }
+        .fast-summary li::before { content: "▸ "; color: var(--accent-color); }
+        h2 { color: #fff; font-size: 1.8rem; margin: 3rem 0 1.25rem 0; font-family: var(--font-mono); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
+        h3 { color: #fff; font-size: 1.3rem; margin: 2rem 0 1rem 0; }
+        p { margin-bottom: 1.5rem; }
+        ul { margin-bottom: 1.5rem; padding-left: 1.5rem; }
+        li { margin-bottom: 0.75rem; }
+        b, strong { color: #fff; }
+        code { font-family: var(--font-mono); font-size: 0.9rem; color: #ff7b72; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; }
+        .stage-diagram { font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent-color); background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; margin: 2rem 0; text-align: center; line-height: 2; }
+        .stage-diagram .arrow { color: var(--meta-color); display: block; }
+        .alert-box { background-color: rgba(88, 166, 255, 0.1); border-left: 4px solid var(--accent-color); padding: 1.25rem; border-radius: 4px; margin: 2rem 0; }
+
+        /* --- INVESTIGATION FORMAT COMPONENTS --- */
+        .case-file { border: 1px solid var(--border-color); border-radius: 8px; background: var(--card-bg); padding: 1.25rem 1.5rem; margin-bottom: 2.5rem; font-family: var(--font-mono); }
+        .case-file-title { font-size: 0.7rem; color: var(--accent-color); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 0.9rem; }
+        .case-file-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.75rem 1.5rem; }
+        .case-file-field { font-size: 0.72rem; }
+        .case-file-field .k { color: var(--meta-color); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 2px; }
+        .case-file-field .v { color: #fff; font-weight: 600; }
+        .case-file-field .v.status-open { color: var(--neon-green); }
+        .invisible-system { border-left: 3px solid var(--meta-color); padding: 0 0 0 1.25rem; margin: 2rem 0; font-size: 1.05rem; color: #dfe6ee; font-style: italic; }
+        .stop-think { background: rgba(227, 179, 65, 0.08); border: 1px solid #e3b341; border-radius: 8px; padding: 1.25rem 1.5rem; margin: 2.5rem 0; }
+        .stop-think .tag { font-family: var(--font-mono); color: #e3b341; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 0.5rem; }
+        .engineering-decision, .hidden-tradeoff { border: 1px solid var(--border-color); border-radius: 8px; margin: 2rem 0; overflow: hidden; }
+        .engineering-decision .ed-head, .hidden-tradeoff .ht-head { background: var(--card-bg); padding: 0.9rem 1.25rem; font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--accent-color); border-bottom: 1px solid var(--border-color); }
+        .engineering-decision .ed-body, .hidden-tradeoff .ht-body { padding: 1.25rem 1.5rem; }
+        .tradeoff-split { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; padding: 1.25rem 1.5rem; }
+        .tradeoff-col .label { font-family: var(--font-mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; display: block; }
+        .tradeoff-col.gain .label { color: var(--neon-green); }
+        .tradeoff-col.cost .label { color: var(--neon-red); }
+        @media (max-width: 600px) { .tradeoff-split { grid-template-columns: 1fr; } }
+        .zoom-out { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; margin: 2.5rem 0; }
+        .zoom-out .zo-tag { font-family: var(--font-mono); color: var(--accent-color); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 0.75rem; display: block; }
+        .changes-checklist { list-style: none; padding: 0; margin: 1.5rem 0; }
+        .changes-checklist li { display: flex; gap: 0.75rem; padding: 0.7rem 0; border-bottom: 1px solid #1f242c; }
+        .changes-checklist li:last-child { border-bottom: none; }
+        .changes-checklist .mark { color: var(--neon-green); font-family: var(--font-mono); flex-shrink: 0; }
+        .myth-flip { border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 1rem; overflow: hidden; }
+        .myth-flip .mf-think { background: rgba(248,81,73,0.06); padding: 1rem 1.25rem; border-bottom: 1px solid var(--border-color); }
+        .myth-flip .mf-reality { background: rgba(63,185,80,0.06); padding: 1rem 1.25rem; }
+        .myth-flip .mf-label { font-family: var(--font-mono); font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.35rem; display: block; }
+        .myth-flip .mf-think .mf-label { color: var(--neon-red); }
+        .myth-flip .mf-reality .mf-label { color: var(--neon-green); }
+        .signature-line { text-align: center; font-family: var(--font-mono); font-size: 0.85rem; color: var(--meta-color); font-style: italic; margin: 3rem 0 1rem 0; padding-top: 1.5rem; border-top: 1px solid var(--border-color); }
+
+        aside { flex: 1; min-width: 280px; position: sticky; top: 20px; }
+        #votePanel { background-color: var(--card-bg); border: 1px solid var(--border-color); border-top: 4px solid var(--accent-color); padding: 2rem; border-radius: 8px; text-align: center; }
+        .btn-action { background: var(--accent-color); color: #fff; border: none; padding: 0.8rem 1.5rem; font-family: var(--font-mono); font-weight: bold; border-radius: 4px; cursor: pointer; transition: 0.2s; }
+        .btn-action:hover { filter: brightness(1.2); }
+        .comment-section { margin-top: 5rem; border-top: 1px solid var(--border-color); padding-top: 3rem; }
+        .comment-item { border-bottom: 1px solid var(--border-color); padding-bottom: 1.5rem; margin-bottom: 1.5rem; }
+        footer { text-align: center; padding: 5rem 0 2rem 0; color: #444; font-family: var(--font-mono); font-size: 0.8rem; }
+        @media (max-width: 768px) { .lab-content { grid-template-columns: 1fr; height: auto; } .console-log { display: none; } h1 { font-size: 1.9rem; } }
+    </style>
+</head>
+<body>
+
+    <div id="glossary-bubble"><b id="bubble-title">TERM</b><p id="bubble-def">Loading definition...</p></div>
+
+    <div class="container">
+        <header>
+            <a href="index.html" class="nav-back">// ROOT_ACCESS / RETURN_TO_LOBBY</a>
+            <h1>The Journey of a Packet Inside Android</h1>
+            <p class="subtitle">Where does your data actually go the instant you tap Send — before the internet is even involved?</p>
+            <div class="meta">
+                <span>[ DATE: JULY_2026 ]</span> |
+                <span>[ CATEGORY: NETWORK_&_STORAGE_OPTIMIZATION ]</span> |
+                <span style="color: var(--accent-color);">[ VIEWS: <span id="topViewCount">--</span> ]</span>
+            </div>
+        </header>
+
+        <div id="workbench-mainframe">
+            <div class="lab-header">
+                <span class="lab-title">PACKET_JOURNEY_TRACER v1.00</span>
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <div style="width:8px; height:8px; border-radius:50%; background:var(--neon-green); box-shadow:0 0 8px var(--neon-green);"></div>
+                    <span style="font-family:var(--font-mono); font-size:0.6rem; color:var(--neon-green);">STACK_MONITOR_ACTIVE</span>
+                </div>
+            </div>
+            <div class="lab-content">
+                <div class="console-log" id="console">
+                    <div class="console-line">User tapped Send. Message: "Hi"</div>
+                    <div class="console-line">No packet exists yet.</div>
+                </div>
+                <div class="visualizer">
+                    <div class="pipe-stage" id="stage-1">1. App creates data</div>
+                    <div class="pipe-arrow" id="arrow-1">↓</div>
+                    <div class="pipe-stage" id="stage-2">2. Android Framework routes</div>
+                    <div class="pipe-arrow" id="arrow-2">↓</div>
+                    <div class="pipe-stage" id="stage-3">3. Kernel takes control</div>
+                    <div class="pipe-arrow" id="arrow-3">↓</div>
+                    <div class="pipe-stage" id="stage-4">4. TLS → TCP → IP wrapping</div>
+                    <div class="pipe-arrow" id="arrow-4">↓</div>
+                    <div class="pipe-stage" id="stage-5">5. Routing table picks exit</div>
+                    <div class="pipe-arrow" id="arrow-5">↓</div>
+                    <div class="pipe-stage" id="stage-6">6. Driver translates for hardware</div>
+                    <div class="pipe-arrow" id="arrow-6">↓</div>
+                    <div class="pipe-stage" id="stage-7">7. Radio / Modem transmits</div>
+                </div>
+            </div>
+            <div class="lab-footer">
+                <button class="btn-action" id="nextBtn" onclick="nextSimStep()" style="width: auto;">SEND_PACKET</button>
+                <button onclick="resetLab()" style="background:transparent; border:1px solid var(--border-color); color:var(--meta-color); font-family:var(--font-mono); font-size:0.7rem; padding:0.5rem 1rem; cursor:pointer; border-radius:4px;">RESET</button>
+            </div>
+        </div>
+
+        <div class="article-layout">
+            <main id="article-body">
+
+                <div class="case-file">
+                    <div class="case-file-title">// CASE_FILE — INVESTIGATION_005</div>
+                    <div class="case-file-grid">
+                        <div class="case-file-field"><span class="k">Subject</span><span class="v">Android Networking Stack</span></div>
+                        <div class="case-file-field"><span class="k">Status</span><span class="v status-open">Open</span></div>
+                        <div class="case-file-field"><span class="k">Difficulty</span><span class="v">Intermediate</span></div>
+                        <div class="case-file-field"><span class="k">Est. Time</span><span class="v">11 min</span></div>
+                        <div class="case-file-field"><span class="k">Domains</span><span class="v">Kernel, Networking</span></div>
+                        <div class="case-file-field"><span class="k">Related</span><span class="v">Touch, Boot Chain, DNS</span></div>
+                    </div>
+                </div>
+
+                <div class="workbench-note">
+                    <h4 style="color: #fff; margin: 0 0 0.5rem 0; font-size: 0.8rem; text-transform: uppercase; font-family: var(--font-mono);">🔬 Workbench Notes</h4>
+                    <p style="margin: 0; font-size: 0.95rem; color: var(--meta-color); font-style: italic;">
+                        When you tap Send on WhatsApp, or refresh a webpage, or upload a photo — where does that data actually go? Most people imagine a straight path: Application, then straight down to the Internet. Reality is nothing like that.
+                    </p>
+                </div>
+
+                <div class="invisible-system">
+                    The invisible system at work here: inside Android, a single packet passes through dozens of software layers, kernel subsystems, memory buffers, network queues, encryption engines, device drivers, and finally the cellular modem or Wi-Fi chip — before it even leaves your phone. Milliseconds later, the same journey happens in reverse on the receiving device.
+                </div>
+
+                <div class="fast-summary">
+                    <h4>⚡ Fast Diagnostic Summary</h4>
+                    <ul>
+                        <li><strong>The problem:</strong> most networking explanations begin at the internet. Very few explain what happens inside Android before the packet ever reaches the network at all.</li>
+                        <li><strong>The severity:</strong> medium — understanding this path explains app latency, VPNs, firewalls, DNS, packet captures, battery usage, and much of Android's networking architecture.</li>
+                        <li><strong>The confidence level:</strong> very high. Android's networking stack is based on the Linux kernel networking subsystem, augmented by Android framework components, userspace daemons, and hardware abstraction layers — well documented, though implementation details vary by Android version and chipset.</li>
+                        <li><strong>The immediate takeaway:</strong> a packet doesn't jump from an app to the internet. It passes through a carefully layered pipeline, where each layer adds one specific responsibility before handing the packet to the next.</li>
+                        <li><strong>Why this matters:</strong> the mystery isn't how the internet works — it's what happens inside your own phone before the internet even gets involved.</li>
+                    </ul>
+                </div>
+
+                <p>Imagine sending a single "Hi" to your friend. The message contains only two characters. Yet before those two bytes travel through the air, Android performs an astonishing amount of work: the app creates data, TLS encrypts it, TCP organizes it, IP decides where it should go, the kernel routes it, drivers prepare it, and the modem converts it into radio signals. Only then does your phone transmit anything.</p>
+                <p>By the time your friend receives that tiny message, it has crossed more software layers than most people realize exist. So where exactly does a packet travel inside Android? Let's follow it.</p>
+
+                <h2>The Journey Begins Inside an App</h2>
+                <p>Every packet starts because an application decides to communicate — opening YouTube, sending a WhatsApp message, refreshing Reddit, downloading an image, syncing Gmail. At this point there is no packet. There is only application data.</p>
+                <p>The application usually talks to Android through high-level networking APIs rather than building packets itself. That abstraction lets developers focus on data instead of network protocols — the same abstraction philosophy that lets a touchscreen app receive a clean tap event without knowing anything about capacitive sensor grids, as covered in <a href="working-with-touchscreen.html">what actually happens when you touch your screen</a>.</p>
+
+                <h2>Android Framework: The Traffic Coordinator</h2>
+                <p>Before the kernel ever sees data, Android's framework has already influenced the request — managing network selection (Wi-Fi vs. cellular), VPN configuration, per-app networking policies, DNS resolution requests, background restrictions, and connectivity monitoring. The framework decides which network should carry the data, but it still doesn't transmit anything.</p>
+
+                <h2>The Kernel Takes Control</h2>
+                <p>Now the data enters the Linux kernel. This is where it finally starts becoming network traffic. The kernel creates sockets, manages buffers, schedules transmission, performs routing lookups, applies firewall rules, handles congestion control, and manages retransmissions. This is where Android stops looking like a mobile operating system and starts looking like Linux — the same underlying kernel covered throughout this site's low-level systems investigations.</p>
+
+                <h2>Building the Packet, Layer by Layer</h2>
+                <p>The kernel now wraps the application data inside multiple protocol layers:</p>
+                <div class="stage-diagram">
+                    Application Data
+                    <span class="arrow">↓</span>
+                    TLS (if encrypted)
+                    <span class="arrow">↓</span>
+                    TCP or UDP
+                    <span class="arrow">↓</span>
+                    IP
+                    <span class="arrow">↓</span>
+                    Link Layer Frame
+                    <span class="arrow">↓</span>
+                    Network Driver
+                </div>
+                <p>Each layer adds its own header. Each solves a different engineering problem.</p>
+
+                <div class="stop-think">
+                    <span class="tag">⏸ Stop and Think</span>
+                    The packet isn't created all at once. It is built layer by layer. Every layer knows only enough to perform its own job — no single layer understands the entire journey. That's one of networking's greatest engineering ideas. What happens if one layer tried to also handle another layer's responsibility?
+                </div>
+
+                <h2>The Invisible Security Layer</h2>
+                <p>Before many packets leave your phone, they're encrypted. HTTPS traffic typically uses TLS. The application doesn't manually encrypt every byte — instead, encryption is handled by networking libraries using cryptographic primitives provided by the operating system and, on many devices, accelerated by hardware. The Wi-Fi chip never knows the original message. It only transmits encrypted bytes.</p>
+
+                <h2>Routing: Choosing the Exit</h2>
+                <p>Android may have multiple possible routes — Wi-Fi, 5G, Ethernet, VPN, USB tethering. The kernel's routing tables determine which interface the packet should use. This decision happens in microseconds. Most users never realize it occurred. It's the same underlying decision that determines whether an app resolves a domain through your carrier's DNS or through <a href="dns-speed-privacy-guide.html">a faster, privacy-respecting resolver</a> you've configured yourself.</p>
+
+                <h2>Drivers: Speaking Hardware</h2>
+                <p>The networking stack still isn't talking to hardware. Drivers translate generic kernel networking operations into commands understood by specific hardware. Different chipsets require different drivers. Yet applications never need to know — that's abstraction at work.</p>
+
+                <h2>The Radio Takes Over</h2>
+                <p>Only now does software hand the packet to hardware.</p>
+                <div class="stage-diagram">
+                    For Wi-Fi: Kernel → Wi-Fi Driver → Wi-Fi Firmware → Wi-Fi Chip → Radio Waves
+                    <br><br>
+                    For Cellular: Kernel → Cellular Driver → Baseband Processor → Modem Firmware → Cell Tower
+                </div>
+                <p>The packet has finally left Android.</p>
+
+                <div class="engineering-decision">
+                    <div class="ed-head">🛠 Engineering Decision</div>
+                    <div class="ed-body">
+                        <p style="margin-bottom: 0.75rem;"><strong>Why so many layers?</strong></p>
+                        <p style="margin-bottom: 0;">Because each solves one problem. Applications shouldn't understand radio hardware. Drivers shouldn't understand HTTPS. TCP shouldn't know about app permissions. Separating responsibilities makes the system easier to evolve, secure, and debug. It's slower than putting everything in one place — it's vastly more maintainable.</p>
+                    </div>
+                </div>
+
+                <div class="hidden-tradeoff">
+                    <div class="ht-head">⚖ Hidden Trade-off</div>
+                    <div class="tradeoff-split">
+                        <div class="tradeoff-col gain">
+                            <span class="label">What Layering Buys You</span>
+                            Modularity, security boundaries, easier debugging, and the ability to swap out any single layer (a new Wi-Fi chip, a new encryption library) without rewriting everything above or below it.
+                        </div>
+                        <div class="tradeoff-col cost">
+                            <span class="label">What It Costs</span>
+                            Every layer adds memory copies, processing, buffering, and scheduling latency. Modern Android reduces this with zero-copy paths where possible, checksum offloading, segmentation offload, and hardware acceleration — but the layered architecture remains because its benefits outweigh the cost.
+                        </div>
+                    </div>
+                </div>
+
+                <h2>What About Incoming Packets?</h2>
+                <p>The journey simply runs in reverse:</p>
+                <div class="stage-diagram">
+                    Radio
+                    <span class="arrow">↓</span>
+                    Modem / Wi-Fi Chip
+                    <span class="arrow">↓</span>
+                    Driver
+                    <span class="arrow">↓</span>
+                    Kernel
+                    <span class="arrow">↓</span>
+                    IP
+                    <span class="arrow">↓</span>
+                    TCP
+                    <span class="arrow">↓</span>
+                    TLS
+                    <span class="arrow">↓</span>
+                    Application
+                </div>
+                <p>Each layer removes the information that the matching outbound layer previously added.</p>
+
+                <div class="zoom-out">
+                    <span class="zo-tag">🔭 Zoom Out</span>
+                    This layered journey isn't unique to Android. The same architectural idea appears everywhere — USB devices, file systems, Secure Boot, graphics pipelines, web browsers. Complex systems remain manageable by dividing one impossible problem into many small ones. Networking is simply one of the clearest examples, and it's the exact same principle behind <a href="secure-boot-without-marketing.html">the checkpoint chain we traced through Secure Boot</a> — one link verifying the next, each understanding only its own job.
+                </div>
+
+                <h2>What Everyone Thinks vs. What's Actually True</h2>
+                <div class="myth-flip">
+                    <div class="mf-think"><span class="mf-label">What Everyone Thinks</span>The app sends packets directly.</div>
+                    <div class="mf-reality"><span class="mf-label">Reality</span>Applications hand data to the operating system. The kernel networking stack creates and manages the actual packets.</div>
+                </div>
+                <div class="myth-flip">
+                    <div class="mf-think"><span class="mf-label">What Everyone Thinks</span>Wi-Fi handles encryption.</div>
+                    <div class="mf-reality"><span class="mf-label">Reality</span>For HTTPS, end-to-end encryption is established above the Wi-Fi layer. Wi-Fi protects the local wireless link separately, while TLS protects the application data across the internet.</div>
+                </div>
+                <div class="myth-flip">
+                    <div class="mf-think"><span class="mf-label">What Everyone Thinks</span>Android is responsible for internet routing.</div>
+                    <div class="mf-reality"><span class="mf-label">Reality</span>Android decides how to leave the device. Once packets reach a router, the wider internet determines the remaining path.</div>
+                </div>
+                <div class="myth-flip">
+                    <div class="mf-think"><span class="mf-label">What Everyone Thinks</span>The modem is just an antenna.</div>
+                    <div class="mf-reality"><span class="mf-label">Reality</span>Modern cellular modems are highly sophisticated processors running their own firmware and communication stacks.</div>
+                </div>
+
+                <h2>What Changes Now You'll Notice</h2>
+                <ul class="changes-checklist">
+                    <li><span class="mark">✓</span> You'll understand why <a href="incognito-mode-myths.html">VPN apps work without modifying the applications</a> they protect — they operate at the kernel routing layer, beneath every app.</li>
+                    <li><span class="mark">✓</span> Packet capture tools requiring elevated privileges will make sense — you're asking to observe kernel-level traffic, not app-level data.</li>
+                    <li><span class="mark">✓</span> Switching from Wi-Fi to mobile data interrupting connections will read as a routing-table change, not a mysterious glitch.</li>
+                    <li><span class="mark">✓</span> Network latency occurring before packets even leave the phone will stop feeling like a contradiction — you now know exactly which layers that delay lives in.</li>
+                    <li><span class="mark">✓</span> Why hardware acceleration matters for battery life and throughput will click immediately, once you've seen how many layers a single packet crosses.</li>
+                </ul>
+
+                <h2>The Bigger Lesson</h2>
+                <p>The internet doesn't begin at your router. For every message you send, the first journey happens entirely inside your own phone. Before a single radio wave is transmitted, Android has already coordinated applications, framework services, the Linux kernel, networking protocols, drivers, firmware, and dedicated hardware.</p>
+                <p>Once you see that hidden pipeline, every tap on Send stops feeling instantaneous — and starts looking like one of the most sophisticated engineering collaborations happening silently inside your pocket.</p>
+
+                <div class="signature-line">Every investigation on this site starts with a mystery, follows the engineering to its source, and ends with a mental model built to last.</div>
+            </main>
+
+            <aside>
+                <div id="votePanel">
+                    <h3 style="font-family: var(--font-mono); color:#fff; margin-bottom: 1rem; font-size: 1rem;">⚡ BENCH_VERIFICATION</h3>
+                    <p style="margin: 0 0 1.5rem 0; color: var(--meta-color); font-size: 0.85rem;">Did tracing the full packet path change how "instant" messaging feels to you?</p>
+                    <button onclick="incrementTelemetry('yes')" class="btn-action" style="background: rgba(63, 185, 80, 0.1); color: var(--neon-green); border: 1px solid var(--neon-green); margin-bottom: 0.75rem; width: 100%;">
+                        YES, MAKES SENSE NOW! (<span id="countWorked">--</span>)
+                    </button>
+                    <button onclick="incrementTelemetry('no')" class="btn-action" style="background: rgba(248, 81, 73, 0.1); color: var(--neon-red); border: 1px solid var(--neon-red); width: 100%;">
+                        NO, STILL CONFUSING (<span id="countBricked">--</span>)
+                    </button>
+                </div>
+            </aside>
+        </div>
+
+        <section class="comment-section">
+            <h3 style="color: #fff; margin-bottom: 2rem; font-family: var(--font-mono);">💬 COMMUNITY_BENCH_NOTES</h3>
+            <div id="commentsFeed"></div>
+            <div style="background-color: var(--card-bg); border: 1px solid var(--border-color); padding: 2rem; border-radius: 8px; margin-top: 2rem;">
+                <h4 style="color: #fff; margin-bottom: 1.5rem; font-size: 1rem; font-family: var(--font-mono);">[ DROP_A_SYSTEM_INSIGHT ]</h4>
+                <div style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                    <input type="text" id="suiteNameInput" placeholder="First name (one word)" style="flex: 1; background: #000; border: 1px solid var(--border-color); padding: 0.8rem; color: #fff; border-radius: 4px; font-family: var(--font-mono);">
+                    <button onclick="submitGenericComment()" class="btn-action" style="width: auto; padding: 0 2rem;">SUBMIT</button>
+                </div>
+                <textarea id="suiteCommentText" placeholder="Packet capture stories, VPN weirdness, or a layer you want explained deeper..." style="width: 100%; min-height: 100px; background: #000; border: 1px solid var(--border-color); padding: 1rem; color: #fff; border-radius: 4px;"></textarea>
+                <div id="suiteValidationError" style="display: none; color: var(--neon-red); font-size: 0.8rem; margin-top: 0.5rem;"></div>
+            </div>
+        </section>
+
+        <footer>
+            <p>&copy; 2026 bitandboot // SYSTEMS_LAB // NO_DATA_LOST</p>
+        </footer>
+    </div>
+
+    <!-- MAIN ENGINE MODULE -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        const firebaseConfig = { apiKey: "AIzaSyAZ5kORicxNAp4iCWlGn1C3XkP0vPJ5vQw", authDomain: "bitandboot.firebaseapp.com", projectId: "bitandboot", storageBucket: "bitandboot.firebasestorage.app", messagingSenderId: "687841897835", appId: "1:687841897835:web:16e8a1b9f31e23f069b02e" };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const pageId = (window.location.pathname.split("/").pop() || "index").replace(".html", "");
+        const articleRef = doc(db, "articles", pageId);
+        const commentsRef = collection(db, "articles", pageId, "comments");
+
+        async function syncGlossary() {
+            try {
+                const response = await fetch('glossary.html');
+                const text = await response.text();
+                const gdoc = new DOMParser().parseFromString(text, 'text/html');
+                const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const terms = [];
+                gdoc.querySelectorAll('.term-card').forEach(card => {
+                    const cardId = card.id;
+                    const title = card.querySelector('.term-title').innerText.trim();
+                    const def = card.querySelector('.term-def').innerText.trim();
+                    const matchAttr = card.getAttribute('data-match');
+                    const aliases = (matchAttr ? matchAttr.split(',') : [title]).map(s => s.trim()).filter(Boolean);
+                    aliases.forEach(alias => terms.push({ alias, def, cardId }));
+                });
+                terms.sort((a, b) => b.alias.length - a.alias.length);
+                const main = document.getElementById('article-body');
+                let html = main.innerHTML;
+                terms.forEach(({ alias, def, cardId }) => {
+                    const regex = new RegExp(`\\b(${escapeRegex(alias)})\\b(?![^<]*>)`, 'gi');
+                    const safeDef = def.replace(/"/g, '&quot;');
+                    html = html.replace(regex, `<a href="glossary.html#${cardId}" class="glossary-link" data-def="${safeDef}">$1</a>`);
+                });
+                main.innerHTML = html;
+                setupBubbles();
+            } catch (e) { console.error("Glossary Sync Failed:", e); }
+        }
+
+        function setupBubbles() {
+            const bubble = document.getElementById('glossary-bubble');
+            const title = document.getElementById('bubble-title');
+            const def = document.getElementById('bubble-def');
+            document.querySelectorAll('.glossary-link').forEach(link => {
+                link.addEventListener('mouseenter', (e) => {
+                    title.innerText = e.target.innerText;
+                    def.innerText = e.target.getAttribute('data-def');
+                    bubble.style.display = 'block';
+                    const rect = e.target.getBoundingClientRect();
+                    bubble.style.top = `${rect.top + window.scrollY - bubble.offsetHeight - 10}px`;
+                    bubble.style.left = `${rect.left + (rect.width/2) - (bubble.offsetWidth/2)}px`;
+                });
+                link.addEventListener('mouseleave', () => { bubble.style.display = 'none'; });
+            });
+        }
+
+        async function init() {
+            const snap = await getDoc(articleRef);
+            if (!snap.exists()) { try { await setDoc(articleRef, { viewCount: 0, workedCount: 0, brickedCount: 0 }); } catch (e) {} }
+            onSnapshot(articleRef, (s) => {
+                const d = s.data();
+                if(d && document.getElementById("topViewCount")) document.getElementById("topViewCount").innerText = (d.viewCount || 0).toLocaleString();
+                if(d && document.getElementById("countWorked")) document.getElementById("countWorked").innerText = d.workedCount || 0;
+                if(d && document.getElementById("countBricked")) document.getElementById("countBricked").innerText = d.brickedCount || 0;
+            });
+            if(!sessionStorage.getItem(`viewed_${pageId}`)) { try { await updateDoc(articleRef, {viewCount: increment(1)}); } catch(e) {} sessionStorage.setItem(`viewed_${pageId}`, '1'); }
+            onSnapshot(query(commentsRef, orderBy("timestamp", "desc")), (snapshot) => {
+                const feed = document.getElementById("commentsFeed");
+                feed.innerHTML = "";
+                if (snapshot.empty) { feed.innerHTML = `<p style="color: var(--meta-color); font-size: 0.9rem;">No notes yet — be the first to leave one.</p>`; return; }
+                snapshot.forEach((docSnap) => {
+                    const c = docSnap.data();
+                    const div = document.createElement("div");
+                    div.className = "comment-item";
+                    div.innerHTML = `<div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:0.25rem;"><strong style="color:var(--accent-color);">@${escapeHTML(c.name)}</strong></div><p style="margin:0;color:#c9d1d9;">${escapeHTML(c.text)}</p>`;
+                    feed.appendChild(div);
+                });
+            });
+        }
+
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, tag => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[tag] || tag));
+        }
+
+        window.submitGenericComment = async () => {
+            const nameField = document.getElementById("suiteNameInput").value.trim();
+            const textField = document.getElementById("suiteCommentText").value.trim();
+            const valError = document.getElementById("suiteValidationError");
+            if (valError) valError.style.display = "none";
+            if (!nameField || !textField) { if (valError) { valError.innerText = "Error: name and note are both required."; valError.style.display = "block"; } return; }
+            if (nameField.split(" ").length > 1) { if (valError) { valError.innerText = "Error: supply strictly a single word for your identity handle."; valError.style.display = "block"; } return; }
+            const sanitizedName = nameField.replace(/[^a-zA-Z0-9]/g, "") || "Tech";
+            try {
+                await addDoc(commentsRef, { name: `${sanitizedName}King`, text: textField, timestamp: serverTimestamp() });
+                document.getElementById("suiteCommentText").value = "";
+                document.getElementById("suiteNameInput").value = "";
+            } catch (e) { if (valError) { valError.innerText = "Error: could not post comment — please try again."; valError.style.display = "block"; } }
+        };
+
+        window.incrementTelemetry = async (type) => {
+            const voteLockKey = `voted_${pageId}`;
+            if(localStorage.getItem(voteLockKey)) return alert("Session Lock Active. You've already logged a result for this article.");
+            try {
+                await updateDoc(articleRef, { [type === 'yes' ? 'workedCount' : 'brickedCount']: increment(1) });
+                localStorage.setItem(voteLockKey, '1');
+                document.getElementById("votePanel").innerHTML = "<h2 style='color:var(--neon-green)'>LOGGED</h2>";
+            } catch (e) { alert("Something went wrong logging your vote — please try again."); }
+        };
+
+        /* PACKET JOURNEY SIMULATION */
+        let step = 0;
+        const consoleEl = document.getElementById("console");
+        const stageIds = ['stage-1','stage-2','stage-3','stage-4','stage-5','stage-6','stage-7'];
+        const arrowIds = ['arrow-1','arrow-2','arrow-3','arrow-4','arrow-5','arrow-6'];
+        const stageLogs = [
+            "App writes 'Hi' via high-level networking API.",
+            "Framework selects Wi-Fi over cellular. VPN check passed.",
+            "Kernel creates socket, allocates buffer...",
+            "Wrapping: TLS encrypt -> TCP segment -> IP header applied.",
+            "Routing table lookup: exit via wlan0.",
+            "Wi-Fi driver translates kernel call to chip command.",
+            "Wi-Fi firmware modulates signal. Bytes become radio waves."
+        ];
+        const nextBtn = document.getElementById("nextBtn");
+
+        function log(m) { const d = document.createElement("div"); d.className = "console-line"; d.innerText = m; consoleEl.appendChild(d); consoleEl.scrollTop = consoleEl.scrollHeight; }
+
+        window.nextSimStep = () => {
+            if (step > 0) {
+                document.getElementById(stageIds[step - 1]).classList.remove('active');
+                document.getElementById(stageIds[step - 1]).classList.add('done');
+                if (arrowIds[step - 1]) document.getElementById(arrowIds[step - 1]).classList.remove('active');
+            }
+            if (step >= stageIds.length) return;
+            log(stageLogs[step]);
+            document.getElementById(stageIds[step]).classList.add('active');
+            if (arrowIds[step]) document.getElementById(arrowIds[step]).classList.add('active');
+            step++;
+            if (step >= stageIds.length) { nextBtn.innerText = "PACKET_TRANSMITTED"; nextBtn.disabled = true; }
+            else { nextBtn.innerText = `ADVANCE_TO_STAGE_${step + 1}`; }
+        };
+
+        window.resetLab = () => {
+            step = 0;
+            stageIds.forEach(id => document.getElementById(id).classList.remove('active', 'done'));
+            arrowIds.forEach(id => document.getElementById(id).classList.remove('active'));
+            nextBtn.disabled = false;
+            nextBtn.innerText = "SEND_PACKET";
+            consoleEl.innerHTML = '<div class="console-line">User tapped Send. Message: "Hi"</div><div class="console-line">No packet exists yet.</div>';
+        };
+
+        window.addEventListener('DOMContentLoaded', () => { syncGlossary(); init(); });
+    </script>
+
+    <!-- ============================================================ -->
+    <!-- BITANDBOOT SYSTEM_DIRECTORY — cross-site navigation component -->
+    <!-- Paste this entire block (unchanged) into every article,      -->
+    <!-- right before </body>. It self-installs: no header edits.     -->
+    <!-- ============================================================ -->
+    <style>
+        .bb-nav-trigger { font-family: var(--font-mono, monospace); font-size: 0.72rem; color: var(--accent-color, #58a6ff); background: rgba(88,166,255,0.08); border: 1px solid var(--accent-color, #58a6ff); border-radius: 20px; padding: 0.4rem 0.9rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem; margin-left: 0.75rem; letter-spacing: 0.5px; text-transform: uppercase; transition: 0.2s; vertical-align: middle; }
+        .bb-nav-trigger:hover { background: rgba(88,166,255,0.18); }
+        .bb-nav-trigger .bb-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--neon-green, #3fb950); box-shadow: 0 0 6px var(--neon-green, #3fb950); animation: bb-pulse 1.8s infinite ease-in-out; }
+        @keyframes bb-pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+        .bb-nav-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.65); backdrop-filter: blur(3px); z-index: 3000; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+        .bb-nav-overlay.open { opacity: 1; pointer-events: auto; }
+        .bb-nav-drawer { position: fixed; top: 0; right: 0; bottom: 0; width: 400px; max-width: 92vw; background: var(--terminal-bg, #010409); border-left: 2px solid var(--border-color, #30363d); z-index: 3001; transform: translateX(100%); transition: transform 0.3s cubic-bezier(.4,0,.2,1); display: flex; flex-direction: column; box-shadow: -20px 0 50px rgba(0,0,0,0.6); }
+        .bb-nav-drawer.open { transform: translateX(0); }
+        .bb-nav-head { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-color, #30363d); display: flex; justify-content: space-between; align-items: center; background: var(--card-bg, #0d1117); }
+        .bb-nav-head-title { font-family: var(--font-mono, monospace); font-size: 0.75rem; color: var(--accent-color, #58a6ff); letter-spacing: 1px; }
+        .bb-nav-close { background: none; border: none; color: var(--meta-color, #8b949e); font-size: 1.3rem; cursor: pointer; line-height: 1; padding: 0.25rem; }
+        .bb-nav-close:hover { color: var(--neon-red, #f85149); }
+        .bb-nav-search-wrap { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-color, #30363d); }
+        .bb-nav-search { width: 100%; background: #000; border: 1px solid var(--border-color, #30363d); color: #fff; padding: 0.7rem 0.9rem; border-radius: 6px; font-family: var(--font-mono, monospace); font-size: 0.85rem; outline: none; }
+        .bb-nav-search:focus { border-color: var(--accent-color, #58a6ff); }
+        .bb-nav-hint { font-family: var(--font-mono, monospace); font-size: 0.65rem; color: var(--meta-color, #8b949e); margin-top: 0.5rem; }
+        .bb-nav-pinned { display: flex; gap: 0.6rem; padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-color, #30363d); flex-wrap: wrap; }
+        .bb-nav-pin { flex: 1; min-width: 140px; text-align: center; font-family: var(--font-mono, monospace); font-size: 0.7rem; text-decoration: none; color: var(--accent-color, #58a6ff); border: 1px solid var(--accent-color, #58a6ff); border-radius: 6px; padding: 0.6rem 0.5rem; transition: 0.2s; }
+        .bb-nav-pin:hover { background: rgba(88,166,255,0.1); }
+        .bb-nav-list { flex: 1; overflow-y: auto; padding: 0.5rem 0 2rem 0; }
+        .bb-nav-cat-label { font-family: var(--font-mono, monospace); font-size: 0.68rem; color: var(--neon-green, #3fb950); text-transform: uppercase; letter-spacing: 1px; padding: 1rem 1.5rem 0.5rem 1.5rem; }
+        .bb-nav-item { display: block; padding: 0.7rem 1.5rem; text-decoration: none; border-left: 2px solid transparent; transition: 0.15s; }
+        .bb-nav-item:hover { background: rgba(88,166,255,0.06); border-left-color: var(--accent-color, #58a6ff); }
+        .bb-nav-item-title { color: #fff; font-size: 0.88rem; font-weight: 600; display: block; margin-bottom: 0.15rem; }
+        .bb-nav-item-desc { color: var(--meta-color, #8b949e); font-size: 0.75rem; display: block; }
+        .bb-nav-item.bb-current { border-left-color: var(--neon-green, #3fb950); background: rgba(63,185,80,0.06); cursor: default; }
+        .bb-nav-item.bb-current .bb-nav-item-title::after { content: " ◉ VIEWING NOW"; color: var(--neon-green, #3fb950); font-family: var(--font-mono, monospace); font-size: 0.65rem; font-weight: 400; }
+        .bb-nav-empty { padding: 2rem 1.5rem; text-align: center; color: var(--meta-color, #8b949e); font-family: var(--font-mono, monospace); font-size: 0.8rem; }
+        @media (max-width: 480px) { .bb-nav-trigger span.bb-label { display: none; } }
+    </style>
+
+    <div class="bb-nav-overlay" id="bbNavOverlay"></div>
+    <div class="bb-nav-drawer" id="bbNavDrawer">
+        <div class="bb-nav-head">
+            <span class="bb-nav-head-title">// SYSTEM_DIRECTORY</span>
+            <button class="bb-nav-close" id="bbNavClose" aria-label="Close">×</button>
+        </div>
+        <div class="bb-nav-search-wrap">
+            <input type="text" id="bbNavSearch" class="bb-nav-search" placeholder="Search all articles...">
+            <div class="bb-nav-hint">Press <strong>/</strong> to search &nbsp;·&nbsp; <strong>Esc</strong> to close</div>
+        </div>
+        <div class="bb-nav-pinned">
+            <a href="index.html" class="bb-nav-pin">🏠 System Lobby</a>
+            <a href="glossary.html" class="bb-nav-pin">📖 Glossary</a>
+        </div>
+        <div class="bb-nav-list" id="bbNavList"><div class="bb-nav-empty">Loading directory...</div></div>
+    </div>
+
+    <script>
+    (function () {
+        const CACHE_KEY = 'bb_directory_cache_v1';
+        const drawer = document.getElementById('bbNavDrawer');
+        const overlay = document.getElementById('bbNavOverlay');
+        const listEl = document.getElementById('bbNavList');
+        const searchEl = document.getElementById('bbNavSearch');
+        const closeBtn = document.getElementById('bbNavClose');
+        const currentPage = (window.location.pathname.split('/').pop() || 'index.html');
+        let directory = [];
+
+        const navBack = document.querySelector('.nav-back');
+        if (navBack) {
+            const trigger = document.createElement('button');
+            trigger.className = 'bb-nav-trigger';
+            trigger.id = 'bbNavTrigger';
+            trigger.innerHTML = '<span class="bb-dot"></span><span class="bb-label">System Directory</span>';
+            navBack.insertAdjacentElement('afterend', trigger);
+            trigger.addEventListener('click', openDrawer);
+        }
+
+        function openDrawer() { overlay.classList.add('open'); drawer.classList.add('open'); if (directory.length === 0) loadDirectory(); setTimeout(() => searchEl.focus(), 300); }
+        function closeDrawer() { overlay.classList.remove('open'); drawer.classList.remove('open'); }
+        overlay.addEventListener('click', closeDrawer);
+        closeBtn.addEventListener('click', closeDrawer);
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeDrawer();
+            if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') { e.preventDefault(); openDrawer(); }
+        });
+
+        async function loadDirectory() {
+            try {
+                const cached = sessionStorage.getItem(CACHE_KEY);
+                if (cached) { directory = JSON.parse(cached); renderList(directory); return; }
+                const res = await fetch('index.html');
+                const text = await res.text();
+                const doc = new DOMParser().parseFromString(text, 'text/html');
+                const cats = [];
+                doc.querySelectorAll('.category-section').forEach(section => {
+                    const titleEl = section.querySelector('.category-title');
+                    let catName = 'Uncategorized';
+                    if (titleEl) { const clone = titleEl.cloneNode(true); const idx = clone.querySelector('.cat-index'); if (idx) idx.remove(); catName = clone.textContent.trim(); }
+                    const items = [];
+                    section.querySelectorAll('.card-wrapper').forEach(a => {
+                        const href = a.getAttribute('href');
+                        const h3 = a.querySelector('h3');
+                        const p = a.querySelector('p');
+                        if (href) items.push({ href, title: h3 ? h3.textContent.trim() : href, desc: p ? p.textContent.trim() : '' });
+                    });
+                    if (items.length) cats.push({ name: catName, items });
+                });
+                directory = cats;
+                sessionStorage.setItem(CACHE_KEY, JSON.stringify(cats));
+                renderList(directory);
+            } catch (e) { listEl.innerHTML = '<div class="bb-nav-empty">Directory sync failed. <a href="index.html" style="color:var(--accent-color,#58a6ff);">Return to lobby</a>.</div>'; }
+        }
+
+        function renderList(cats, query) {
+            const q = (query || '').trim().toLowerCase();
+            let html = ''; let resultCount = 0;
+            cats.forEach(cat => {
+                const filtered = q ? cat.items.filter(i => i.title.toLowerCase().includes(q) || i.desc.toLowerCase().includes(q)) : cat.items;
+                if (filtered.length === 0) return;
+                html += `<div class="bb-nav-cat-label">${cat.name}</div>`;
+                filtered.forEach(item => {
+                    const isCurrent = item.href === currentPage;
+                    resultCount += 1;
+                    html += `<a href="${isCurrent ? '#' : item.href}" class="bb-nav-item${isCurrent ? ' bb-current' : ''}" ${isCurrent ? 'onclick="return false;"' : ''}>
+                        <span class="bb-nav-item-title">${item.title}</span>
+                        <span class="bb-nav-item-desc">${item.desc}</span>
+                    </a>`;
+                });
+            });
+            listEl.innerHTML = resultCount ? html : '<div class="bb-nav-empty">No matching articles.</div>';
+        }
+
+        searchEl.addEventListener('input', () => renderList(directory, searchEl.value));
+    })();
+    </script>
+</body>
+</html>
