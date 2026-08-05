@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Why CPUs Gamble on the Future | bitandboot</title>
+    <meta name="description" content="How can a processor know which instruction comes next before it even knows whether a comparison is true? It doesn't — it gambles. Branch prediction and speculative execution, explained.">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #05070a; --text-color: #c9d1d9; --accent-color: #58a6ff;
+            --neon-green: #3fb950; --neon-red: #f85149; --card-bg: #0d1117;
+            --border-color: #30363d; --terminal-bg: #010409; --meta-color: #8b949e;
+            --font-mono: 'Roboto', sans-serif; --font-sans: 'Inter', sans-serif;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: var(--bg-color); background-image: radial-gradient(#161b22 0.5px, transparent 0.5px); background-size: 30px 30px; color: var(--text-color); font-family: var(--font-sans); line-height: 1.6; padding: 0 1.5rem; }
+        .container { max-width: 1100px; margin: 0 auto; }
+        header { padding: 4rem 0 2rem 0; border-bottom: 1px solid var(--border-color); margin-bottom: 3rem; }
+        .nav-back { font-family: var(--font-mono); color: var(--accent-color); text-decoration: none; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; display: inline-block; margin-bottom: 1rem; }
+        h1 { font-weight: 800; font-size: 2.6rem; color: #fff; line-height: 1.15; letter-spacing: -1.5px; margin-bottom: 0.75rem; }
+        .subtitle { font-size: 1.15rem; color: var(--meta-color); font-style: italic; margin-bottom: 1.5rem; }
+        .meta { font-family: var(--font-mono); font-size: 0.75rem; color: var(--meta-color); display: flex; gap: 1.5rem; text-transform: uppercase; flex-wrap: wrap; }
+        .glossary-link { color: #fff; border-bottom: 1px dashed var(--accent-color); cursor: help; font-weight: 700; text-decoration: none; }
+        #glossary-bubble { position: absolute; z-index: 1000; width: 280px; background: #161b22; border: 1px solid var(--accent-color); border-radius: 8px; padding: 1rem; font-size: 0.85rem; box-shadow: 0 10px 40px rgba(0,0,0,0.8); display: none; pointer-events: none; }
+        #glossary-bubble b { font-family: var(--font-mono); color: var(--accent-color); display: block; margin-bottom: 5px; }
+        #workbench-mainframe { background: var(--terminal-bg); border: 2px solid var(--border-color); border-radius: 12px; margin-bottom: 4rem; position: relative; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        #workbench-mainframe::before { content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03)); z-index: 10; background-size: 100% 3px, 3px 100%; pointer-events: none; }
+        .lab-header { background: #161b22; padding: 0.75rem 1.5rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        .lab-title { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent-color); }
+        .lab-content { display: grid; grid-template-columns: 300px 1fr; height: 460px; }
+        .console-log { background: #000; border-right: 1px solid var(--border-color); padding: 1rem; font-family: var(--font-mono); font-size: 0.7rem; color: var(--neon-green); overflow-y: auto; }
+        .console-line { margin-bottom: 4px; opacity: 0.8; }
+        .console-line::before { content: "> "; color: var(--accent-color); }
+        .visualizer { position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 1.25rem; gap: 0.9rem; background: radial-gradient(circle at center, #0d1117 0%, #010409 100%); }
+        .pipeline-track { display: flex; gap: 6px; width: 100%; max-width: 320px; }
+        .pipe-cell { flex: 1; height: 46px; border: 1px solid var(--border-color); border-radius: 4px; background: #0d1117; display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 0.6rem; color: var(--meta-color); text-align: center; transition: 0.4s; }
+        .pipe-cell.spec { border-color: #e3b341; color: #e3b341; background: rgba(227,179,65,0.08); }
+        .pipe-cell.commit { border-color: var(--neon-green); color: var(--neon-green); background: rgba(63,185,80,0.08); }
+        .pipe-cell.flush { border-color: var(--neon-red); color: var(--neon-red); background: rgba(248,81,73,0.08); }
+        .confidence-readout { font-family: var(--font-mono); font-size: 0.85rem; color: var(--meta-color); text-align: center; width: 100%; max-width: 320px; padding-top: 0.5rem; border-top: 1px solid var(--border-color); }
+        .confidence-readout .value { font-weight: bold; }
+        .decision-row { display: flex; gap: 0.6rem; margin-top: 0.25rem; }
+        .btn-danger { background: var(--neon-red); color: #fff; border: none; padding: 0.7rem 1.1rem; font-family: var(--font-mono); font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 0.72rem; }
+        .btn-safe { background: var(--neon-green); color: #05070a; border: none; padding: 0.7rem 1.1rem; font-family: var(--font-mono); font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 0.72rem; }
+        .lab-footer { padding: 1.25rem; background: #0d1117; border-top: 1px solid var(--border-color); display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+        .article-layout { display: flex; gap: 2.5rem; align-items: flex-start; flex-wrap: wrap; }
+        main { flex: 2.5; min-width: 320px; font-size: 1.1rem; line-height: 1.8; color: #adbac7; }
+        .workbench-note { background-color: #0d1117; border: 1px solid var(--border-color); border-left: 4px solid var(--accent-color); padding: 1.5rem; border-radius: 6px; margin-bottom: 2rem; }
+        .fast-summary { background-color: #0d1117; border: 1px solid var(--accent-color); border-radius: 8px; padding: 1.75rem; margin-bottom: 3rem; box-shadow: 0 0 25px rgba(88, 166, 255, 0.08); }
+        .fast-summary h4 { font-family: var(--font-mono); color: var(--accent-color); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 1rem; }
+        .fast-summary ul { list-style: none; padding: 0; margin: 0; }
+        .fast-summary li { padding: 0.6rem 0; border-bottom: 1px solid #1f242c; font-size: 0.98rem; color: #c9d1d9; }
+        .fast-summary li:last-child { border-bottom: none; }
+        .fast-summary li::before { content: "▸ "; color: var(--accent-color); }
+        h2 { color: #fff; font-size: 1.8rem; margin: 3rem 0 1.25rem 0; font-family: var(--font-mono); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
+        h3 { color: #fff; font-size: 1.3rem; margin: 2rem 0 1rem 0; }
+        p { margin-bottom: 1.5rem; }
+        ul { margin-bottom: 1.5rem; padding-left: 1.5rem; }
+        li { margin-bottom: 0.75rem; }
+        b, strong { color: #fff; }
+        code { font-family: var(--font-mono); font-size: 0.9rem; color: #ff7b72; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; }
+        .stage-diagram { font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent-color); background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; margin: 2rem 0; text-align: center; line-height: 2; }
+        .stage-diagram .arrow { color: var(--meta-color); display: block; }
+        .alert-box { background-color: rgba(88, 166, 255, 0.1); border-left: 4px solid var(--accent-color); padding: 1.25rem; border-radius: 4px; margin: 2rem 0; }
+
+        .case-file { border: 1px solid var(--border-color); border-radius: 8px; background: var(--card-bg); padding: 1.25rem 1.5rem; margin-bottom: 2.5rem; font-family: var(--font-mono); }
+        .case-file-title { font-size: 0.7rem; color: var(--accent-color); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 0.9rem; }
+        .case-file-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.75rem 1.5rem; }
+        .case-file-field { font-size: 0.72rem; }
+        .case-file-field .k { color: var(--meta-color); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 2px; }
+        .case-file-field .v { color: #fff; font-weight: 600; }
+        .case-file-field .v.status-open { color: var(--neon-green); }
+        .invisible-system { border-left: 3px solid var(--meta-color); padding: 0 0 0 1.25rem; margin: 2rem 0; font-size: 1.05rem; color: #dfe6ee; font-style: italic; }
+        .stop-think { background: rgba(227, 179, 65, 0.08); border: 1px solid #e3b341; border-radius: 8px; padding: 1.25rem 1.5rem; margin: 2.5rem 0; }
+        .stop-think .tag { font-family: var(--font-mono); color: #e3b341; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 0.5rem; }
+        .engineering-decision, .hidden-tradeoff { border: 1px solid var(--border-color); border-radius: 8px; margin: 2rem 0; overflow: hidden; }
+        .engineering-decision .ed-head, .hidden-tradeoff .ht-head { background: var(--card-bg); padding: 0.9rem 1.25rem; font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--accent-color); border-bottom: 1px solid var(--border-color); }
+        .engineering-decision .ed-body, .hidden-tradeoff .ht-body { padding: 1.25rem 1.5rem; }
+        .zoom-out { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; margin: 2.5rem 0; }
+        .zoom-out .zo-tag { font-family: var(--font-mono); color: var(--accent-color); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 0.75rem; display: block; }
+        .changes-checklist { list-style: none; padding: 0; margin: 1.5rem 0; }
+        .changes-checklist li { display: flex; gap: 0.75rem; padding: 0.7rem 0; border-bottom: 1px solid #1f242c; }
+        .changes-checklist li:last-child { border-bottom: none; }
+        .changes-checklist .mark { color: var(--neon-green); font-family: var(--font-mono); flex-shrink: 0; }
+        .myth-flip { border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 1rem; overflow: hidden; }
+        .myth-flip .mf-think { background: rgba(248,81,73,0.06); padding: 1rem 1.25rem; border-bottom: 1px solid var(--border-color); }
+        .myth-flip .mf-reality { background: rgba(63,185,80,0.06); padding: 1rem 1.25rem; }
+        .myth-flip .mf-label { font-family: var(--font-mono); font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.35rem; display: block; }
+        .myth-flip .mf-think .mf-label { color: var(--neon-red); }
+        .myth-flip .mf-reality .mf-label { color: var(--neon-green); }
+        .signature-line { text-align: center; font-family: var(--font-mono); font-size: 0.85rem; color: var(--meta-color); font-style: italic; margin: 3rem 0 1rem 0; padding-top: 1.5rem; border-top: 1px solid var(--border-color); }
+
+        aside { flex: 1; min-width: 280px; position: sticky; top: 20px; }
+        #votePanel { background-color: var(--card-bg); border: 1px solid var(--border-color); border-top: 4px solid var(--accent-color); padding: 2rem; border-radius: 8px; text-align: center; }
+        .btn-action { background: var(--accent-color); color: #fff; border: none; padding: 0.8rem 1.5rem; font-family: var(--font-mono); font-weight: bold; border-radius: 4px; cursor: pointer; transition: 0.2s; }
+        .btn-action:hover { filter: brightness(1.2); }
+        .comment-section { margin-top: 5rem; border-top: 1px solid var(--border-color); padding-top: 3rem; }
+        .comment-item { border-bottom: 1px solid var(--border-color); padding-bottom: 1.5rem; margin-bottom: 1.5rem; }
+        footer { text-align: center; padding: 5rem 0 2rem 0; color: #444; font-family: var(--font-mono); font-size: 0.8rem; }
+        @media (max-width: 768px) { .lab-content { grid-template-columns: 1fr; height: auto; } .console-log { display: none; } h1 { font-size: 1.9rem; } }
+    </style>
+</head>
+<body>
+
+    <div id="glossary-bubble"><b id="bubble-title">TERM</b><p id="bubble-def">Loading definition...</p></div>
+
+    <div class="container">
+        <header>
+            <a href="index.html" class="nav-back">// ROOT_ACCESS / RETURN_TO_LOBBY</a>
+            <h1>Why CPUs Gamble on the Future</h1>
+            <p class="subtitle">How does a processor know which instruction comes next, before it even knows whether the comparison is true?</p>
+            <div class="meta">
+                <span>[ DATE: JULY_2026 ]</span> |
+                <span>[ CATEGORY: SYSTEM_ARCHITECTURE ]</span> |
+                <span style="color: var(--accent-color);">[ VIEWS: <span id="topViewCount">--</span> ]</span>
+            </div>
+        </header>
+
+        <div id="workbench-mainframe">
+            <div class="lab-header">
+                <span class="lab-title">BRANCH_PREDICTOR_TRACER v1.00</span>
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <div style="width:8px; height:8px; border-radius:50%; background:var(--neon-green); box-shadow:0 0 8px var(--neon-green);"></div>
+                    <span style="font-family:var(--font-mono); font-size:0.6rem; color:var(--neon-green);">PIPELINE_MONITOR_ACTIVE</span>
+                </div>
+            </div>
+            <div class="lab-content">
+                <div class="console-log" id="console">
+                    <div class="console-line">Branch encountered. Outcome unknown.</div>
+                    <div class="console-line">Predictor consulted...</div>
+                </div>
+                <div class="visualizer">
+                    <div class="pipeline-track" id="pipeline-track">
+                        <div class="pipe-cell" id="cell-1">Fetch</div>
+                        <div class="pipe-cell" id="cell-2">Decode</div>
+                        <div class="pipe-cell" id="cell-3">Rename</div>
+                        <div class="pipe-cell" id="cell-4">Schedule</div>
+                        <div class="pipe-cell" id="cell-5">Execute</div>
+                    </div>
+                    <div class="confidence-readout">Predictor Confidence: <span class="value" id="conf-val" style="color:var(--accent-color);">97% "TAKEN"</span></div>
+                    <div class="decision-row" id="decisionRow" style="display:none;">
+                        <button class="btn-safe" onclick="predictionCorrect()">PREDICTION CORRECT</button>
+                        <button class="btn-danger" onclick="predictionWrong()">PREDICTION WRONG</button>
+                    </div>
+                </div>
+            </div>
+            <div class="lab-footer">
+                <button class="btn-action" id="nextBtn" onclick="nextSimStep()" style="width: auto;">SPECULATE_AHEAD</button>
+                <button onclick="resetLab()" style="background:transparent; border:1px solid var(--border-color); color:var(--meta-color); font-family:var(--font-mono); font-size:0.7rem; padding:0.5rem 1rem; cursor:pointer; border-radius:4px;">NEW_BRANCH</button>
+            </div>
+        </div>
+
+        <div class="article-layout">
+            <main id="article-body">
+
+                <div class="case-file">
+                    <div class="case-file-title">// CASE_FILE — INVESTIGATION_006</div>
+                    <div class="case-file-grid">
+                        <div class="case-file-field"><span class="k">Subject</span><span class="v">Branch Prediction</span></div>
+                        <div class="case-file-field"><span class="k">Status</span><span class="v status-open">Open</span></div>
+                        <div class="case-file-field"><span class="k">Difficulty</span><span class="v">Advanced</span></div>
+                        <div class="case-file-field"><span class="k">Est. Time</span><span class="v">10 min</span></div>
+                        <div class="case-file-field"><span class="k">Domains</span><span class="v">CPU Architecture, Security</span></div>
+                        <div class="case-file-field"><span class="k">Related</span><span class="v">Tokenization, SSD Storage</span></div>
+                    </div>
+                </div>
+
+                <div class="workbench-note">
+                    <h4 style="color: #fff; margin: 0 0 0.5rem 0; font-size: 0.8rem; text-transform: uppercase; font-family: var(--font-mono);">🔬 Workbench Notes</h4>
+                    <p style="margin: 0; font-size: 0.95rem; color: var(--meta-color); font-style: italic;">
+                        Modern CPUs execute billions of instructions every second. But there's a problem: programs are full of decisions. <code>if (passwordCorrect) unlock(); else deny();</code> — how can the CPU know which instruction comes next, before it even knows whether the password is correct? If it waits for every answer, the processor would spend an enormous amount of time doing absolutely nothing. Yet modern CPUs rarely wait. Instead, they gamble.
+                    </p>
+                </div>
+
+                <div class="invisible-system">
+                    The invisible system at work here: thousands of times every microsecond, your processor is quietly betting on what your program is about to do next — executing that guess before it's confirmed, and silently erasing its mistakes the moment it's proven wrong.
+                </div>
+
+                <div class="fast-summary">
+                    <h4>⚡ Fast Diagnostic Summary</h4>
+                    <ul>
+                        <li><strong>The problem:</strong> conditional branches interrupt the CPU's instruction pipeline, because the processor doesn't immediately know which instruction comes next.</li>
+                        <li><strong>The severity:</strong> critical. Without branch prediction, deeply pipelined processors would spend much of their time stalled, dramatically reducing performance.</li>
+                        <li><strong>The confidence level:</strong> very high. Branch prediction, speculative execution, and modern pipeline design are foundational, well-documented concepts in computer architecture.</li>
+                        <li><strong>The immediate takeaway:</strong> modern CPUs don't wait for every decision. They predict the future, execute the predicted path, and only later verify whether the prediction was correct.</li>
+                        <li><strong>The honest cost:</strong> this same optimization that makes CPUs fast is also what made Spectre-class vulnerabilities possible — a genuine, ongoing trade-off, not a solved problem.</li>
+                    </ul>
+                </div>
+
+                <p>Imagine reading a book with someone standing beside you. Every few pages, they ask: "Should I turn the page?" You could answer after finishing the page. Or, they could simply predict you'll continue reading and turn it in advance. Most of the time, they'd be right. You'd read continuously without waiting.</p>
+                <p>Modern processors use almost the same idea. Rather than waiting for every decision to be resolved, they predict what your program is about to do next and begin executing those instructions immediately. Sometimes the prediction is correct. Sometimes it's spectacularly wrong. Either way, that tiny gamble is one of the biggest reasons today's CPUs are incredibly fast.</p>
+
+                <h2>The CPU's Biggest Enemy: Waiting</h2>
+                <p>A processor is designed to execute instructions continuously. But instructions often depend on previous results. Consider a simple sequence: load a value, compare it, then branch based on the result. Until the comparison finishes, the CPU doesn't know which instruction should follow.</p>
+                <p>Waiting sounds harmless. But inside a processor running at several gigahertz, even a few wasted cycles matter enormously — multiplied across billions of branches per second, idle waiting would be catastrophic for performance.</p>
+
+                <h2>Pipelines Hate Uncertainty</h2>
+                <p>Modern processors don't execute one instruction at a time. They use pipelines — multiple instructions simultaneously being fetched, decoded, renamed, scheduled, executed, and retired, like an assembly line. A branch creates uncertainty. The pipeline suddenly asks: which instructions should we fetch next? Nobody knows — unless someone guesses.</p>
+
+                <div class="stop-think">
+                    <span class="tag">⏸ Stop and Think</span>
+                    Imagine a factory assembling cars. Halfway through production, someone says: "We're not sure whether this will become a sedan or an SUV." Does everyone stop working? Modern CPUs choose a different strategy — they build one version anyway, hoping they guessed correctly.
+                </div>
+
+                <h2>Enter Branch Prediction</h2>
+                <p>The processor studies patterns. If a branch has behaved the same way thousands of times before, it's likely to behave that way again. Consider a loop: taken, taken, taken, taken, taken. The CPU quickly learns this branch is almost always taken. So next time, it predicts that outcome before the comparison even finishes.</p>
+
+                <h2>Speculative Execution: Acting on the Prediction</h2>
+                <p>Prediction alone isn't useful. The real magic is what happens next. The processor immediately begins fetching instructions, decoding them, executing them, and calculating results — as though the prediction were already confirmed. This is called <strong>speculative execution</strong>. The CPU is essentially working on a future that might not exist yet.</p>
+
+                <h2>What If the CPU Guesses Wrong?</h2>
+                <p>Then everything speculative is discarded. The processor flushes the affected pipeline stages, restores the correct architectural state, and begins executing the correct path. All that speculative work disappears as though it never happened. The time wasn't entirely wasted, though — the predictor learns from the mistake.</p>
+
+                <div class="engineering-decision">
+                    <div class="ed-head">🛠 Engineering Decision</div>
+                    <div class="ed-body">
+                        <p style="margin-bottom: 0.75rem;"><strong>Why guess instead of wait?</strong></p>
+                        <p style="margin-bottom: 0;">Because most branches are surprisingly predictable — loops, error handling, repeated conditions, common execution paths. Even a predictor that's "only" 95–99% accurate dramatically outperforms waiting at every single branch. A small number of expensive mistakes is far cheaper than constant hesitation.</p>
+                    </div>
+                </div>
+
+                <div class="hidden-tradeoff">
+                    <div class="ht-head">⚖ Hidden Trade-off</div>
+                    <div class="ht-body">
+                        <p style="margin-bottom: 0.75rem;">Speculative execution increases performance, but it also creates complexity. Instructions that are eventually discarded may still leave subtle traces in microarchitectural state, such as cache contents.</p>
+                        <p style="margin-bottom: 0;">Those traces became the basis of vulnerabilities like <strong>Spectre</strong>, where attackers inferred information from speculative execution without the CPU ever architecturally committing the wrong instructions. A performance optimization unexpectedly became a security challenge — one the entire chip industry is still actively mitigating today.</p>
+                    </div>
+                </div>
+
+                <h2>Predicting More Than Branches</h2>
+                <p>Modern processors don't stop there. They also predict return addresses, indirect branch targets, memory dependencies, instruction fetch patterns, cache accesses, and prefetch candidates. Prediction is no longer one feature — it's an entire ecosystem designed to keep execution units busy.</p>
+
+                <div class="zoom-out">
+                    <span class="zo-tag">🔭 Zoom Out</span>
+                    Branch prediction reveals a broader engineering philosophy: waiting is expensive, prediction is often cheaper. You'll find the same principle elsewhere — web browsers preload likely pages, smartphones predict the next app you'll open, and <a href="ssd-slowdown-explained.html">SSD controllers prefetch data ahead of when it's actually requested</a>. Even <a href="ai-tokenization-counting-mystery.html">large language models are, at their core, predicting the next token</a> rather than retrieving a pre-written answer. Different systems, same underlying idea: don't wait if you can make an educated guess and be right most of the time.
+                </div>
+
+                <h2>What Everyone Thinks vs. What's Actually True</h2>
+                <div class="myth-flip">
+                    <div class="mf-think"><span class="mf-label">What Everyone Thinks</span>The CPU knows which branch will execute.</div>
+                    <div class="mf-reality"><span class="mf-label">Reality</span>It predicts the outcome using hardware predictors and past behavior — it never actually "knows" until the comparison resolves.</div>
+                </div>
+                <div class="myth-flip">
+                    <div class="mf-think"><span class="mf-label">What Everyone Thinks</span>Speculative execution permanently changes the program.</div>
+                    <div class="mf-reality"><span class="mf-label">Reality</span>Incorrect speculative results are discarded before they become part of the architectural state — the program never sees the wrong guess.</div>
+                </div>
+                <div class="myth-flip">
+                    <div class="mf-think"><span class="mf-label">What Everyone Thinks</span>Branch prediction only matters for games.</div>
+                    <div class="mf-reality"><span class="mf-label">Reality</span>Nearly every program contains branches, from operating systems to databases to web browsers.</div>
+                </div>
+                <div class="myth-flip">
+                    <div class="mf-think"><span class="mf-label">What Everyone Thinks</span>Modern CPUs are fast mainly because of higher clock speeds.</div>
+                    <div class="mf-reality"><span class="mf-label">Reality</span>Much of their performance comes from architectural techniques like pipelining, out-of-order execution, branch prediction, caching, and speculation — not frequency alone.</div>
+                </div>
+
+                <h2>What Changes Now You'll Notice</h2>
+                <ul class="changes-checklist">
+                    <li><span class="mark">✓</span> Why some code structures run faster than others will make sense — predictable branches are cheap, unpredictable ones aren't.</li>
+                    <li><span class="mark">✓</span> CPU benchmarks varying dramatically between workloads stops looking inconsistent once you know prediction accuracy differs by workload.</li>
+                    <li><span class="mark">✓</span> Security patch notes mentioning "speculative execution mitigations" will read as real, ongoing trade-offs against Spectre-class attacks — not routine boilerplate.</li>
+                    <li><span class="mark">✓</span> The phrase "out-of-order execution" in a chip's spec sheet will connect directly to everything covered here, instead of sitting as unexplained jargon.</li>
+                </ul>
+
+                <h2>The Bigger Lesson</h2>
+                <p>One of the biggest misconceptions about processors is that they simply execute instructions very quickly. Modern CPUs do something far more remarkable. They continuously build an educated guess about the future, begin acting on that guess, and quietly erase their mistakes before software notices.</p>
+                <p>Your computer isn't just following instructions. Thousands of times every microsecond, it's making predictions about what you'll ask it to do next — and most of the time, it's right.</p>
+
+                <div class="signature-line">Every investigation on this site starts with a mystery, follows the engineering to its source, and ends with a mental model built to last.</div>
+            </main>
+
+            <aside>
+                <div id="votePanel">
+                    <h3 style="font-family: var(--font-mono); color:#fff; margin-bottom: 1rem; font-size: 1rem;">⚡ BENCH_VERIFICATION</h3>
+                    <p style="margin: 0 0 1.5rem 0; color: var(--meta-color); font-size: 0.85rem;">Did the "CPU gambles on the future" framing change how you think about processor speed?</p>
+                    <button onclick="incrementTelemetry('yes')" class="btn-action" style="background: rgba(63, 185, 80, 0.1); color: var(--neon-green); border: 1px solid var(--neon-green); margin-bottom: 0.75rem; width: 100%;">
+                        YES, MAKES SENSE NOW! (<span id="countWorked">--</span>)
+                    </button>
+                    <button onclick="incrementTelemetry('no')" class="btn-action" style="background: rgba(248, 81, 73, 0.1); color: var(--neon-red); border: 1px solid var(--neon-red); width: 100%;">
+                        NO, STILL CONFUSING (<span id="countBricked">--</span>)
+                    </button>
+                </div>
+            </aside>
+        </div>
+
+        <section class="comment-section">
+            <h3 style="color: #fff; margin-bottom: 2rem; font-family: var(--font-mono);">💬 COMMUNITY_BENCH_NOTES</h3>
+            <div id="commentsFeed"></div>
+            <div style="background-color: var(--card-bg); border: 1px solid var(--border-color); padding: 2rem; border-radius: 8px; margin-top: 2rem;">
+                <h4 style="color: #fff; margin-bottom: 1.5rem; font-size: 1rem; font-family: var(--font-mono);">[ DROP_A_SYSTEM_INSIGHT ]</h4>
+                <div style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                    <input type="text" id="suiteNameInput" placeholder="First name (one word)" style="flex: 1; background: #000; border: 1px solid var(--border-color); padding: 0.8rem; color: #fff; border-radius: 4px; font-family: var(--font-mono);">
+                    <button onclick="submitGenericComment()" class="btn-action" style="width: auto; padding: 0 2rem;">SUBMIT</button>
+                </div>
+                <textarea id="suiteCommentText" placeholder="Spectre/Meltdown thoughts, or a stage you want explained deeper..." style="width: 100%; min-height: 100px; background: #000; border: 1px solid var(--border-color); padding: 1rem; color: #fff; border-radius: 4px;"></textarea>
+                <div id="suiteValidationError" style="display: none; color: var(--neon-red); font-size: 0.8rem; margin-top: 0.5rem;"></div>
+            </div>
+        </section>
+
+        <footer>
+            <p>&copy; 2026 bitandboot // SYSTEMS_LAB // NO_DATA_LOST</p>
+        </footer>
+    </div>
+
+    <!-- MAIN ENGINE MODULE -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        const firebaseConfig = { apiKey: "AIzaSyAZ5kORicxNAp4iCWlGn1C3XkP0vPJ5vQw", authDomain: "bitandboot.firebaseapp.com", projectId: "bitandboot", storageBucket: "bitandboot.firebasestorage.app", messagingSenderId: "687841897835", appId: "1:687841897835:web:16e8a1b9f31e23f069b02e" };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const pageId = (window.location.pathname.split("/").pop() || "index").replace(".html", "");
+        const articleRef = doc(db, "articles", pageId);
+        const commentsRef = collection(db, "articles", pageId, "comments");
+
+        async function syncGlossary() {
+            try {
+                const response = await fetch('glossary.html');
+                const text = await response.text();
+                const gdoc = new DOMParser().parseFromString(text, 'text/html');
+                const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const terms = [];
+                gdoc.querySelectorAll('.term-card').forEach(card => {
+                    const cardId = card.id;
+                    const title = card.querySelector('.term-title').innerText.trim();
+                    const def = card.querySelector('.term-def').innerText.trim();
+                    const matchAttr = card.getAttribute('data-match');
+                    const aliases = (matchAttr ? matchAttr.split(',') : [title]).map(s => s.trim()).filter(Boolean);
+                    aliases.forEach(alias => terms.push({ alias, def, cardId }));
+                });
+                terms.sort((a, b) => b.alias.length - a.alias.length);
+                const main = document.getElementById('article-body');
+                let html = main.innerHTML;
+                terms.forEach(({ alias, def, cardId }) => {
+                    const regex = new RegExp(`\\b(${escapeRegex(alias)})\\b(?![^<]*>)`, 'gi');
+                    const safeDef = def.replace(/"/g, '&quot;');
+                    html = html.replace(regex, `<a href="glossary.html#${cardId}" class="glossary-link" data-def="${safeDef}">$1</a>`);
+                });
+                main.innerHTML = html;
+                setupBubbles();
+            } catch (e) { console.error("Glossary Sync Failed:", e); }
+        }
+
+        function setupBubbles() {
+            const bubble = document.getElementById('glossary-bubble');
+            const title = document.getElementById('bubble-title');
+            const def = document.getElementById('bubble-def');
+            document.querySelectorAll('.glossary-link').forEach(link => {
+                link.addEventListener('mouseenter', (e) => {
+                    title.innerText = e.target.innerText;
+                    def.innerText = e.target.getAttribute('data-def');
+                    bubble.style.display = 'block';
+                    const rect = e.target.getBoundingClientRect();
+                    bubble.style.top = `${rect.top + window.scrollY - bubble.offsetHeight - 10}px`;
+                    bubble.style.left = `${rect.left + (rect.width/2) - (bubble.offsetWidth/2)}px`;
+                });
+                link.addEventListener('mouseleave', () => { bubble.style.display = 'none'; });
+            });
+        }
+
+        async function init() {
+            const snap = await getDoc(articleRef);
+            if (!snap.exists()) { try { await setDoc(articleRef, { viewCount: 0, workedCount: 0, brickedCount: 0 }); } catch (e) {} }
+            onSnapshot(articleRef, (s) => {
+                const d = s.data();
+                if(d && document.getElementById("topViewCount")) document.getElementById("topViewCount").innerText = (d.viewCount || 0).toLocaleString();
+                if(d && document.getElementById("countWorked")) document.getElementById("countWorked").innerText = d.workedCount || 0;
+                if(d && document.getElementById("countBricked")) document.getElementById("countBricked").innerText = d.brickedCount || 0;
+            });
+            if(!sessionStorage.getItem(`viewed_${pageId}`)) { try { await updateDoc(articleRef, {viewCount: increment(1)}); } catch(e) {} sessionStorage.setItem(`viewed_${pageId}`, '1'); }
+            onSnapshot(query(commentsRef, orderBy("timestamp", "desc")), (snapshot) => {
+                const feed = document.getElementById("commentsFeed");
+                feed.innerHTML = "";
+                if (snapshot.empty) { feed.innerHTML = `<p style="color: var(--meta-color); font-size: 0.9rem;">No notes yet — be the first to leave one.</p>`; return; }
+                snapshot.forEach((docSnap) => {
+                    const c = docSnap.data();
+                    const div = document.createElement("div");
+                    div.className = "comment-item";
+                    div.innerHTML = `<div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:0.25rem;"><strong style="color:var(--accent-color);">@${escapeHTML(c.name)}</strong></div><p style="margin:0;color:#c9d1d9;">${escapeHTML(c.text)}</p>`;
+                    feed.appendChild(div);
+                });
+            });
+        }
+
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, tag => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[tag] || tag));
+        }
+
+        window.submitGenericComment = async () => {
+            const nameField = document.getElementById("suiteNameInput").value.trim();
+            const textField = document.getElementById("suiteCommentText").value.trim();
+            const valError = document.getElementById("suiteValidationError");
+            if (valError) valError.style.display = "none";
+            if (!nameField || !textField) { if (valError) { valError.innerText = "Error: name and note are both required."; valError.style.display = "block"; } return; }
+            if (nameField.split(" ").length > 1) { if (valError) { valError.innerText = "Error: supply strictly a single word for your identity handle."; valError.style.display = "block"; } return; }
+            const sanitizedName = nameField.replace(/[^a-zA-Z0-9]/g, "") || "Tech";
+            try {
+                await addDoc(commentsRef, { name: `${sanitizedName}King`, text: textField, timestamp: serverTimestamp() });
+                document.getElementById("suiteCommentText").value = "";
+                document.getElementById("suiteNameInput").value = "";
+            } catch (e) { if (valError) { valError.innerText = "Error: could not post comment — please try again."; valError.style.display = "block"; } }
+        };
+
+        window.incrementTelemetry = async (type) => {
+            const voteLockKey = `voted_${pageId}`;
+            if(localStorage.getItem(voteLockKey)) return alert("Session Lock Active. You've already logged a result for this article.");
+            try {
+                await updateDoc(articleRef, { [type === 'yes' ? 'workedCount' : 'brickedCount']: increment(1) });
+                localStorage.setItem(voteLockKey, '1');
+                document.getElementById("votePanel").innerHTML = "<h2 style='color:var(--neon-green)'>LOGGED</h2>";
+            } catch (e) { alert("Something went wrong logging your vote — please try again."); }
+        };
+
+        /* BRANCH PREDICTION SIMULATION */
+        let step = 0;
+        const consoleEl = document.getElementById("console");
+        const nextBtn = document.getElementById("nextBtn");
+        const decisionRow = document.getElementById("decisionRow");
+        const cellIds = ['cell-1','cell-2','cell-3','cell-4','cell-5'];
+
+        function log(m) { const d = document.createElement("div"); d.className = "console-line"; d.innerText = m; consoleEl.appendChild(d); consoleEl.scrollTop = consoleEl.scrollHeight; }
+        function setCells(cls) { cellIds.forEach(id => { const el = document.getElementById(id); el.className = 'pipe-cell' + (cls ? ' ' + cls : ''); }); }
+
+        window.nextSimStep = () => {
+            step++;
+            if (step === 1) {
+                log("Predictor says: TAKEN (97% confidence, based on history).");
+                setCells('spec');
+                log("Speculatively fetching, decoding, executing down predicted path...");
+                nextBtn.style.display = 'none';
+                decisionRow.style.display = 'flex';
+            }
+        };
+
+        window.predictionCorrect = () => {
+            decisionRow.style.display = 'none';
+            setCells('commit');
+            log("Comparison resolved: prediction was CORRECT.");
+            log("Speculative work committed. Zero cycles wasted.");
+            nextBtn.style.display = 'inline-block';
+            nextBtn.innerText = "SIMULATION_COMPLETE";
+            nextBtn.disabled = true;
+        };
+
+        window.predictionWrong = () => {
+            decisionRow.style.display = 'none';
+            setCells('flush');
+            log("Comparison resolved: prediction was WRONG.");
+            log("Flushing pipeline. Restoring correct architectural state...");
+            setTimeout(() => {
+                log("Predictor updated. Correct path now executing.");
+                nextBtn.style.display = 'inline-block';
+                nextBtn.innerText = "SIMULATION_COMPLETE";
+                nextBtn.disabled = true;
+            }, 600);
+        };
+
+        window.resetLab = () => {
+            step = 0;
+            setCells('');
+            decisionRow.style.display = 'none';
+            nextBtn.style.display = 'inline-block';
+            nextBtn.disabled = false;
+            nextBtn.innerText = "SPECULATE_AHEAD";
+            document.getElementById('conf-val').innerText = '97% "TAKEN"';
+            consoleEl.innerHTML = '<div class="console-line">Branch encountered. Outcome unknown.</div><div class="console-line">Predictor consulted...</div>';
+        };
+
+        window.addEventListener('DOMContentLoaded', () => { syncGlossary(); init(); });
+    </script>
+
+    <!-- ============================================================ -->
+    <!-- BITANDBOOT SYSTEM_DIRECTORY — cross-site navigation component -->
+    <!-- Paste this entire block (unchanged) into every article,      -->
+    <!-- right before </body>. It self-installs: no header edits.     -->
+    <!-- ============================================================ -->
+    <style>
+        .bb-nav-trigger { font-family: var(--font-mono, monospace); font-size: 0.72rem; color: var(--accent-color, #58a6ff); background: rgba(88,166,255,0.08); border: 1px solid var(--accent-color, #58a6ff); border-radius: 20px; padding: 0.4rem 0.9rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem; margin-left: 0.75rem; letter-spacing: 0.5px; text-transform: uppercase; transition: 0.2s; vertical-align: middle; }
+        .bb-nav-trigger:hover { background: rgba(88,166,255,0.18); }
+        .bb-nav-trigger .bb-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--neon-green, #3fb950); box-shadow: 0 0 6px var(--neon-green, #3fb950); animation: bb-pulse 1.8s infinite ease-in-out; }
+        @keyframes bb-pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+        .bb-nav-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.65); backdrop-filter: blur(3px); z-index: 3000; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+        .bb-nav-overlay.open { opacity: 1; pointer-events: auto; }
+        .bb-nav-drawer { position: fixed; top: 0; right: 0; bottom: 0; width: 400px; max-width: 92vw; background: var(--terminal-bg, #010409); border-left: 2px solid var(--border-color, #30363d); z-index: 3001; transform: translateX(100%); transition: transform 0.3s cubic-bezier(.4,0,.2,1); display: flex; flex-direction: column; box-shadow: -20px 0 50px rgba(0,0,0,0.6); }
+        .bb-nav-drawer.open { transform: translateX(0); }
+        .bb-nav-head { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-color, #30363d); display: flex; justify-content: space-between; align-items: center; background: var(--card-bg, #0d1117); }
+        .bb-nav-head-title { font-family: var(--font-mono, monospace); font-size: 0.75rem; color: var(--accent-color, #58a6ff); letter-spacing: 1px; }
+        .bb-nav-close { background: none; border: none; color: var(--meta-color, #8b949e); font-size: 1.3rem; cursor: pointer; line-height: 1; padding: 0.25rem; }
+        .bb-nav-close:hover { color: var(--neon-red, #f85149); }
+        .bb-nav-search-wrap { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-color, #30363d); }
+        .bb-nav-search { width: 100%; background: #000; border: 1px solid var(--border-color, #30363d); color: #fff; padding: 0.7rem 0.9rem; border-radius: 6px; font-family: var(--font-mono, monospace); font-size: 0.85rem; outline: none; }
+        .bb-nav-search:focus { border-color: var(--accent-color, #58a6ff); }
+        .bb-nav-hint { font-family: var(--font-mono, monospace); font-size: 0.65rem; color: var(--meta-color, #8b949e); margin-top: 0.5rem; }
+        .bb-nav-pinned { display: flex; gap: 0.6rem; padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-color, #30363d); flex-wrap: wrap; }
+        .bb-nav-pin { flex: 1; min-width: 140px; text-align: center; font-family: var(--font-mono, monospace); font-size: 0.7rem; text-decoration: none; color: var(--accent-color, #58a6ff); border: 1px solid var(--accent-color, #58a6ff); border-radius: 6px; padding: 0.6rem 0.5rem; transition: 0.2s; }
+        .bb-nav-pin:hover { background: rgba(88,166,255,0.1); }
+        .bb-nav-list { flex: 1; overflow-y: auto; padding: 0.5rem 0 2rem 0; }
+        .bb-nav-cat-label { font-family: var(--font-mono, monospace); font-size: 0.68rem; color: var(--neon-green, #3fb950); text-transform: uppercase; letter-spacing: 1px; padding: 1rem 1.5rem 0.5rem 1.5rem; }
+        .bb-nav-item { display: block; padding: 0.7rem 1.5rem; text-decoration: none; border-left: 2px solid transparent; transition: 0.15s; }
+        .bb-nav-item:hover { background: rgba(88,166,255,0.06); border-left-color: var(--accent-color, #58a6ff); }
+        .bb-nav-item-title { color: #fff; font-size: 0.88rem; font-weight: 600; display: block; margin-bottom: 0.15rem; }
+        .bb-nav-item-desc { color: var(--meta-color, #8b949e); font-size: 0.75rem; display: block; }
+        .bb-nav-item.bb-current { border-left-color: var(--neon-green, #3fb950); background: rgba(63,185,80,0.06); cursor: default; }
+        .bb-nav-item.bb-current .bb-nav-item-title::after { content: " ◉ VIEWING NOW"; color: var(--neon-green, #3fb950); font-family: var(--font-mono, monospace); font-size: 0.65rem; font-weight: 400; }
+        .bb-nav-empty { padding: 2rem 1.5rem; text-align: center; color: var(--meta-color, #8b949e); font-family: var(--font-mono, monospace); font-size: 0.8rem; }
+        @media (max-width: 480px) { .bb-nav-trigger span.bb-label { display: none; } }
+    </style>
+
+    <div class="bb-nav-overlay" id="bbNavOverlay"></div>
+    <div class="bb-nav-drawer" id="bbNavDrawer">
+        <div class="bb-nav-head">
+            <span class="bb-nav-head-title">// SYSTEM_DIRECTORY</span>
+            <button class="bb-nav-close" id="bbNavClose" aria-label="Close">×</button>
+        </div>
+        <div class="bb-nav-search-wrap">
+            <input type="text" id="bbNavSearch" class="bb-nav-search" placeholder="Search all articles...">
+            <div class="bb-nav-hint">Press <strong>/</strong> to search &nbsp;·&nbsp; <strong>Esc</strong> to close</div>
+        </div>
+        <div class="bb-nav-pinned">
+            <a href="index.html" class="bb-nav-pin">🏠 System Lobby</a>
+            <a href="glossary.html" class="bb-nav-pin">📖 Glossary</a>
+        </div>
+        <div class="bb-nav-list" id="bbNavList"><div class="bb-nav-empty">Loading directory...</div></div>
+    </div>
+
+    <script>
+    (function () {
+        const CACHE_KEY = 'bb_directory_cache_v1';
+        const drawer = document.getElementById('bbNavDrawer');
+        const overlay = document.getElementById('bbNavOverlay');
+        const listEl = document.getElementById('bbNavList');
+        const searchEl = document.getElementById('bbNavSearch');
+        const closeBtn = document.getElementById('bbNavClose');
+        const currentPage = (window.location.pathname.split('/').pop() || 'index.html');
+        let directory = [];
+
+        const navBack = document.querySelector('.nav-back');
+        if (navBack) {
+            const trigger = document.createElement('button');
+            trigger.className = 'bb-nav-trigger';
+            trigger.id = 'bbNavTrigger';
+            trigger.innerHTML = '<span class="bb-dot"></span><span class="bb-label">System Directory</span>';
+            navBack.insertAdjacentElement('afterend', trigger);
+            trigger.addEventListener('click', openDrawer);
+        }
+
+        function openDrawer() { overlay.classList.add('open'); drawer.classList.add('open'); if (directory.length === 0) loadDirectory(); setTimeout(() => searchEl.focus(), 300); }
+        function closeDrawer() { overlay.classList.remove('open'); drawer.classList.remove('open'); }
+        overlay.addEventListener('click', closeDrawer);
+        closeBtn.addEventListener('click', closeDrawer);
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeDrawer();
+            if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') { e.preventDefault(); openDrawer(); }
+        });
+
+        async function loadDirectory() {
+            try {
+                const cached = sessionStorage.getItem(CACHE_KEY);
+                if (cached) { directory = JSON.parse(cached); renderList(directory); return; }
+                const res = await fetch('index.html');
+                const text = await res.text();
+                const doc = new DOMParser().parseFromString(text, 'text/html');
+                const cats = [];
+                doc.querySelectorAll('.category-section').forEach(section => {
+                    const titleEl = section.querySelector('.category-title');
+                    let catName = 'Uncategorized';
+                    if (titleEl) { const clone = titleEl.cloneNode(true); const idx = clone.querySelector('.cat-index'); if (idx) idx.remove(); catName = clone.textContent.trim(); }
+                    const items = [];
+                    section.querySelectorAll('.card-wrapper').forEach(a => {
+                        const href = a.getAttribute('href');
+                        const h3 = a.querySelector('h3');
+                        const p = a.querySelector('p');
+                        if (href) items.push({ href, title: h3 ? h3.textContent.trim() : href, desc: p ? p.textContent.trim() : '' });
+                    });
+                    if (items.length) cats.push({ name: catName, items });
+                });
+                directory = cats;
+                sessionStorage.setItem(CACHE_KEY, JSON.stringify(cats));
+                renderList(directory);
+            } catch (e) { listEl.innerHTML = '<div class="bb-nav-empty">Directory sync failed. <a href="index.html" style="color:var(--accent-color,#58a6ff);">Return to lobby</a>.</div>'; }
+        }
+
+        function renderList(cats, query) {
+            const q = (query || '').trim().toLowerCase();
+            let html = ''; let resultCount = 0;
+            cats.forEach(cat => {
+                const filtered = q ? cat.items.filter(i => i.title.toLowerCase().includes(q) || i.desc.toLowerCase().includes(q)) : cat.items;
+                if (filtered.length === 0) return;
+                html += `<div class="bb-nav-cat-label">${cat.name}</div>`;
+                filtered.forEach(item => {
+                    const isCurrent = item.href === currentPage;
+                    resultCount += 1;
+                    html += `<a href="${isCurrent ? '#' : item.href}" class="bb-nav-item${isCurrent ? ' bb-current' : ''}" ${isCurrent ? 'onclick="return false;"' : ''}>
+                        <span class="bb-nav-item-title">${item.title}</span>
+                        <span class="bb-nav-item-desc">${item.desc}</span>
+                    </a>`;
+                });
+            });
+            listEl.innerHTML = resultCount ? html : '<div class="bb-nav-empty">No matching articles.</div>';
+        }
+
+        searchEl.addEventListener('input', () => renderList(directory, searchEl.value));
+    })();
+    </script>
+</body>
+</html>
